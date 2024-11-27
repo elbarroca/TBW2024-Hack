@@ -5,7 +5,7 @@ const analyticsData = [
   { week: 'Week 1', completions: 45, engagement: 78 },
   { week: 'Week 2', completions: 52, engagement: 85 },
   { week: 'Week 3', completions: 38, engagement: 65 },
-  { week: 'Week 4', completions: 62, engagement: 89 },
+  { week: 'Week 4', completions: 61, engagement: 89 },
   { week: 'Week 5', completions: 55, engagement: 92 },
   { week: 'Week 6', completions: 58, engagement: 88 },
 ];

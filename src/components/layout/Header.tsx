@@ -2,6 +2,7 @@ import React from 'react';
 import { Wallet, Menu } from 'lucide-react';
 import { SearchBar } from '../ui/SearchBar';
 import { Button } from '../ui/Button';
+import { Link } from 'react-router-dom';
 
 export default function Header() {
   return (
@@ -16,7 +17,9 @@ export default function Header() {
 
           <div className="hidden md:flex items-center space-x-8">
             <nav className="flex space-x-6">
-              <a href="#" className="text-gray-700 hover:text-purple-600">Courses</a>
+              <Link to="/courses" className="text-gray-700 hover:text-purple-600">
+                Courses
+              </Link>
               <a href="#" className="text-gray-700 hover:text-purple-600">Community</a>
               <a href="#" className="text-gray-700 hover:text-purple-600">About</a>
             </nav>

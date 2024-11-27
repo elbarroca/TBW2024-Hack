@@ -1,9 +1,10 @@
 import React from 'react';
 import { Star, Award } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 const instructors = [
   {
-    id: 1,
+    id: '1',
     name: 'Alex Rivera',
     role: 'Senior Blockchain Developer',
     avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e',
@@ -32,6 +33,12 @@ const instructors = [
 ];
 
 export function FeaturedInstructors() {
+  const navigate = useNavigate();
+
+  const handleInstructorClick = (instructorId: string) => {
+    navigate(`/creators/${instructorId}`);
+  };
+
   return (
     <section className="py-16 bg-gradient-to-b from-purple-50 to-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -44,7 +51,8 @@ export function FeaturedInstructors() {
           {instructors.map((instructor) => (
             <div
               key={instructor.id}
-              className="bg-white rounded-2xl p-6 shadow-sm hover:shadow-md transition-all duration-300 transform hover:-translate-y-1"
+              onClick={() => handleInstructorClick(instructor.id)}
+              className="bg-white rounded-2xl p-6 shadow-sm hover:shadow-md transition-all duration-300 transform hover:-translate-y-1 cursor-pointer"
             >
               <div className="flex flex-col items-center">
                 <img
