@@ -1,8 +1,7 @@
-import React from 'react';
-import { Wallet, Menu } from 'lucide-react';
-import { SearchBar } from '../ui/SearchBar';
-import { Button } from '../ui/Button';
+import { Menu } from 'lucide-react';
+import { SearchBar } from './SearchBar';
 import { Link } from 'react-router-dom';
+import { WalletPicker } from '../solana/WalletPicker';
 
 export default function Header() {
   return (
@@ -25,7 +24,7 @@ export default function Header() {
             </nav>
             
             <SearchBar />
-            <Button icon={Wallet}>Connect Wallet</Button>
+            <WalletPicker />
           </div>
 
           <button className="md:hidden">
