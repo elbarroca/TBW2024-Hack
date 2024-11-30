@@ -1,36 +1,18 @@
 import { useState, useMemo } from 'react';
-import { Search, Filter, Sparkles, Clock, Book, Target, Zap, Code, Gem } from 'lucide-react';
+import { Search, Filter } from 'lucide-react';
 import { CourseCard } from '@/components/courses/CourseCard';
 import { CategoryList } from '@/components/courses/CategoryList';
 import { COURSES } from '@/data/courses';
-
-const TAGS = [
-  { id: 'beginner-friendly', name: 'Beginner Friendly', icon: <Target className="w-4 h-4" /> },
-  { id: 'trending', name: 'Trending', icon: <Sparkles className="w-4 h-4" /> },
-  { id: 'quick-learn', name: 'Quick Learn', icon: <Zap className="w-4 h-4" /> },
-  { id: 'certification', name: 'With Certification', icon: <Gem className="w-4 h-4" /> },
-  { id: 'hands-on', name: 'Hands-on', icon: <Code className="w-4 h-4" /> },
-  { id: 'comprehensive', name: 'Comprehensive', icon: <Book className="w-4 h-4" /> },
-  { id: 'self-paced', name: 'Self Paced', icon: <Clock className="w-4 h-4" /> },
-];
 
 export default function CoursesPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [selectedLevel, setSelectedLevel] = useState('all');
   const [selectedPrice, setSelectedPrice] = useState('all');
+  const [selectedRating, setSelectedRating] = useState('all');
+  const [selectedCertificate, setSelectedCertificate] = useState('all');
   const [selectedDuration, setSelectedDuration] = useState<string[]>([]);
-  const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [sortBy, setSortBy] = useState('popular');
-
-  // Handle tag selection
-  const handleTagToggle = (tagId: string) => {
-    setSelectedTags(prev => 
-      prev.includes(tagId)
-        ? prev.filter(id => id !== tagId)
-        : [...prev, tagId]
-    );
-  };
 
   // Filter and sort courses
   const filteredCourses = useMemo(() => {
@@ -59,6 +41,25 @@ export default function CoursesPage() {
         return false;
       }
 
+      // Creator Rating filter
+      if (selectedRating !== 'all' && course.instructorRating) {
+        const minRating = parseFloat(selectedRating);
+        if (course.instructorRating < minRating) {
+          return false;
+        }
+      }
+
+      // Certificate filter
+      if (selectedCertificate !== 'all') {
+        const hasCertificate = course.offersCertificate || false;
+        if (selectedCertificate === 'yes' && !hasCertificate) {
+          return false;
+        }
+        if (selectedCertificate === 'no' && hasCertificate) {
+          return false;
+        }
+      }
+
       // Duration filter
       if (selectedDuration.length > 0) {
         const courseDurationWeeks = parseInt(course.duration?.split(' ')[0] || '0');
@@ -69,11 +70,6 @@ export default function CoursesPage() {
           return false;
         });
         if (!matchesDuration) return false;
-      }
-
-      // Tags filter
-      if (selectedTags.length > 0 && (!course.tags || !selectedTags.every(tag => course.tags?.includes(tag)))) {
-        return false;
       }
 
       return true;
@@ -92,7 +88,7 @@ export default function CoursesPage() {
           return b.enrolled - a.enrolled;
       }
     });
-  }, [searchQuery, selectedCategory, selectedLevel, selectedPrice, selectedDuration, selectedTags, sortBy]);
+  }, [searchQuery, selectedCategory, selectedLevel, selectedPrice, selectedRating, selectedCertificate, selectedDuration, sortBy]);
 
   // Handle duration filter changes
   const handleDurationChange = (duration: string) => {
@@ -106,7 +102,7 @@ export default function CoursesPage() {
   return (
     <main className="min-h-screen bg-gray-50">
       {/* Hero Section with Enhanced Gradient */}
-      <div className="bg-gradient-to-br from-purple-700 via-purple-600 to-indigo-700 pt-32 pb-24">
+      <div className="bg-gradient-to-br from-purple-500 via-emerald-400 to-yellow-500 pt-40 pb-24">
         <div className="container mx-auto px-4">
           <h1 className="text-4xl md:text-6xl font-bold text-white mb-6 text-center">
             Explore Courses Tailored for Your Goals
@@ -120,31 +116,9 @@ export default function CoursesPage() {
               placeholder="What do you want to learn?"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-12 pr-4 py-4 rounded-xl text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-300 shadow-lg"
+              className="w-full pl-12 pr-4 py-4 rounded-xl text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-orange-300 shadow-lg"
             />
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
-          </div>
-        </div>
-      </div>
-
-      {/* Tags Section */}
-      <div className="bg-white border-b shadow-sm">
-        <div className="container mx-auto px-4">
-          <div className="py-4 flex flex-wrap gap-2">
-            {TAGS.map((tag) => (
-              <button
-                key={tag.id}
-                onClick={() => handleTagToggle(tag.id)}
-                className={`flex items-center space-x-2 px-4 py-2 rounded-full border transition-all
-                  ${selectedTags.includes(tag.id)
-                    ? 'bg-purple-100 border-purple-400 text-purple-700'
-                    : 'bg-white border-gray-200 hover:border-purple-400 text-gray-700 hover:bg-purple-50'
-                  }`}
-              >
-                {tag.icon}
-                <span>{tag.name}</span>
-              </button>
-            ))}
           </div>
         </div>
       </div>
@@ -200,6 +174,55 @@ export default function CoursesPage() {
                         className="h-4 w-4 text-purple-600 focus:ring-purple-500"
                       />
                       <span className="ml-2 text-gray-700">{price}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+
+              {/* Creator Rating Filter */}
+              <div className="mb-6">
+                <h3 className="font-medium text-gray-900 mb-2">Creator Rating</h3>
+                <div className="space-y-2">
+                  {[
+                    { label: 'All Ratings', value: 'all' },
+                    { label: '4.5+ Stars', value: '4.5' },
+                    { label: '4.0+ Stars', value: '4.0' },
+                    { label: '3.5+ Stars', value: '3.5' }
+                  ].map((rating) => (
+                    <label key={rating.value} className="flex items-center">
+                      <input
+                        type="radio"
+                        name="rating"
+                        value={rating.value}
+                        checked={selectedRating === rating.value}
+                        onChange={(e) => setSelectedRating(e.target.value)}
+                        className="h-4 w-4 text-purple-600 focus:ring-purple-500"
+                      />
+                      <span className="ml-2 text-gray-700">{rating.label}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+
+              {/* Certificate Filter */}
+              <div className="mb-6">
+                <h3 className="font-medium text-gray-900 mb-2">Certificates</h3>
+                <div className="space-y-2">
+                  {[
+                    { label: 'All Courses', value: 'all' },
+                    { label: 'Offers Certificate', value: 'yes' },
+                    { label: 'No Certificate', value: 'no' }
+                  ].map((cert) => (
+                    <label key={cert.value} className="flex items-center">
+                      <input
+                        type="radio"
+                        name="certificate"
+                        value={cert.value}
+                        checked={selectedCertificate === cert.value}
+                        onChange={(e) => setSelectedCertificate(e.target.value)}
+                        className="h-4 w-4 text-purple-600 focus:ring-purple-500"
+                      />
+                      <span className="ml-2 text-gray-700">{cert.label}</span>
                     </label>
                   ))}
                 </div>
@@ -263,4 +286,4 @@ export default function CoursesPage() {
       </div>
     </main>
   );
-} 
+}

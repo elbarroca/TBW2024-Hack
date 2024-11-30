@@ -12,15 +12,13 @@ export interface Module {
   lessons: Lesson[];
 }
 
-export interface Instructor {
+export interface Creator {
   id: string;
   name: string;
-  avatar: string;
+  title: string;
   bio: string;
-  title?: string;
-  rating?: number;
-  students?: number;
-  courses?: number;
+  avatar: string;
+  expertise: string[];
 }
 
 export interface FAQ {
@@ -30,12 +28,12 @@ export interface FAQ {
 
 export interface Course {
   id: string;
-  creatorId: string;
   title: string;
   subtitle: string;
   description: string;
   image: string;
   price: number;
+  originalPrice?: number;
   rating: number;
   reviews: number;
   enrolled: number;
@@ -45,7 +43,9 @@ export interface Course {
   lastUpdated: string;
   whatYouWillLearn: string[];
   prerequisites: string[];
-  instructor: {
+  category: string;
+  duration: string;
+  Creator: {
     id: string;
     name: string;
     avatar: string;
@@ -69,4 +69,6 @@ export interface Course {
     question: string;
     answer: string;
   }[];
+  offersCertificate?: boolean;
+  instructorRating?: number;
 }

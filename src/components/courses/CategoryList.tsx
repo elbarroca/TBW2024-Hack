@@ -7,12 +7,15 @@ interface CategoryListProps {
 }
 
 const CATEGORIES = [
-  { id: 'all', name: 'All Categories', icon: '🎓' },
-  { id: 'blockchain', name: 'Blockchain', icon: '🔗' },
-  { id: 'defi', name: 'DeFi', icon: '💰' },
-  { id: 'nft', name: 'NFT', icon: '🎨' },
-  { id: 'web3', name: 'Web3', icon: '🌐' },
-  { id: 'security', name: 'Security', icon: '🔒' },
+  { id: 'all', name: 'All Categories', icon: '🎯' },
+  { id: 'memecoins', name: 'Meme Coins', icon: '🚀' },
+  { id: 'trading', name: 'Trading', icon: '📈' },
+  { id: 'tokenomics', name: 'Tokenomics', icon: '⚡' },
+  { id: 'marketing', name: 'Crypto Marketing', icon: '📣' },
+  { id: 'mining', name: 'Mining', icon: '⛏️' },
+  { id: 'smart-contracts', name: 'Smart Contracts', icon: '📝' },
+  { id: 'security', name: 'Crypto Security', icon: '🛡️' },
+  { id: 'defi', name: 'DeFi Applications', icon: '🏦' },
   { id: 'development', name: 'Development', icon: '💻' },
 ];
 

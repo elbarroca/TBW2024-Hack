@@ -1,20 +1,18 @@
 import { useParams } from 'react-router-dom';
 import { 
-  Play, Star, Users, Clock, Check, ChevronDown, ChevronUp,
-  BookOpen, GraduationCap, MessageCircle, Globe, Shield,
-  Award, Calendar
+  Play, Star, Users, Clock, Check,
+  BookOpen, GraduationCap, Globe, Shield,
+  Calendar
 } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { Button } from '@/components/ui/Button';
 import { FEATURED_COURSES } from '@/data/courses';
-import { useState } from 'react';
 import { Course } from '@/types/course';
-import { Badge } from '@/components/ui/badge';
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
+import { Badge } from '@/components/ui/Badge';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/Accordion';
 
 export default function CourseDetailsPage() {
   const { courseId } = useParams();
   const course = FEATURED_COURSES.find(c => c.id === courseId) as Course | undefined;
-  const [openModule, setOpenModule] = useState<string | null>(null);
 
   if (!course) return <div>Course not found</div>;
 
@@ -53,15 +51,15 @@ export default function CourseDetailsPage() {
             <div className="bg-white rounded-xl p-8 shadow-sm">
               <div className="flex items-center space-x-4 mb-6">
                 <img
-                  src={course.instructor.avatar}
-                  alt={course.instructor.name}
+                  src={course.Creator.avatar}
+                  alt={course.Creator.name}
                   className="w-16 h-16 rounded-full"
                 />
                 <div>
                   <h2 className="text-3xl font-bold mb-2">{course.title}</h2>
                   <p className="text-xl text-gray-600 mb-4">{course.subtitle}</p>
                   <div className="flex items-center space-x-4 text-sm text-gray-600">
-                    <span>Created by <a href={`/creators/${course.instructor.id}`} className="text-purple-600 hover:underline">{course.instructor.name}</a></span>
+                    <span>Created by <a href={`/creators/${course.Creator.id}`} className="text-purple-600 hover:underline">{course.Creator.name}</a></span>
                     <span>•</span>
                     <div className="flex items-center">
                       <Star className="h-4 w-4 text-yellow-400 fill-current mr-1" />
@@ -175,25 +173,30 @@ export default function CourseDetailsPage() {
               </div>
             </div>
 
-            {/* Instructor */}
-            <div className="bg-white rounded-xl p-8 shadow-sm">
-              <h3 className="text-xl font-semibold mb-6">Your Instructor</h3>
-              <div className="flex items-start space-x-4">
+            {/* Creator */}
+            <div className="bg-white rounded-lg shadow-sm p-6 mb-8">
+              <h3 className="text-xl font-semibold mb-6">Your Creator</h3>
+              <div className="flex items-center gap-4 mb-4">
                 <img
-                  src={course.instructor.avatar}
-                  alt={course.instructor.name}
-                  className="w-24 h-24 rounded-full"
+                  src={course.Creator.avatar}
+                  alt={course.Creator.name}
+                  className="w-16 h-16 rounded-full"
                 />
                 <div>
-                  <h4 className="text-lg font-medium">{course.instructor.name}</h4>
-                  <p className="text-gray-600">{course.instructor.title}</p>
-                  <p className="mt-4 text-gray-700">{course.instructor.bio}</p>
-                  <div className="mt-4 flex flex-wrap gap-2">
-                    {course.instructor.expertise.map((skill, index) => (
-                      <Badge key={index} variant="secondary">{skill}</Badge>
-                    ))}
-                  </div>
+                  <h4 className="text-lg font-medium">{course.Creator.name}</h4>
+                  <p className="text-gray-600">{course.Creator.title}</p>
                 </div>
+              </div>
+              <p className="mt-4 text-gray-700">{course.Creator.bio}</p>
+              <div className="mt-4 flex flex-wrap gap-2">
+                {course.Creator.expertise.map((skill, index) => (
+                  <span
+                    key={index}
+                    className="px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-sm"
+                  >
+                    {skill}
+                  </span>
+                ))}
               </div>
             </div>
 

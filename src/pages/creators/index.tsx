@@ -1,65 +1,77 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Search, ArrowRight, Star, Users, BookOpen, ChevronRight, Award } from 'lucide-react';
+import { Search, Star, Users, BookOpen, ChevronRight, Award } from 'lucide-react';
 
-type Instructor = {
-  id: number;
+type Creator = {
+  id: string;
   name: string;
-  expertise: string;
   image: string;
+  expertise: string;
+  rating: string;
   bio: string;
   courses: number;
   students: number;
-  category: 'twitter' | 'professor' | 'provider';
-  rating: number;
-  twitterHandle?: string;
+  category: string;
   slug: string;
-  isTopInstructor?: boolean;
+  twitterHandle?: string;
+  isTopCreator?: boolean;
 };
 
-const instructors: Instructor[] = [
+const creators: Creator[] = [
   {
-    id: 1,
-    name: 'Dr. Sarah Johnson',
-    expertise: 'Blockchain Development',
-    image: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
-    bio: 'Expert in blockchain architecture and smart contract development',
-    courses: 3,
-    students: 1200,
-    category: 'professor',
-    rating: 4.9,
-    slug: 'sarah-johnson',
-    isTopInstructor: true
+    id: '1',
+    name: 'Alex Rivera',
+    image: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e',
+    expertise: 'Senior Blockchain Developer',
+    rating: '4.9',
+    bio: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
+    courses: 10,
+    students: 12500,
+    category: 'blockchain',
+    slug: 'alex-rivera',
+    twitterHandle: '@alexrivera',
+    isTopCreator: true,
   },
   {
-    id: 2,
-    name: 'Prof. Michael Chen',
-    expertise: 'Web3 Technologies',
-    image: 'https://images.unsplash.com/photo-1519244703995-f4e0f30006d5?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
-    bio: 'Specializes in decentralized applications and Web3 integration',
-    courses: 5,
-    students: 2300,
-    category: 'twitter',
-    rating: 4.8,
-    twitterHandle: '@web3chen',
-    slug: 'michael-chen'
+    id: '2',
+    name: 'Sarah Chen',
+    image: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80',
+    expertise: 'Web3 Security Expert',
+    rating: '4.8',
+    bio: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
+    courses: 8,
+    students: 9800,
+    category: 'security',
+    slug: 'sarah-chen',
+    twitterHandle: '@sarahchen',
   },
   {
-    id: 3,
-    name: 'Emma Rodriguez',
-    expertise: 'Smart Contract Security',
-    image: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
-    bio: 'Security expert focusing on smart contract auditing and best practices',
-    courses: 4,
-    students: 1800,
-    category: 'provider',
-    rating: 4.7,
-    slug: 'emma-rodriguez',
-    isTopInstructor: true
+    id: '3',
+    name: 'Michael Chang',
+    image: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e',
+    expertise: 'Smart Contract Engineer',
+    rating: '4.7',
+    bio: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
+    courses: 7,
+    students: 8200,
+    category: 'engineering',
+    slug: 'michael-chang',
   },
+  {
+    id: '4',
+    name: 'Emma Wilson',
+    image: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330',
+    expertise: 'DeFi Protocol Architect',
+    rating: '4.9',
+    bio: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
+    courses: 9,
+    students: 11300,
+    category: 'architecture',
+    slug: 'emma-wilson',
+  }
 ];
 
-const StatCard = ({ icon: Icon, value, label }: { icon: any, value: string, label: string }) => (
+const StatCard = ({ icon: Icon, value, label }: { icon: React.ComponentType, value: string, label: string }) => (
   <div className="group relative bg-white/10 backdrop-blur-lg rounded-xl p-4 flex items-center space-x-4 
                   transform hover:scale-105 transition-all duration-300 overflow-hidden
                   hover:bg-white/15 hover:shadow-lg hover:shadow-purple-500/20">
@@ -86,23 +98,24 @@ const StatCard = ({ icon: Icon, value, label }: { icon: any, value: string, labe
   </div>
 );
 
-export default function InstructorsPage() {
-  const [selectedCategory, setSelectedCategory] = useState<string>('all');
+export default function CreatorsPage() {
   const [searchQuery, setSearchQuery] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState('all');
   const [isCtaExpanded, setIsCtaExpanded] = useState(true);
 
-  const filteredInstructors = instructors.filter(instructor => {
-    const matchesCategory = selectedCategory === 'all' || instructor.category === selectedCategory;
-    const matchesSearch = instructor.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         instructor.expertise.toLowerCase().includes(searchQuery.toLowerCase());
+  const filteredCreators = creators.filter(creator => {
+    const matchesCategory = selectedCategory === 'all' || creator.category === selectedCategory;
+    const matchesSearch = creator.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      creator.expertise.toLowerCase().includes(searchQuery.toLowerCase());
     return matchesCategory && matchesSearch;
   });
 
   const categories = [
-    { id: 'all', name: 'All Instructors' },
-    { id: 'twitter', name: 'Twitter Influencers' },
-    { id: 'professor', name: 'Professors' },
-    { id: 'provider', name: 'Course Providers' },
+    { id: 'all', name: 'All Creators' },
+    { id: 'blockchain', name: 'Blockchain' },
+    { id: 'security', name: 'Security' },
+    { id: 'engineering', name: 'Engineering' },
+    { id: 'architecture', name: 'Architecture' },
   ];
 
   return (
@@ -119,7 +132,7 @@ export default function InstructorsPage() {
           <div className="container mx-auto px-4 py-16">
             <div className="max-w-3xl mx-auto text-center mb-12">
               <h1 className="text-5xl font-bold text-white mb-6 drop-shadow-lg">
-                Meet Our Expert Instructors
+                Meet Our Expert Creators
               </h1>
               <p className="text-xl text-purple-100 leading-relaxed">
                 Learn from industry leaders, academic professionals, and thought influencers in your field
@@ -136,7 +149,7 @@ export default function InstructorsPage() {
         </div>
       </div>
 
-      {/* Instructor Grid Container with increased spacing */}
+      {/* Creator Grid Container */}
       <div className="container mx-auto px-4 py-12 mb-20">
         <div className="max-w-7xl mx-auto space-y-12">
           {/* Enhanced Search and Filter Section */}
@@ -145,7 +158,7 @@ export default function InstructorsPage() {
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 h-5 w-5" />
               <input
                 type="text"
-                placeholder="Search instructors by name or expertise..."
+                placeholder="Search creators by name or expertise..."
                 className="w-full pl-12 pr-4 py-4 border-0 rounded-full bg-white shadow-lg focus:ring-2 focus:ring-purple-500 transition-shadow duration-200"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
@@ -169,31 +182,31 @@ export default function InstructorsPage() {
             </div>
           </div>
 
-          {/* Enhanced Instructor Grid with improved spacing and hover effects */}
+          {/* Enhanced Creator Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {filteredInstructors.map((instructor) => (
+            {filteredCreators.map((creator) => (
               <Link
-                to={`/creator/${instructor.slug}`}
-                key={instructor.id}
+                to={`/creator/${creator.slug}`}
+                key={creator.id}
                 className="group bg-white rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2 overflow-hidden border border-gray-100"
               >
                 <div className="relative">
                   <div className="aspect-w-3 aspect-h-2">
                     <img
-                      src={instructor.image}
-                      alt={instructor.name}
+                      src={creator.image}
+                      alt={creator.name}
                       className="w-full h-full object-cover"
                     />
                   </div>
-                  {instructor.isTopInstructor && (
+                  {creator.isTopCreator && (
                     <div className="absolute top-4 right-4 bg-gradient-to-r from-[#6c63ff] to-[#00ffa3] text-white text-xs px-3 py-1 rounded-full flex items-center gap-1 shadow-lg">
                       <Award className="w-4 h-4" />
-                      <span>Top Instructor</span>
+                      <span>Top Creator</span>
                     </div>
                   )}
-                  {instructor.category === 'twitter' && (
+                  {creator.twitterHandle && (
                     <div className="absolute top-4 left-4 bg-gradient-to-r from-[#6c63ff] to-[#00ffa3] text-white text-xs px-3 py-1 rounded-full shadow-lg">
-                      {instructor.twitterHandle}
+                      {creator.twitterHandle}
                     </div>
                   )}
                 </div>
@@ -201,22 +214,22 @@ export default function InstructorsPage() {
                 <div className="p-6 space-y-4">
                   <div className="flex items-center justify-between">
                     <h2 className="text-xl font-bold text-gray-900 group-hover:text-[#6c63ff] transition-colors">
-                      {instructor.name}
+                      {creator.name}
                     </h2>
-                    <div className="flex items-center text-yellow-400">
+                    <div className="flex items-center text-purple-600">
                       <Star className="w-5 h-5 fill-current" />
                       <span className="ml-1 text-sm font-medium text-gray-700">
-                        {instructor.rating}
+                        {creator.rating}
                       </span>
                     </div>
                   </div>
 
                   <p className="text-[#6c63ff] font-medium text-sm">
-                    {instructor.expertise}
+                    {creator.expertise}
                   </p>
 
                   <p className="text-gray-600 line-clamp-2">
-                    {instructor.bio}
+                    {creator.bio}
                   </p>
 
                   <div className="pt-4 border-t border-gray-100">
@@ -224,11 +237,11 @@ export default function InstructorsPage() {
                       <div className="flex space-x-4">
                         <span className="flex items-center">
                           <BookOpen className="w-4 h-4 mr-1" />
-                          {instructor.courses} Courses
+                          {creator.courses} Courses
                         </span>
                         <span className="flex items-center">
                           <Users className="w-4 h-4 mr-1" />
-                          {instructor.students.toLocaleString()} Students
+                          {creator.students.toLocaleString()} Students
                         </span>
                       </div>
                       <ChevronRight className="w-5 h-5 text-[#6c63ff] transform group-hover:translate-x-1 transition-transform" />
@@ -255,7 +268,7 @@ export default function InstructorsPage() {
             {isCtaExpanded ? (
               <>
                 <div className="text-white">
-                  <h2 className="text-lg font-bold mb-1">Become an Instructor</h2>
+                  <h2 className="text-lg font-bold mb-1">Become a Creator</h2>
                   <p className="text-sm text-white/90">Join our expert community</p>
                 </div>
                 <ChevronRight 
@@ -284,4 +297,4 @@ export default function InstructorsPage() {
       </div>
     </main>
   );
-} 
+}

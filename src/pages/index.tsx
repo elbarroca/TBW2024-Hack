@@ -1,7 +1,7 @@
 import { Hero } from '../components/landing/Hero';
 import { Stats } from '../components/landing/Stats';
 import FeaturedCourses from '../components/landing/FeaturedCourses';
-import { FeaturedInstructors } from '../components/landing/FeaturedInstructors';
+import FeaturedCreators from '../components/landing/FeaturedCreators';
 import { Testimonials } from '../components/landing/Testimonials';
 import { CallToAction } from '../components/landing/CallToAction';
 
@@ -12,7 +12,7 @@ export default function LandingPage() {
         <Hero />
         <Stats />
         <FeaturedCourses />
-        <FeaturedInstructors />
+        <FeaturedCreators />
         <Testimonials />
         <CallToAction />
       </main>
@@ -20,7 +20,7 @@ export default function LandingPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
             <div>
-              <h3 className="text-xl font-bold mb-4">EduChain</h3>
+              <h3 className="text-xl font-bold mb-4">Mentora</h3>
               <p className="text-gray-400">Empowering the next generation of Web3 developers</p>
             </div>
             <div>
@@ -49,7 +49,7 @@ export default function LandingPage() {
             </div>
           </div>
           <div className="mt-8 pt-8 border-t border-gray-800 text-center text-gray-400">
-            <p>© 2024 EduChain. All rights reserved.</p>
+            <p>© 2024 Mentora. All rights reserved.</p>
           </div>
         </div>
       </footer>

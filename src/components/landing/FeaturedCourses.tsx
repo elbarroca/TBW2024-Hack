@@ -1,15 +1,36 @@
-import React from 'react';
 import { ChevronRight } from 'lucide-react';
 import { CourseCard } from '../courses/CourseCard';
-import type { Course } from '../../types';
 
-const FEATURED_COURSES: Course[] = [
+interface FeaturedCourse {
+  id: string;
+  title: string;
+  subtitle: string;
+  description: string;
+  Creator: {
+    id: string;
+    name: string;
+    avatar: string;
+  };
+  price: number;
+  originalPrice: number;
+  image: string;
+  category: string;
+  duration: string;
+  enrolled: number;
+  rating: number;
+  reviews: number;
+  level: string;
+  language: string;
+  lastUpdated: string;
+}
+
+const FEATURED_COURSES: FeaturedCourse[] = [
   {
     id: '1',
     title: 'Solana Development Fundamentals',
     subtitle: 'Build Production-Ready dApps on Solana',
     description: 'Learn to build decentralized applications on Solana',
-    instructor: {
+    Creator: {
       id: '1',
       name: 'Alex Rivera',
       avatar: 'https://randomuser.me/api/portraits/men/1.jpg'
@@ -31,7 +52,7 @@ const FEATURED_COURSES: Course[] = [
     title: 'Web3 Design Patterns',
     subtitle: 'Modern Design for Web3 Applications',
     description: 'Master the art of designing Web3 applications',
-    instructor: {
+    Creator: {
       id: '2',
       name: 'Sarah Chen',
       avatar: 'https://randomuser.me/api/portraits/women/1.jpg'
@@ -53,7 +74,7 @@ const FEATURED_COURSES: Course[] = [
     title: 'Smart Contract Security',
     subtitle: 'Advanced Security for Blockchain Apps',
     description: 'Learn to secure blockchain applications',
-    instructor: {
+    Creator: {
       id: '3', 
       name: 'Michael Brown',
       avatar: 'https://randomuser.me/api/portraits/men/2.jpg'
@@ -71,7 +92,6 @@ const FEATURED_COURSES: Course[] = [
     lastUpdated: '2023-12-10'
   }
 ];
-
 export default function FeaturedCourses() {
   return (
     <section className="py-16">
@@ -82,14 +102,33 @@ export default function FeaturedCourses() {
             View all <ChevronRight className="h-4 w-4 ml-1" />
           </button>
         </div>
-
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {FEATURED_COURSES.map((course) => (
-            <CourseCard 
-              key={course.id} 
-              course={course}
-            />
-          ))}
+          {FEATURED_COURSES.map((course) => {
+            // Add missing Course properties
+            const fullCourse = {
+              ...course,
+              estimatedCompletionTime: course.duration,
+              whatYouWillLearn: [],
+              prerequisites: [],
+              modules: [],
+              faqs: []
+            };
+            
+            return (
+              <CourseCard 
+                key={course.id}
+                course={{
+                  ...fullCourse,
+                  Creator: {
+                    ...fullCourse.Creator,
+                    bio: "Expert instructor",
+                    title: "Course Instructor",
+                    expertise: ["Blockchain", "Security"]
+                  }
+                }}
+              />
+            );
+          })}
         </div>
       </div>
     </section>

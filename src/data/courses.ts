@@ -6,7 +6,7 @@ export const COURSES: Course[] = [
     title: 'Solana Development Fundamentals',
     subtitle: 'Master the basics of Solana blockchain development',
     description: 'Learn to build decentralized applications on Solana',
-    instructor: {
+    Creator: {
       id: 'alex-rivera',
       name: 'Alex Rivera',
       avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e',
@@ -36,7 +36,7 @@ export const COURSES: Course[] = [
     title: 'Web3 Design Patterns',
     subtitle: 'Master the art of designing Web3 applications',
     description: 'Learn modern design patterns for decentralized applications',
-    instructor: {
+    Creator: {
       id: 'sarah-chen',
       name: 'Sarah Chen',
       avatar: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80',
@@ -59,7 +59,7 @@ export const COURSES: Course[] = [
     title: 'Smart Contract Security',
     subtitle: 'Learn to secure blockchain applications',
     description: 'Master security best practices for smart contract development',
-    instructor: {
+    Creator: {
       id: 'michael-brown',
       name: 'Michael Brown',
       avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e',
@@ -83,7 +83,7 @@ export const COURSES: Course[] = [
     title: 'DeFi Protocol Development',
     subtitle: 'Build decentralized finance applications',
     description: 'Learn to develop DeFi protocols and financial instruments',
-    instructor: {
+    Creator: {
       id: 'elena-rodriguez',
       name: 'Elena Rodriguez',
       avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330',
@@ -107,7 +107,7 @@ export const COURSES: Course[] = [
     title: 'NFT Marketplace Development',
     subtitle: 'Create your own NFT marketplace',
     description: 'Build a full-featured NFT marketplace from scratch',
-    instructor: {
+    Creator: {
       id: 'james-wilson',
       name: 'James Wilson',
       avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d',

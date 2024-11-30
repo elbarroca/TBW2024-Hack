@@ -7,7 +7,7 @@ import { MobileMenu } from './MobileMenu';
 const navLinks = [
   { path: '/courses', label: 'Courses' },
   { path: '/about', label: 'About' },
-  { path: '/instructors', label: 'Instructors' },
+  { path: '/creators', label: 'Creators' },
 ];
 
 export default function Header() {
@@ -27,9 +27,9 @@ export default function Header() {
               <Link 
                 to="/" 
                 className="text-2xl font-bold bg-gradient-to-r from-purple-600 to-teal-400 bg-clip-text text-transparent hover:opacity-90 transition-opacity"
-                aria-label="EduChain Home"
+                aria-label="Mentora Home"
               >
-                EduChain
+                Mentora
               </Link>
             </div>
 

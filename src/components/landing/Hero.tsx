@@ -24,7 +24,7 @@ export function Hero() {
     {
       icon: Users,
       title: 'Active Community',
-      description: 'Connect with peers'
+      description: 'Connect with Peers'
     }
   ];
 
@@ -41,7 +41,7 @@ export function Hero() {
             <div className="text-center md:text-left space-y-6">
               <div className="inline-flex items-center px-4 py-2 rounded-full bg-white/10 backdrop-blur-sm border border-white/20">
                 <Sparkles className="h-5 w-5 text-yellow-300 mr-2" />
-                <span className="text-white font-medium">Welcome to EduChain</span>
+                <span className="text-white font-medium">Welcome to Mentora</span>
               </div>
 
               <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white leading-tight">

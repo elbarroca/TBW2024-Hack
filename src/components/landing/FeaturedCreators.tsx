@@ -1,7 +1,7 @@
 import { Star, Users, BookOpen } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
-const instructors = [
+const creators = [
   {
     id: '1',
     name: 'Alex Rivera',
@@ -40,11 +40,11 @@ const instructors = [
   }
 ];
 
-export function FeaturedInstructors() {
+const FeaturedCreators = () => {
   const navigate = useNavigate();
 
-  const handleInstructorClick = (Creator: typeof instructors[0]) => {
-    navigate(`/${Creator.slug}`);
+  const handleCreatorClick = (creator: typeof creators[0]) => {
+    navigate(`/creator/${creator.slug}`);
   };
 
   return (
@@ -52,7 +52,7 @@ export function FeaturedInstructors() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center mb-12">
           <div>
-            <h2 className="text-3xl font-bold text-gray-900">Featured Instructors</h2>
+            <h2 className="text-3xl font-bold text-gray-900">Featured Creators</h2>
             <p className="mt-2 text-lg text-gray-600">Learn from industry experts</p>
           </div>
           <button 
@@ -65,43 +65,43 @@ export function FeaturedInstructors() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {instructors.map((Creator) => (
+          {creators.map((creator) => (
             <div
-              key={Creator.id}
+              key={creator.id}
               className="bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden cursor-pointer"
-              onClick={() => handleInstructorClick(Creator)}
+              onClick={() => handleCreatorClick(creator)}
             >
               <div className="p-6">
                 <div className="flex items-center gap-4">
                   <img
-                    src={Creator.avatar}
-                    alt={Creator.name}
+                    src={creator.avatar}
+                    alt={creator.name}
                     className="w-16 h-16 rounded-full object-cover"
                   />
                   <div>
-                    <h3 className="text-lg font-semibold text-gray-900">{Creator.name}</h3>
-                    <p className="text-purple-600">{Creator.role}</p>
+                    <h3 className="text-lg font-semibold text-gray-900">{creator.name}</h3>
+                    <p className="text-purple-600">{creator.role}</p>
                   </div>
                 </div>
 
                 <div className="mt-6 flex items-center gap-2">
                   <Star className="h-5 w-5 text-purple-600 fill-current" />
-                  <span className="font-medium">{Creator.rating}</span>
+                  <span className="font-medium">{creator.rating}</span>
                   <span className="text-gray-500">•</span>
                   <Users className="h-5 w-5 text-gray-400" />
-                  <span className="text-gray-600">{Creator.students}</span>
+                  <span className="text-gray-600">{creator.students}</span>
                   <span className="text-gray-500">•</span>
                   <BookOpen className="h-5 w-5 text-gray-400" />
-                  <span className="text-gray-600">{Creator.courses} courses</span>
+                  <span className="text-gray-600">{creator.courses} courses</span>
                 </div>
 
                 <div className="mt-6 flex items-center justify-between text-sm">
                   <div className="flex items-center gap-2">
                     <span className="px-3 py-1 rounded-full bg-purple-50 text-purple-700">
-                      {Creator.duration}
+                      {creator.duration}
                     </span>
                     <span className="px-3 py-1 rounded-full bg-gray-50 text-gray-700">
-                      {Creator.level}
+                      {creator.level}
                     </span>
                   </div>
                 </div>
@@ -109,7 +109,7 @@ export function FeaturedInstructors() {
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
-                    handleInstructorClick(Creator);
+                    handleCreatorClick(creator);
                   }}
                   className="mt-6 w-full bg-white text-purple-600 border-2 border-purple-600 px-4 py-2 rounded-full hover:bg-purple-50 transition-colors font-medium"
                 >
@@ -122,4 +122,6 @@ export function FeaturedInstructors() {
       </div>
     </section>
   );
-}
+};
+
+export default FeaturedCreators;

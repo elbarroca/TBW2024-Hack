@@ -1,5 +1,6 @@
 import { ButtonHTMLAttributes, ReactNode } from 'react';
 import { LucideIcon } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   children: ReactNode;
@@ -34,17 +35,15 @@ export function Button({
     lg: 'text-base px-6 py-3 rounded-lg',
   };
 
-  const styles = [
-    baseStyles,
-    variants[variant],
-    sizes[size],
-    fullWidth ? 'w-full' : '',
-    className,
-  ].join(' ');
-
   return (
     <button 
-      className={styles} 
+      className={cn(
+        baseStyles,
+        variants[variant],
+        sizes[size],
+        fullWidth && 'w-full',
+        className
+      )}
       {...props}
     >
       {Icon && iconPosition === 'left' && (
