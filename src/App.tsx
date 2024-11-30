@@ -7,17 +7,17 @@ import CourseDetailPage from './pages/course/[id]';
 import CreatorDashboard from './pages/creator/dashboard';
 
 export default function App() {
-  return (
-    <Router>
-      <div className="min-h-screen bg-gray-50">
-        <Header />
-        <Routes>
-          <Route path="/" element={<HomePage />} />
-          <Route path="/courses" element={<CoursesPage />} />
-          <Route path="/:creatorName/:courseName" element={<CourseDetailPage />} />
-          <Route path="/creator/dashboard" element={<CreatorDashboard />} />
-        </Routes>
-      </div>
-    </Router>
-  );
+    return (
+        <Router>
+            <div className="min-h-screen bg-gray-50">
+                <Header />
+                <Routes>
+                    <Route path="/" element={<HomePage />} />
+                    <Route path="/courses" element={<CoursesPage />} />
+                    <Route path="/:creatorName/:courseName" element={<CourseDetailPage />} />
+                    <Route path="/creator/dashboard" element={<CreatorDashboard />} />
+                </Routes>
+            </div>
+        </Router>
+    );
 }

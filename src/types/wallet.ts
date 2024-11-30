@@ -1,9 +1,9 @@
 export interface WalletState {
-  connected: boolean;
-  address: string | null;
+    connected: boolean;
+    address: string | null;
 }
 
 export interface WalletProvider {
-  name: string;
-  icon: string;
+    name: string;
+    icon: string;
 }
