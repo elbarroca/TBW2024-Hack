@@ -109,12 +109,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         [resetAuth]
     );
 
-    React.useEffect(() => {
-        if (publicKey && loginStatus === LoginStatus.OUT) {
-            handleChallenge(publicKey.toBase58());
-        }
-    }, [publicKey, loginStatus]);
-
     return <AuthContext.Provider value={contextValue}>{children}</AuthContext.Provider>;
 };
 
