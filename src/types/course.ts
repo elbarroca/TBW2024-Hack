@@ -30,13 +30,12 @@ export interface FAQ {
 
 export interface Course {
   id: string;
+  creatorId: string;
   title: string;
   subtitle: string;
   description: string;
-  category: string;
   image: string;
   price: number;
-  originalPrice?: number;
   rating: number;
   reviews: number;
   enrolled: number;
@@ -45,9 +44,29 @@ export interface Course {
   language: string;
   lastUpdated: string;
   whatYouWillLearn: string[];
-  requirements?: string[];
-  targetAudience?: string[];
-  modules?: Module[];
-  instructor: Instructor;
-  faq?: FAQ[];
+  prerequisites: string[];
+  instructor: {
+    id: string;
+    name: string;
+    avatar: string;
+    bio: string;
+    title: string;
+    expertise: string[];
+  };
+  modules: {
+    id: string;
+    title: string;
+    description: string;
+    duration: string;
+    lessons: {
+      id: string;
+      title: string;
+      duration: string;
+      isPreview: boolean;
+    }[];
+  }[];
+  faqs: {
+    question: string;
+    answer: string;
+  }[];
 }

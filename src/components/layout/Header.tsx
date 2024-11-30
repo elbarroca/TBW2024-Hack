@@ -1,14 +1,13 @@
 import { useState } from 'react';
-import { Wallet, Menu, Search } from 'lucide-react';
+import { Menu } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
-import { SearchBar } from '../ui/SearchBar';
-import { Button } from '../ui/Button';
+import { ConnectWalletButton } from '../ui/ConnectWalletButton';
 import { MobileMenu } from './MobileMenu';
 
 const navLinks = [
   { path: '/courses', label: 'Courses' },
   { path: '/about', label: 'About' },
-  { path: '/creator/dashboard', label: 'Creator Dashboard' },
+  { path: '/instructors', label: 'Instructors' },
 ];
 
 export default function Header() {
@@ -21,13 +20,13 @@ export default function Header() {
 
   return (
     <>
-      <header className="fixed top-0 w-full bg-white/80 backdrop-blur-md z-50 border-b border-gray-100">
+      <header className="fixed top-0 w-full bg-gradient-to-r from-white/90 to-gray-50/90 backdrop-blur-md z-50 border-b border-gray-100 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center">
               <Link 
                 to="/" 
-                className="text-2xl font-bold bg-gradient-to-r from-purple-600 to-teal-400 bg-clip-text text-transparent"
+                className="text-2xl font-bold bg-gradient-to-r from-purple-600 to-teal-400 bg-clip-text text-transparent hover:opacity-90 transition-opacity"
                 aria-label="EduChain Home"
               >
                 EduChain
@@ -43,29 +42,22 @@ export default function Header() {
                     to={link.path}
                     className={`${
                       isActivePath(link.path)
-                        ? 'text-purple-600'
+                        ? 'text-purple-600 font-medium'
                         : 'text-gray-700 hover:text-purple-600'
-                    } transition-colors`}
+                    } transition-colors relative group py-2`}
                   >
                     {link.label}
+                    <span className="absolute bottom-0 left-0 w-full h-0.5 bg-purple-600 transform scale-x-0 group-hover:scale-x-100 transition-transform origin-left" />
                   </Link>
                 ))}
               </nav>
-              
-              <SearchBar />
-
-              <Button 
-                icon={Wallet}
-                onClick={() => console.log('Connect wallet clicked')}
-              >
-                Connect Wallet
-              </Button>
+              <ConnectWalletButton />
             </div>
 
             {/* Mobile Menu Button */}
             <button 
               onClick={() => setIsMobileMenuOpen(true)}
-              className="md:hidden p-2 rounded-lg hover:bg-gray-100"
+              className="md:hidden p-2 rounded-lg hover:bg-purple-50 transition-colors"
               aria-label="Toggle mobile menu"
             >
               <Menu className="h-6 w-6 text-gray-700" />

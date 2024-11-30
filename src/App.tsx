@@ -1,23 +1,27 @@
-import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Header from './components/layout/Header';
-import HomePage from './pages';
 import CoursesPage from './pages/courses';
 import CourseDetailPage from './pages/course/[id]';
-import CreatorDashboard from './pages/creator/dashboard';
+import InstructorsPage from './pages/instructors';
+import AboutPage from './pages/about';
+import LandingPage from './pages';
+import { WalletProvider } from './providers/WalletProvider';
 
 export default function App() {
   return (
-    <Router>
-      <div className="min-h-screen bg-gray-50">
-        <Header />
-        <Routes>
-          <Route path="/" element={<HomePage />} />
-          <Route path="/courses" element={<CoursesPage />} />
-          <Route path="/:creatorName/:courseName" element={<CourseDetailPage />} />
-          <Route path="/creator/dashboard" element={<CreatorDashboard />} />
-        </Routes>
-      </div>
-    </Router>
+    <WalletProvider>
+      <Router>
+        <div className="min-h-screen bg-gray-50">
+          <Header />
+          <Routes>
+            <Route path="/" element={<LandingPage />} />
+            <Route path="/courses" element={<CoursesPage />} />
+            <Route path="/course/:courseId" element={<CourseDetailPage />} />
+            <Route path="/about" element={<AboutPage />} />
+            <Route path="/instructors" element={<InstructorsPage />} />
+          </Routes>
+        </div>
+      </Router>
+    </WalletProvider>
   );
 }

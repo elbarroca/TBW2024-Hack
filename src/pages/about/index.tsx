@@ -1,183 +1,302 @@
-import React from 'react';
-import { Mail, Twitter, Linkedin, MessageCircle } from 'lucide-react';
-
-const teamMembers = [
-  {
-    name: 'Sarah Chen',
-    role: 'Founder & CEO',
-    avatar: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80',
-    bio: 'Visionary behind decentralized education'
-  },
-  {
-    name: 'Alex Rivera',
-    role: 'CTO',
-    avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e',
-    bio: 'Expert in Solana\'s Rust ecosystem'
-  },
-  {
-    name: 'Michael Rodriguez',
-    role: 'Lead Designer',
-    avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e',
-    bio: 'Creating intuitive and vibrant user experiences'
-  }
-];
-
-const features = [
-  {
-    title: 'For Students',
-    items: [
-      'Wide variety of courses across industries',
-      'Immutable NFT certificates',
-      'Real-time collaboration'
-    ]
-  },
-  {
-    title: 'For Instructors',
-    items: [
-      'Decentralized course creation',
-      'Powerful analytics dashboard',
-      'Community building tools'
-    ]
-  },
-  {
-    title: 'Blockchain Advantage',
-    items: [
-      'Seamless SOL transactions',
-      'NFT-based achievements',
-      'Decentralized content storage'
-    ]
-  }
-];
+import { motion } from "framer-motion";
+import { fadeInUp, staggerChildren, fadeIn } from "@/utils/animations";
 
 export default function AboutPage() {
   return (
-    <div className="min-h-screen bg-white pt-20">
+    <main className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
       {/* Hero Section */}
-      <div className="bg-gradient-to-b from-purple-50 to-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
-          <div className="text-center">
-            <h1 className="text-4xl font-bold text-gray-900 sm:text-5xl md:text-6xl">
-              Learn. Earn.{' '}
-              <span className="text-purple-600">Innovate.</span>
-            </h1>
-            <p className="mt-6 max-w-2xl mx-auto text-xl text-gray-500">
-              Discover the next evolution in online learning. Built on Solana, we're redefining
-              education by giving students ownership of their achievements and instructors the
-              tools to succeed in a decentralized world.
+      <motion.div 
+        className="relative bg-gradient-to-r from-purple-900 via-blue-900 to-purple-900 text-white overflow-hidden"
+        initial={{ backgroundPosition: "0% 50%" }}
+        animate={{ backgroundPosition: "100% 50%" }}
+        transition={{ duration: 20, repeat: Infinity, repeatType: "reverse" }}
+      >
+        <div className="absolute inset-0">
+          <motion.div 
+            className="absolute inset-0 bg-[url('/hexagon-pattern.svg')] opacity-10"
+            animate={{ 
+              scale: [1, 1.1, 1],
+              rotate: [0, 5, 0] 
+            }}
+            transition={{ 
+              duration: 20,
+              repeat: Infinity,
+              repeatType: "reverse"
+            }}
+            aria-hidden="true" 
+          />
+        </div>
+        
+        <div className="container mx-auto px-4 py-24 relative">
+          <motion.div 
+            className="max-w-4xl mx-auto text-center"
+            variants={staggerChildren}
+            initial="initial"
+            animate="animate"
+          >
+            <motion.h1 
+              variants={fadeInUp}
+              className="text-4xl md:text-5xl font-bold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-white to-purple-200"
+            >
+              Empowering Blockchain Education for Everyone
+            </motion.h1>
+            
+            <motion.p 
+              variants={fadeInUp}
+              className="text-xl md:text-2xl text-purple-100 mb-8"
+            >
+              Breaking barriers in blockchain learning with decentralized solutions for a better future.
+            </motion.p>
+            
+            <motion.a 
+              href="/courses" 
+              className="inline-block bg-gradient-to-r from-purple-500 to-purple-600 text-white font-semibold px-8 py-3 rounded-lg transition-all transform hover:scale-105 hover:shadow-lg hover:from-purple-600 hover:to-purple-700"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              Start Learning
+            </motion.a>
+          </motion.div>
+        </div>
+      </motion.div>
+
+      {/* Mission Statement - Updated with glassmorphism */}
+      <motion.section 
+        className="py-16 bg-white"
+        initial={{ opacity: 0 }}
+        whileInView={{ opacity: 1 }}
+        viewport={{ once: true }}
+      >
+        <div className="container mx-auto px-4">
+          <motion.div 
+            className="max-w-3xl mx-auto text-center p-8 rounded-2xl bg-gradient-to-r from-purple-50 to-blue-50 shadow-xl backdrop-blur-sm border border-white/20"
+            variants={fadeInUp}
+          >
+            <p className="text-xl text-gray-700 leading-relaxed">
+              We believe education should be free from centralized control, empowering learners to take ownership of their growth. Our platform bridges the gap between blockchain technology and those eager to master it, fostering a decentralized future for everyone.
             </p>
-          </div>
+          </motion.div>
         </div>
-      </div>
+      </motion.section>
 
-      {/* Mission Section */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
-        <div className="text-center">
-          <h2 className="text-3xl font-bold text-gray-900">Our Mission</h2>
-          <p className="mt-6 text-lg text-gray-500 max-w-3xl mx-auto">
-            We aim to democratize access to high-quality education while fostering a system
-            where achievements and contributions are truly owned by the participants. Our goal
-            is to bridge the gap between traditional education and the limitless potential of Web3.
-          </p>
-        </div>
-      </div>
-
-      {/* Features Grid */}
-      <div className="bg-gray-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {features.map((feature, index) => (
-              <div key={index} className="bg-white rounded-2xl p-8 shadow-sm">
-                <h3 className="text-xl font-semibold text-gray-900 mb-4">{feature.title}</h3>
-                <ul className="space-y-3">
-                  {feature.items.map((item, itemIndex) => (
-                    <li key={itemIndex} className="flex items-start">
-                      <span className="h-6 w-6 rounded-full bg-purple-100 flex items-center justify-center mr-3 flex-shrink-0">
-                        <span className="h-2 w-2 rounded-full bg-purple-600" />
-                      </span>
-                      <span className="text-gray-600">{item}</span>
-                    </li>
-                  ))}
-                </ul>
+      {/* Our Story */}
+      <motion.section 
+        className="py-16 bg-gray-50"
+        initial={{ opacity: 0 }}
+        whileInView={{ opacity: 1 }}
+        viewport={{ once: true }}
+      >
+        <div className="container mx-auto px-4">
+          <motion.div 
+            className="max-w-4xl mx-auto"
+            variants={staggerChildren}
+            initial="initial"
+            whileInView="animate"
+            viewport={{ once: true }}
+          >
+            <motion.h2 
+              variants={fadeInUp}
+              className="text-3xl font-bold text-gray-900 mb-8 text-center"
+            >
+              Our Story
+            </motion.h2>
+            
+            <motion.div 
+              className="bg-white rounded-xl shadow-lg p-8 hover:shadow-xl transition-shadow duration-300"
+              variants={fadeInUp}
+            >
+              <div className="space-y-6">
+                <motion.div 
+                  className="flex items-center gap-4 mb-6"
+                  variants={fadeInUp}
+                >
+                  <div className="h-12 w-1 bg-gradient-to-b from-purple-500 to-blue-500 rounded-full" />
+                  <p className="text-gray-700 leading-relaxed">
+                    Founded by two passionate students, Ricardo and [Your Co-Founder's Name], our project was born out of a shared frustration with the challenges of learning blockchain technology.
+                  </p>
+                </motion.div>
+                
+                <motion.div 
+                  className="flex items-center gap-4"
+                  variants={fadeInUp}
+                >
+                  <div className="h-12 w-1 bg-gradient-to-b from-blue-500 to-purple-500 rounded-full" />
+                  <p className="text-gray-700 leading-relaxed">
+                    We decided to change that. Our project, built during the Taipei Blockchain Week Hackathon, is our contribution to democratizing blockchain education.
+                  </p>
+                </motion.div>
               </div>
-            ))}
-          </div>
+            </motion.div>
+          </motion.div>
         </div>
-      </div>
+      </motion.section>
 
-      {/* Team Section */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
-        <div className="text-center mb-16">
-          <h2 className="text-3xl font-bold text-gray-900">Meet the Team</h2>
-          <p className="mt-4 text-lg text-gray-500">
-            A global team of educators, blockchain developers, and designers passionate about
-            creating impactful learning experiences.
-          </p>
+      {/* Meet the Founders */}
+      <motion.section 
+        className="py-16 bg-white"
+        initial={{ opacity: 0 }}
+        whileInView={{ opacity: 1 }}
+        viewport={{ once: true }}
+      >
+        <div className="container mx-auto px-4">
+          <motion.h2 
+            variants={fadeInUp}
+            className="text-3xl font-bold text-gray-900 mb-12 text-center"
+          >
+            Meet the Founders
+          </motion.h2>
+          
+          <motion.div 
+            className="max-w-5xl mx-auto grid md:grid-cols-2 gap-8"
+            variants={staggerChildren}
+            initial="initial"
+            whileInView="animate"
+            viewport={{ once: true }}
+          >
+            {/* Ricardo's Card */}
+            <motion.div 
+              className="group bg-white rounded-xl shadow-sm p-6 hover:shadow-md transition-all duration-300"
+              variants={fadeInUp}
+              whileHover={{ y: -5 }}
+            >
+              <div className="flex flex-col items-center mb-4">
+                <div className="w-32 h-32 rounded-full bg-gradient-to-br from-purple-500 to-blue-500 p-1 mb-4">
+                  <div className="w-full h-full rounded-full bg-gray-200 overflow-hidden">
+                    {/* Add image here if available */}
+                  </div>
+                </div>
+                <h3 className="text-xl font-bold text-gray-900 group-hover:text-purple-600 transition-colors">
+                  Ricardo Barroca
+                </h3>
+                <p className="text-purple-600 font-medium">Co-Founder & Blockchain Visionary</p>
+              </div>
+              <p className="text-gray-600 text-center">
+                Ricardo is a dedicated blockchain student and visionary who co-founded this platform with the goal of breaking down barriers in blockchain education.
+              </p>
+              <div className="mt-4 flex justify-center space-x-4">
+                <motion.a
+                  href="#"
+                  className="text-gray-400 hover:text-purple-600 transition-colors"
+                  whileHover={{ scale: 1.1 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  <span className="sr-only">Twitter</span>
+                  {/* Add Twitter icon */}
+                </motion.a>
+                {/* Add other social links */}
+              </div>
+            </motion.div>
+
+            {/* Co-founder's Card */}
+            <motion.div 
+              className="group bg-white rounded-xl shadow-sm p-6 hover:shadow-md transition-all duration-300"
+              variants={fadeInUp}
+              whileHover={{ y: -5 }}
+            >
+              <div className="flex flex-col items-center mb-4">
+                <div className="w-32 h-32 rounded-full bg-gradient-to-br from-purple-500 to-blue-500 p-1 mb-4">
+                  <div className="w-full h-full rounded-full bg-gray-200 overflow-hidden">
+                    {/* Add image here if available */}
+                  </div>
+                </div>
+                <h3 className="text-xl font-bold text-gray-900 group-hover:text-purple-600 transition-colors">
+                  Ricardo Castillo
+                </h3>
+                <p className="text-purple-600 font-medium">Co-Founder & Technical Lead</p>
+              </div>
+              <p className="text-gray-600 text-center">
+                Alex brings deep technical expertise and a passion for blockchain development, focusing on creating intuitive educational experiences.
+              </p>
+              <div className="mt-4 flex justify-center space-x-4">
+                <motion.a
+                  href="#"
+                  className="text-gray-400 hover:text-purple-600 transition-colors"
+                  whileHover={{ scale: 1.1 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  <span className="sr-only">Twitter</span>
+                  {/* Add Twitter icon */}
+                </motion.a>
+                {/* Add other social links */}
+              </div>
+            </motion.div>
+          </motion.div>
         </div>
+      </motion.section>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {teamMembers.map((member) => (
-            <div key={member.name} className="bg-white rounded-2xl p-8 shadow-sm text-center">
-              <img
-                src={member.avatar}
-                alt={member.name}
-                className="w-32 h-32 rounded-full mx-auto mb-6 object-cover"
-              />
-              <h3 className="text-xl font-semibold text-gray-900">{member.name}</h3>
-              <p className="text-purple-600 mb-4">{member.role}</p>
-              <p className="text-gray-500">{member.bio}</p>
-            </div>
-          ))}
+      {/* Vision Section */}
+      <motion.section 
+        className="py-16 bg-gradient-to-r from-purple-50 to-blue-50"
+        initial={{ opacity: 0 }}
+        whileInView={{ opacity: 1 }}
+        viewport={{ once: true }}
+      >
+        <div className="container mx-auto px-4">
+          <motion.div 
+            className="max-w-4xl mx-auto text-center"
+            variants={staggerChildren}
+            initial="initial"
+            whileInView="animate"
+            viewport={{ once: true }}
+          >
+            <motion.h2 
+              variants={fadeInUp}
+              className="text-3xl font-bold text-gray-900 mb-6"
+            >
+              Our Vision
+            </motion.h2>
+            <motion.p 
+              variants={fadeInUp}
+              className="text-xl text-gray-700 mb-8"
+            >
+              Our vision is to create the leading decentralized education platform for blockchain enthusiasts worldwide.
+            </motion.p>
+          </motion.div>
         </div>
-      </div>
+      </motion.section>
 
-      {/* Contact Section */}
-      <div className="bg-gray-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl font-bold text-gray-900">Let's Connect</h2>
-            <p className="mt-4 text-lg text-gray-500">
-              Got questions or ideas? We'd love to hear from you!
-            </p>
-          </div>
-
-          <div className="flex justify-center space-x-6">
-            <a
-              href="mailto:support@educhain.com"
-              className="flex items-center space-x-2 text-gray-600 hover:text-purple-600"
-            >
-              <Mail className="h-5 w-5" />
-              <span>Email Us</span>
-            </a>
-            <a
-              href="https://twitter.com/educhain"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center space-x-2 text-gray-600 hover:text-purple-600"
-            >
-              <Twitter className="h-5 w-5" />
-              <span>Twitter</span>
-            </a>
-            <a
-              href="https://linkedin.com/company/educhain"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center space-x-2 text-gray-600 hover:text-purple-600"
-            >
-              <Linkedin className="h-5 w-5" />
-              <span>LinkedIn</span>
-            </a>
-            <a
-              href="https://discord.gg/educhain"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center space-x-2 text-gray-600 hover:text-purple-600"
-            >
-              <MessageCircle className="h-5 w-5" />
-              <span>Discord</span>
-            </a>
-          </div>
+      {/* Call to Action */}
+      <motion.section 
+        className="py-16 bg-gradient-to-r from-purple-900 to-blue-900 text-white relative overflow-hidden"
+        initial={{ opacity: 0 }}
+        whileInView={{ opacity: 1 }}
+        viewport={{ once: true }}
+      >
+        <motion.div 
+          className="absolute inset-0 bg-[url('/grid-pattern.svg')] opacity-10"
+          animate={{
+            scale: [1, 1.1, 1],
+            rotate: [0, 1, 0]
+          }}
+          transition={{
+            duration: 20,
+            repeat: Infinity,
+            repeatType: "reverse"
+          }}
+        />
+        <div className="container mx-auto px-4 text-center relative">
+          <motion.h2 
+            variants={fadeInUp}
+            className="text-3xl font-bold mb-6"
+          >
+            Join us in breaking barriers and shaping the future of blockchain education
+          </motion.h2>
+          <motion.p 
+            variants={fadeInUp}
+            className="text-xl text-purple-100 mb-8"
+          >
+            Whether you're a beginner or a blockchain pro, our platform is here to empower you.
+          </motion.p>
+          <motion.a 
+            href="/courses" 
+            className="inline-block bg-white text-purple-900 font-semibold px-8 py-3 rounded-lg transition-all hover:bg-purple-50"
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+          >
+            Start Learning
+          </motion.a>
         </div>
-      </div>
-    </div>
+      </motion.section>
+    </main>
   );
 } 
