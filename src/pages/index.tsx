@@ -1,11 +1,10 @@
-import React from 'react';
+import '../styles/globals.css';
 import Header from '../components/layout/Header';
-import Hero from '../components/Hero';
 import { Stats } from '../components/landing/Stats';
-import { Testimonials } from '../components/landing/Testimonials';
-import { FeaturedInstructors } from '../components/landing/FeaturedInstructors';
-import FeaturedCourses from '../components/FeaturedCourses';
+import FeaturedCourses from '../components/landing/FeaturedCourses';
 import { CategoryList } from '../components/courses/CategoryList';
+import { Hero } from '../components/landing/Hero';
+import { FeaturedInstructors } from '../components/landing/FeaturedInstructors';
 
 function App() {
   return (
@@ -17,7 +16,6 @@ function App() {
         <FeaturedCourses />
         <FeaturedInstructors />
         <Stats />
-        <Testimonials />
       </main>
       <footer className="bg-gray-900 text-white py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -56,4 +54,5 @@ function App() {
     </div>
   );
 }
+
 export default App;

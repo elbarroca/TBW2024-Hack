@@ -1,90 +1,122 @@
 import React from 'react';
-import { Star, Award } from 'lucide-react';
+import { Star, Users, BookOpen } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 const instructors = [
   {
     id: '1',
     name: 'Alex Rivera',
+    slug: 'alex-rivera',
     role: 'Senior Blockchain Developer',
-    avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e',
-    rating: 4.9,
-    students: 12500,
-    courses: 5,
-  },
-  {
-    id: 2,
-    name: 'Sarah Chen',
-    role: 'DeFi Protocol Engineer',
-    avatar: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80',
+    avatar: 'https://randomuser.me/api/portraits/men/1.jpg',
     rating: 4.8,
-    students: 9800,
-    courses: 4,
+    students: 1234,
+    courses: 5,
+    duration: '8 weeks',
+    level: 'Intermediate'
   },
   {
-    id: 3,
-    name: 'Michael Brown',
-    role: 'Smart Contract Auditor',
-    avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e',
-    rating: 4.9,
-    students: 11200,
-    courses: 6,
+    id: '2',
+    name: 'Sarah Chen',
+    slug: 'sarah-chen',
+    role: 'DeFi Protocol Engineer',
+    avatar: 'https://randomuser.me/api/portraits/women/1.jpg',
+    rating: 4.7,
+    students: 892,
+    courses: 4,
+    duration: '6 weeks',
+    level: 'Beginner'
   },
+  {
+    id: '3',
+    name: 'Michael Brown',
+    slug: 'michael-brown',
+    role: 'Smart Contract Auditor',
+    avatar: 'https://randomuser.me/api/portraits/men/2.jpg',
+    rating: 4.9,
+    students: 1567,
+    courses: 6,
+    duration: '10 weeks',
+    level: 'Advanced'
+  }
 ];
 
 export function FeaturedInstructors() {
   const navigate = useNavigate();
 
-  const handleInstructorClick = (instructorId: string) => {
-    navigate(`/creators/${instructorId}`);
+  const handleInstructorClick = (instructor: typeof instructors[0]) => {
+    navigate(`/${instructor.slug}`);
   };
 
   return (
-    <section className="py-16 bg-gradient-to-b from-purple-50 to-white">
+    <section className="py-16 bg-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-12">
-          <h2 className="text-3xl font-bold text-gray-900">Learn from Industry Experts</h2>
-          <p className="mt-4 text-lg text-gray-600">Our instructors are leading professionals in Web3</p>
+        <div className="flex justify-between items-center mb-12">
+          <div>
+            <h2 className="text-3xl font-bold text-gray-900">Featured Instructors</h2>
+            <p className="mt-2 text-lg text-gray-600">Learn from industry experts</p>
+          </div>
+          <button 
+            onClick={() => navigate('/instructors')}
+            className="text-purple-600 hover:text-purple-700 font-medium flex items-center gap-2"
+          >
+            View all
+            <span className="text-xl">→</span>
+          </button>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {instructors.map((instructor) => (
             <div
               key={instructor.id}
-              onClick={() => handleInstructorClick(instructor.id)}
-              className="bg-white rounded-2xl p-6 shadow-sm hover:shadow-md transition-all duration-300 transform hover:-translate-y-1 cursor-pointer"
+              className="bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden cursor-pointer"
+              onClick={() => handleInstructorClick(instructor)}
             >
-              <div className="flex flex-col items-center">
-                <img
-                  src={instructor.avatar}
-                  alt={instructor.name}
-                  className="w-24 h-24 rounded-full object-cover ring-4 ring-purple-100"
-                />
-                <h3 className="mt-4 text-xl font-semibold text-gray-900">{instructor.name}</h3>
-                <p className="text-purple-600">{instructor.role}</p>
-                
-                <div className="flex items-center mt-2">
+              <div className="p-6">
+                <div className="flex items-center gap-4">
+                  <img
+                    src={instructor.avatar}
+                    alt={instructor.name}
+                    className="w-16 h-16 rounded-full object-cover"
+                  />
+                  <div>
+                    <h3 className="text-lg font-semibold text-gray-900">{instructor.name}</h3>
+                    <p className="text-purple-600">{instructor.role}</p>
+                  </div>
+                </div>
+
+                <div className="mt-6 flex items-center gap-2">
                   <Star className="h-5 w-5 text-yellow-400 fill-current" />
-                  <span className="ml-1 text-gray-600">{instructor.rating}</span>
+                  <span className="font-medium">{instructor.rating}</span>
+                  <span className="text-gray-500">•</span>
+                  <Users className="h-5 w-5 text-gray-400" />
+                  <span className="text-gray-600">{instructor.students}</span>
+                  <span className="text-gray-500">•</span>
+                  <BookOpen className="h-5 w-5 text-gray-400" />
+                  <span className="text-gray-600">{instructor.courses} courses</span>
                 </div>
-              </div>
 
-              <div className="mt-6 grid grid-cols-2 gap-4 text-center">
-                <div className="bg-purple-50 rounded-lg p-3">
-                  <p className="text-2xl font-bold text-purple-600">
-                    {(instructor.students / 1000).toFixed(1)}k
-                  </p>
-                  <p className="text-sm text-gray-600">Students</p>
+                <div className="mt-6 flex items-center justify-between text-sm">
+                  <div className="flex items-center gap-2">
+                    <span className="px-3 py-1 rounded-full bg-purple-50 text-purple-700">
+                      {instructor.duration}
+                    </span>
+                    <span className="px-3 py-1 rounded-full bg-gray-50 text-gray-700">
+                      {instructor.level}
+                    </span>
+                  </div>
                 </div>
-                <div className="bg-purple-50 rounded-lg p-3">
-                  <p className="text-2xl font-bold text-purple-600">{instructor.courses}</p>
-                  <p className="text-sm text-gray-600">Courses</p>
-                </div>
-              </div>
 
-              <button className="mt-6 w-full bg-white border-2 border-purple-600 text-purple-600 px-4 py-2 rounded-full hover:bg-purple-50 transition-colors">
-                View Profile
-              </button>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleInstructorClick(instructor);
+                  }}
+                  className="mt-6 w-full bg-white text-purple-600 border-2 border-purple-600 px-4 py-2 rounded-full hover:bg-purple-50 transition-colors font-medium"
+                >
+                  View Profile
+                </button>
+              </div>
             </div>
           ))}
         </div>

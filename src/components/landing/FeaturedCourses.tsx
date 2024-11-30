@@ -1,7 +1,7 @@
 import React from 'react';
 import { ChevronRight } from 'lucide-react';
-import { CourseCard } from './courses/CourseCard';
-import type { Course } from '../types';
+import { CourseCard } from '../courses/CourseCard';
+import type { Course } from '../../types';
 
 const FEATURED_COURSES: Course[] = [
   {
