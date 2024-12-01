@@ -1,24 +1,38 @@
-# Logs
-logs
-*.log
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-pnpm-debug.log*
-lerna-debug.log*
+# Root level
+node_modules/
+dist/
 
-node_modules
-dist
-dist-ssr
-*.local
+# Frontend (Vite)
+/frontend/node_modules/
+/frontend/dist/
+/frontend/.vite/
+/frontend/coverage/
+/frontend/*.local
+/frontend/logs
+/frontend/*.log
+/frontend/.env*
+!frontend/.env.example
+
+# Backend (Bun/Elysia)
+/backend/node_modules/
+/backend/dist/
+/backend/build/
+/backend/*.log
+/backend/logs/
+/backend/.env*
+!backend/.env.example
 
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
 .idea
-.DS_Store
 *.suo
 *.ntvs*
 *.njsproj
 *.sln
 *.sw?
+.DS_Store
+
+# Docker
+Dockerfile
+docker-compose.yml

@@ -1,0 +1,28 @@
+{
+  "name": "mango-server",
+  "version": "1.0.50",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "bun run --watch src/index.ts"
+  },
+  "dependencies": {
+    "@coral-xyz/anchor": "^0.30.1",
+    "@elysiajs/cors": "^1.1.1",
+    "@elysiajs/swagger": "^1.1.6",
+    "@solana/spl-token": "^0.4.9",
+    "@solana/web3.js": "^2.0.0-rc.4",
+    "@types/jsonwebtoken": "^9.0.7",
+    "bignumber.js": "^9.1.2",
+    "bs58": "^6.0.0",
+    "elysia": "^1.1.25",
+    "jsonwebtoken": "^9.0.2",
+    "ky": "^1.7.2"
+  },
+  "devDependencies": {
+    "@coral-xyz/borsh": "^0.30.1",
+    "@types/bn.js": "5.1.6",
+    "bun-types": "latest",
+    "prettier": "3.4.1"
+  },
+  "module": "src/index.js"
+}
