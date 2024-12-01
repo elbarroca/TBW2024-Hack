@@ -1,5 +1,5 @@
 import { Base64EncodedWireTransaction } from '@solana/transactions';
-import { config } from '../config';
+import { config } from '../lib/config';
 
 export async function sendTransaction(transaction: string): Promise<string> {
     return await config.RPC

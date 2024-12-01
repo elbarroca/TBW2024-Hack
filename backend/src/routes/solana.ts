@@ -1,9 +1,10 @@
 import { Elysia, t } from "elysia";
-import { config } from "./lib/config";
+import { config } from "../lib/config";
 import { address } from "@solana/addresses";
-import { sendTransaction } from "./lib/solana/sendTransaction";
-import { validateTransaction } from "./lib/solana/validateTransction";
-import { getTokens } from "./lib/solana/fetcher/getTokens";
+import { getTokens } from "../solana/fetcher/getTokens";
+import { sendTransaction } from "../solana/sendTransaction";
+import { validateTransaction } from "../solana/validateTransction";
+
 
 interface GetBalancesQuery {
   user: string;

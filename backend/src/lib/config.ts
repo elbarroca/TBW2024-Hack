@@ -1,4 +1,4 @@
-import { createDefaultRpcTransport, createRpc, createSolanaRpcApi, DEFAULT_RPC_CONFIG } from '@solana/web3.js';
+import { createDefaultRpcTransport, createRpc, createSolanaRpcApi, DEFAULT_RPC_CONFIG } from "@solana/rpc";
 
 const heliusRpcTransport = createDefaultRpcTransport({ 
   url: `https://mainnet.helius-rpc.com/?api-key=${process.env.RPC_KEY!}` 

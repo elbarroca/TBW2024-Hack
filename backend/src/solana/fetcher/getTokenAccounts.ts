@@ -1,11 +1,24 @@
 import type { Address } from '@solana/addresses';
-import { config } from '../../config';
-import { JsonParsedTokenAccount } from '@solana/web3.js';
+import { config } from '../../lib/config';
+import { TokenAmount } from '@solana/rpc-types';
 
-export type TokenAccount = {
-  pubkey: string;
-  account: JsonParsedTokenAccount;
-};
+type TokenAccountState = 'frozen' | 'initialized' | 'uninitialized';
+
+export type TokenAccount = Readonly<{
+  pubkey: Address;
+  account: {
+    closeAuthority?: Address;
+    delegate?: Address;
+    delegatedAmount?: TokenAmount;
+    extensions?: readonly unknown[];
+    isNative: boolean;
+    mint: Address;
+    owner: Address;
+    rentExemptReserve?: TokenAmount;
+    state: TokenAccountState;
+    tokenAmount: TokenAmount;
+  }
+}>;
 
 export async function getTokenAccounts(ownerAddress: Address): Promise<TokenAccount[]> {
   const response = await config.RPC

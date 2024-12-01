@@ -1,18 +1,5 @@
-import { 
-  Address,
-  getAccountInfo,
-  TransactionMessage,
-  TokenTransferInstruction,
-  SolanaToken
-} from '@solana/web3.js';
-import { BigNumber } from 'bignumber.js';
-
-const DECIMALS = {
-  'USDC': 6
-} as const;
-
-async function validatePaymentTransaction(signature: string, config: any) {
-  // Fetch and decode transaction
+export async function validateTransaction(signature: string) {
+  /*// Fetch and decode transaction
   const response = await fetchTransaction(signature);
   const message = TransactionMessage.decode(response.transaction.message);
   
@@ -99,5 +86,5 @@ async function validatePaymentTransaction(signature: string, config: any) {
     currency: decodedSellerATA.mint.toString(),
     amount: rawAmount.toString(),
     hoursBooked: quotient.toNumber()
-  };
+  };*/
 }

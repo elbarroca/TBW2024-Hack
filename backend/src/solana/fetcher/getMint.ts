@@ -1,6 +1,7 @@
-import { address, Base64EncodedDataResponse, getBase64Decoder } from "@solana/web3.js";
-import { config } from "../../config";
+import { address } from "@solana/addresses";
 import { MintLayout, RawMint } from "@solana/spl-token";
+import { config } from "../../lib/config";
+import { Base64EncodedDataResponse } from "@solana/rpc-types";
 
 export type DecodedMint = {
   mintAuthorityOption: number;

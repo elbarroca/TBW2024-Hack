@@ -1,121 +1,112 @@
-import React, {
-    createContext,
-    useContext,
-    useMemo,
-    useCallback,
-    ReactNode,
-    useEffect,
-} from 'react';
+import React, { createContext, useContext, useCallback, useEffect } from 'react';
 import { useWallet } from '@solana/wallet-adapter-react';
-import bs58 from 'bs58';
 import { useAppDispatch, useAppSelector } from '@/store';
-import {
-    useRequestChallengeMutation,
-    useSolveChallengeMutation,
-    useLazyGetBalancesQuery,
-    useLazyGetTransactionsQuery,
-} from '@/api';
-import {
-    resetUserData,
-    setBalances,
-    setTransactions,
-    setUserDataError,
-    setUserDataLoading,
-} from '@/store/user';
-import {
-    setLoginStatus,
-    LoginStatus,
-    setUser,
-    setAddress,
-    setAuthLoading,
-    setAuthError,
-} from '@/store/auth';
-
+import { useRequestNonceMutation, useVerifySignatureMutation } from '@/api/endpoints/auth';
+import { setLoginStatus, setUser, setAuthError, setAuthLoading } from '@/store/auth';
+import { LoginStatus } from '@/types/auth';
+import { UserRole } from '@/types/user';
+import bs58 from 'bs58';
 interface AuthContextType {
-    resetAuth: () => Promise<void>;
+  login: (address: string, signMessage: (message: string) => Promise<string>) => Promise<void>;
+  logout: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-    const dispatch = useAppDispatch();
-    const { publicKey, signMessage, disconnect } = useWallet();
-    const loginStatus = useAppSelector((state) => state.auth.loginStatus);
-    const [requestChallenge] = useRequestChallengeMutation();
-    const [solveChallenge] = useSolveChallengeMutation();
-    const [getBalances] = useLazyGetBalancesQuery();
-    const [getTransactions] = useLazyGetTransactionsQuery();
+export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const dispatch = useAppDispatch();
+  const { publicKey,signMessage, disconnect } = useWallet();
+  const [requestNonce] = useRequestNonceMutation();
+  const [verifySignature] = useVerifySignatureMutation();
 
-    useEffect(() => {
-        if (!publicKey) return;
-        const address = publicKey.toBase58();
+  useEffect(() => {
+    if (!publicKey) return;
+    const address = publicKey.toBase58();
 
-        handleChallenge(address);
-    }, [publicKey]);
+    login(address);
+  }, [publicKey]);
 
-    const handleChallenge = useCallback(
-        async (address: string) => {
-            if (!signMessage) return;
+  const login = useCallback(async (address: string) => {
+    if (!signMessage) return;
 
-            try {
-                dispatch(setAuthLoading(true));
-                dispatch(setUserDataLoading(true));
+    try {
+      dispatch(setAuthLoading(true));
+      
+      // Request nonce
+      const { nonce } = await requestNonce({ address }).unwrap();
+      
+      // Sign nonce
+      const message = new TextEncoder().encode(nonce);
+      const signedMessage = await signMessage(message);
+      const signature = bs58.encode(signedMessage);
+      
+      // Verify signature
+      const { user, token } = await verifySignature({ address, signature }).unwrap();
+      
+      // Store auth data
+      localStorage.setItem('token', token);
+      dispatch(setUser(user));
+      dispatch(setLoginStatus(LoginStatus.IN));
+    } catch (error) {
+      console.error('Login error:', error);
+      dispatch(setAuthError('Authentication failed'));
+      await logout();
+    } finally {
+      dispatch(setAuthLoading(false));
+    }
+  }, [dispatch, requestNonce, verifySignature]);
 
-                const { challenge } = await requestChallenge({ address }).unwrap();
-                const message = new TextEncoder().encode(challenge);
-                const signedMessage = await signMessage(message);
-                const signature = bs58.encode(signedMessage);
+  const logout = useCallback(async () => {
+    localStorage.removeItem('token');
+    await disconnect();
+    dispatch(setUser(null));
+    dispatch(setLoginStatus(LoginStatus.OUT));
+  }, [dispatch, disconnect]);
 
-                const { token, user } = await solveChallenge({ address, signature }).unwrap();
-
-                localStorage.setItem('token', token);
-                dispatch(setUser(user));
-                dispatch(setAddress(address));
-                dispatch(setLoginStatus(LoginStatus.IN));
-
-                try {
-                    const [balances, transactions] = await Promise.all([
-                        getBalances(address).unwrap(),
-                        getTransactions({ address, limit: 10 }).unwrap(),
-                    ]);
-
-                    dispatch(setBalances(balances));
-                    dispatch(setTransactions(transactions));
-                } catch (error) {
-                    dispatch(setUserDataError('Failed to fetch user data'));
-                }
-            } catch (error) {
-                console.error('Auth failed:', error);
-                dispatch(setAuthError('Authentication failed'));
-                await resetAuth();
-            } finally {
-                dispatch(setAuthLoading(false));
-                dispatch(setUserDataLoading(false));
-            }
-        },
-        [publicKey, loginStatus, signMessage, getBalances, getTransactions]
-    );
-
-    const resetAuth = useCallback(async () => {
-        localStorage.removeItem('token');
-        await disconnect();
-        dispatch(resetUserData());
-    }, [dispatch, disconnect]);
-
-    const contextValue = useMemo(
-        () => ({
-            resetAuth,
-        }),
-        [resetAuth]
-    );
-
-    return <AuthContext.Provider value={contextValue}>{children}</AuthContext.Provider>;
+  return (
+    <AuthContext.Provider value={{ login, logout }}>
+      {children}
+    </AuthContext.Provider>
+  );
 };
 
 export const useAuth = () => {
-    const context = useContext(AuthContext);
-    if (!context) {
-        throw new Error('useAuth must be used within AuthProvider');
-    }
-    return context;
+  const context = useContext(AuthContext);
+  const { user, loginStatus, isLoading, error } = useAppSelector(state => state.auth);
+
+  if (!context) {
+    throw new Error('useAuth must be used within AuthProvider');
+  }
+
+  const can = (operation: string, resource: string) => {
+    if (!user) return false;
+
+    const rolePermissions: Record<UserRole, string[]> = {
+      student: ['read'],
+      instructor: ['read', 'create', 'update'],
+      admin: ['read', 'create', 'update', 'delete']
+    };
+
+    const roleResources: Record<UserRole, string[]> = {
+      student: ['courses', 'content', 'enrollments', 'progress'],
+      instructor: ['courses', 'content', 'modules', 'lessons'],
+      admin: ['*']
+    };
+
+    return rolePermissions[user.role]?.includes(operation) && 
+      (roleResources[user.role]?.includes('*') || roleResources[user.role]?.includes(resource));
+  };
+
+  return {
+    ...context,
+    user,
+    isAuthenticated: !!user,
+    isInstructor: user?.role === 'instructor',
+    isAdmin: user?.role === 'admin',
+    isStudent: user?.role === 'student',
+    isLoading,
+    error,
+    loginStatus,
+    can
+  };
 };

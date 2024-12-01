@@ -1,9 +1,10 @@
-import { Address, TokenAmount } from "@solana/web3.js";
 import BigNumber from "bignumber.js";
 import { getTokenMetadata, TokenMetadata } from "./getTokenMetadata";
 import { getTokenAccounts } from "./getTokenAccounts";
 import { getMints } from "./getMint";
 import { getPrices } from "./getPrices";
+import { TokenAmount } from "@solana/rpc-types";
+import { Address } from "@solana/addresses";
 
 export type TokenInfo = {
   mint: string;
@@ -45,7 +46,7 @@ export async function getTokens(userKey: string): Promise<TokenInfo[]> {
           const metadata = await getTokenMetadata(mint);
           return {
             mint,
-            address: pubkey,
+            address: pubkey.toString(),
             amount: account.tokenAmount.uiAmountString.toString(),
             value: value.toFixed(2),
             decimals: mintData.decimals,
