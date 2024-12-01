@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Textarea } from '@/components/ui/Textarea';
 import { Label } from '@/components/ui/Label';
-import { Card } from '@/components/ui/Card';
+import { Card } from '@/components/ui/CustomCard';
 import { Switch } from '@/components/ui/Switch';
 import { TagInput } from '@/components/shared/TagInput';
 import { PriceInput } from '@/components/shared/PriceInput';

@@ -3,7 +3,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { Upload, X, Eye } from 'lucide-react';
-import { Button } from '../../../components/ui/Button';
+import { Button } from '../../../components/ui/CustomButton';
 
 // Validation schema for the eBook form
 const eBookSchema = z.object({

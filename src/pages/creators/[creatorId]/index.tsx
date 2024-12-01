@@ -1,5 +1,5 @@
 import { Star, Users, Award } from 'lucide-react';
-import { Button } from '../../../components/ui/Button';
+import { Button } from '../../../components/ui/CustomButton';
 import { useParams } from 'react-router-dom';
 
 const CREATOR_DATA = {
