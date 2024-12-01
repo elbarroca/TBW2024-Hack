@@ -4,7 +4,7 @@ import { TokenDisplay } from './TokenDisplay';
 import { useAppSelector } from '@/store';
 import { useEffect } from 'react';
 import { useToast } from '@/hooks/useToast';
-import { Card, CardHeader, CardTitle, CardContent } from '../ui/Card';
+import { Card, CardHeader, CardTitle, CardContent } from '../ui/CustomCard';
 
 export function TokenList({ className = '' }: { className?: string }) {
     const { balances, isLoading, error } = useAppSelector((state) => state.userData);

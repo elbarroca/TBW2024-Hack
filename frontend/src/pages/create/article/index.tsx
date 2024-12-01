@@ -6,7 +6,7 @@ import { X } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Label } from '@/components/ui/Label';
-import { Card } from '@/components/ui/Card';
+import { Card } from '@/components/ui/CustomCard';
 import { FileUploader } from '@/components/shared/FileUploader';
 import { useToast } from '@/components/ui/use-toast';
 

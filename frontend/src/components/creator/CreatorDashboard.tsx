@@ -3,7 +3,7 @@ import { EarningsChart } from './EarningsChart';
 import { CourseStats } from './CourseStats';
 import { CourseList } from './CourseList';
 import { CourseAnalytics } from './CourseAnalytics';
-import { Button } from '../ui/Button';
+import { Button } from '../ui/CustomButton';
 import { Plus, Filter, Download, Upload } from 'lucide-react';
 
 // Sample data - replace with real data from your backend
