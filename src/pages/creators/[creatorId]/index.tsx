@@ -1,5 +1,3 @@
-import React from 'react';
-import { useParams } from 'react-router-dom';
 import { Star, Users, Award } from 'lucide-react';
 import { Button } from '../../../components/ui/Button';
 
@@ -21,7 +19,6 @@ const CREATOR_DATA = {
 };
 
 export default function CreatorProfilePage() {
-  const { creatorId } = useParams();
 
   return (
     <div className="min-h-screen bg-gray-50 pt-20">
