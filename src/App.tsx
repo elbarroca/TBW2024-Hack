@@ -1,18 +1,19 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Header from './components/ui/Header';
 import CoursesPage from './pages/courses';
-import CourseDetailPage from './pages/course/[id]';
 import AboutPage from './pages/about';
 import LandingPage from './pages';
 import CreatorsPage from './pages/creators';
 import ProfilePage from './pages/profile';
 import ContentMarketplace from './pages/content';
 import CreateEBook from './pages/create/ebook';
-import CreateResearchPaper from './pages/create/research-paper';
+import CreateFile from './pages/create/file';
 import CreateCourse from './pages/create/course';
 import CreateVideo from './pages/create/video';
 import CreateArticle from './pages/create/article';
-import CreateFile from './pages/create/file';
+import CreatorProfile from './pages/creators/[slug]';
+import CourseDetailsPage from './pages/courses/course-details';
+import ContentPage from './pages/content/[slug]';
 
 export default function App() {
     return (
@@ -20,21 +21,27 @@ export default function App() {
             <div className="min-h-screen bg-gray-50">
                 <Header />
                 <Routes>
+                    {/* Main Routes */}
                     <Route path="/" element={<LandingPage />} />
                     <Route path="/courses" element={<CoursesPage />} />
-                    <Route path="/course/:courseId" element={<CourseDetailPage />} />
                     <Route path="/about" element={<AboutPage />} />
+                    <Route path="/content" element={<ContentMarketplace />} />
                     <Route path="/creators" element={<CreatorsPage />} />
                     <Route path="/profile" element={<ProfilePage />} />
-                    <Route path="/content" element={<ContentMarketplace />} />
 
                     {/* Content Creation Routes */}
-                    <Route path="/create/ebook" element={<CreateEBook />} />
-                    <Route path="/create/research-paper" element={<CreateResearchPaper />} />
-                    <Route path="/create/course" element={<CreateCourse />} />
-                    <Route path="/create/video" element={<CreateVideo />} />
-                    <Route path="/create/article" element={<CreateArticle />} />
-                    <Route path="/create/file" element={<CreateFile />} />
+                    <Route path="/create">
+                        <Route path="ebook" element={<CreateEBook />} />
+                        <Route path="file" element={<CreateFile />} />
+                        <Route path="course" element={<CreateCourse />} />
+                        <Route path="video" element={<CreateVideo />} />
+                        <Route path="article" element={<CreateArticle />} />
+                    </Route>
+
+                    {/* Dynamic Routes - Order matters! Most specific first */}
+                    <Route path="/content/:creatorSlug/:contentSlug" element={<ContentPage />} />
+                    <Route path="/:creatorSlug/:courseSlug" element={<CourseDetailsPage />} />
+                    <Route path="/:slug" element={<CreatorProfile />} />
                 </Routes>
             </div>
         </Router>

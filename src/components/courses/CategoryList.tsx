@@ -7,15 +7,15 @@ import { cn } from '@/lib/utils';
 export const COURSE_CATEGORIES = {
     Popular: {
         icon: '🔥',
-        color: 'from-orange-500 to-red-500',
+        color: 'from-orange-400/90 to-red-400/90',
         tags: ['BONK', 'NFTs', 'DeFi', 'Web3', 'Trading', 'Solana'],
     },
     DeFi: {
-        icon: '💰',
-        color: 'from-green-500 to-emerald-500',
+        icon: '💰', 
+        color: 'from-green-400/90 to-emerald-400/90',
         tags: [
             'Yield Farming',
-            'Liquidity Pools',
+            'Liquidity Pools', 
             'DEX Trading',
             'Lending Protocols',
             'Staking',
@@ -28,11 +28,11 @@ export const COURSE_CATEGORIES = {
     },
     'NFTs & Gaming': {
         icon: '🎮',
-        color: 'from-indigo-500 to-purple-500',
+        color: 'from-indigo-400/90 to-purple-400/90',
         tags: [
             'NFT Trading',
             'NFT Art',
-            'GameFi',
+            'GameFi', 
             'Play-to-Earn',
             'Metaverse',
             'Virtual Worlds',
@@ -44,7 +44,7 @@ export const COURSE_CATEGORIES = {
     },
     Memecoins: {
         icon: '🐕',
-        color: 'from-yellow-500 to-orange-500',
+        color: 'from-yellow-400/90 to-orange-400/90',
         tags: [
             'BONK',
             'DOGECOIN',
@@ -60,7 +60,7 @@ export const COURSE_CATEGORIES = {
     },
     Development: {
         icon: '👨‍💻',
-        color: 'from-blue-500 to-cyan-500',
+        color: 'from-blue-400/90 to-cyan-400/90',
         tags: [
             'Smart Contracts',
             'Solana Development',
@@ -76,7 +76,7 @@ export const COURSE_CATEGORIES = {
     },
     'Trading & Investment': {
         icon: '📈',
-        color: 'from-teal-500 to-green-500',
+        color: 'from-teal-400/90 to-green-400/90',
         tags: [
             'Technical Analysis',
             'Spot Trading',
@@ -92,7 +92,7 @@ export const COURSE_CATEGORIES = {
     },
     Education: {
         icon: '📚',
-        color: 'from-purple-500 to-pink-500',
+        color: 'from-purple-400/90 to-pink-400/90',
         tags: [
             'Blockchain Basics',
             'Crypto Fundamentals',
@@ -108,7 +108,7 @@ export const COURSE_CATEGORIES = {
     },
     Ecosystem: {
         icon: '🌐',
-        color: 'from-pink-500 to-rose-500',
+        color: 'from-pink-400/90 to-rose-400/90',
         tags: [
             'Solana News',
             'Project Reviews',
@@ -162,25 +162,25 @@ export function CategoryList({
     };
 
     return (
-        <div className={cn('space-y-6', className)}>
+        <div className={cn('max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8', className)}>
             {/* Main Categories */}
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 mb-8">
                 {Object.entries(COURSE_CATEGORIES).map(([category, { icon, color }]) => (
                     <button
                         key={category}
                         onClick={() => handleMainCategorySelect(category as CategoryKey)}
                         className={cn(
-                            'relative p-4 rounded-xl text-white transition-all duration-300',
-                            'bg-gradient-to-br shadow hover:shadow-lg',
-                            color,
-                            selectedMainCategory === category
-                                ? 'ring-2 ring-white ring-offset-2 ring-offset-purple-500 scale-105'
-                                : 'hover:scale-105'
+                            'p-4 rounded-xl border-2 shadow-sm hover:shadow-md transition-all duration-200',
+                            'bg-white dark:bg-gray-800',
+                            `hover:bg-gradient-to-br ${color}`,
+                            selectedMainCategory === category 
+                                ? `border-transparent bg-gradient-to-br ${color} text-white`
+                                : 'border-gray-200 hover:border-transparent hover:text-white'
                         )}
                     >
-                        <div className="flex items-center gap-2">
-                            <span className="text-2xl">{icon}</span>
-                            <span className="font-medium text-sm">{category}</span>
+                        <div className="flex items-center justify-center gap-3">
+                            <span className="text-xl">{icon}</span>
+                            <span className="font-medium">{category}</span>
                         </div>
                     </button>
                 ))}
@@ -188,15 +188,15 @@ export function CategoryList({
 
             {/* Sub Tags Section */}
             {selectedMainCategory && (
-                <div className="space-y-4">
-                    <div className="flex justify-between items-center">
-                        <h3 className="text-lg font-semibold">
-                            Select {COURSE_CATEGORIES[selectedMainCategory].icon}{' '}
+                <div className="space-y-6 bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm animate-fadeIn">
+                    <div className="flex justify-between items-center border-b pb-4">
+                        <h3 className="text-xl font-semibold flex items-center gap-3">
+                            <span className="text-2xl">{COURSE_CATEGORIES[selectedMainCategory].icon}</span>
                             {selectedMainCategory} Tags
                         </h3>
                         <button
                             onClick={() => onMainCategorySelect(null)}
-                            className="text-sm text-gray-500 hover:text-gray-700"
+                            className="text-sm text-gray-500 hover:text-gray-700 transition-colors"
                         >
                             Change Category
                         </button>
@@ -208,7 +208,7 @@ export function CategoryList({
                             <Badge
                                 key={tag}
                                 variant="secondary"
-                                className="px-3 py-1 flex items-center gap-1 group hover:bg-gray-200 transition-colors"
+                                className="px-4 py-2 flex items-center gap-2 group hover:bg-gray-100/80 backdrop-blur-sm transition-all"
                             >
                                 {tag}
                                 <button
@@ -216,7 +216,7 @@ export function CategoryList({
                                     onClick={() => onTagRemove(tag)}
                                     className="opacity-0 group-hover:opacity-100 transition-opacity hover:text-red-500"
                                 >
-                                    <X className="h-3 w-3" />
+                                    <X className="h-3.5 w-3.5" />
                                 </button>
                             </Badge>
                         ))}
@@ -229,12 +229,12 @@ export function CategoryList({
                             placeholder={`Search ${selectedMainCategory} tags...`}
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
-                            className="w-full"
+                            className="w-full bg-gray-50 dark:bg-gray-900"
                         />
                     </div>
 
                     {/* Tags Grid */}
-                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
                         {COURSE_CATEGORIES[selectedMainCategory].tags
                             .filter((tag) => tag.toLowerCase().includes(searchQuery.toLowerCase()))
                             .map((tag) => (
@@ -244,10 +244,10 @@ export function CategoryList({
                                     onClick={() => handleTagSelect(tag)}
                                     disabled={selectedTags.includes(tag)}
                                     className={cn(
-                                        'p-2 text-sm text-left rounded-lg transition-colors',
+                                        'p-3 rounded-lg border text-sm transition-all duration-200',
                                         selectedTags.includes(tag)
-                                            ? 'bg-gray-100 text-gray-500 cursor-not-allowed'
-                                            : 'hover:bg-gray-100'
+                                            ? 'bg-gray-50 text-gray-400 cursor-not-allowed border-gray-200'
+                                            : 'hover:border-transparent hover:bg-gradient-to-br hover:from-purple-400/90 hover:to-pink-400/90 hover:text-white border-gray-200'
                                     )}
                                 >
                                     {tag}
@@ -256,7 +256,9 @@ export function CategoryList({
                     </div>
 
                     {selectedTags.length >= maxTags && (
-                        <p className="text-sm text-amber-600">Maximum {maxTags} tags allowed</p>
+                        <p className="text-sm text-amber-600/90 bg-amber-50 rounded-lg p-3">
+                            Maximum {maxTags} tags allowed
+                        </p>
                     )}
                 </div>
             )}

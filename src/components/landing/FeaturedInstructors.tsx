@@ -1,5 +1,10 @@
-import { Star, Users, BookOpen } from 'lucide-react';
+import { Star, Users, BookOpen, ChevronRight, Trophy } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { Card, CardContent, CardHeader } from '../ui/card';
+import { Button } from '../ui/button';
+import { Badge } from '../ui/Badge';
+import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
+import { cn } from '@/lib/utils';
 
 const instructors = [
     {
@@ -43,82 +48,91 @@ const instructors = [
 export function FeaturedInstructors() {
     const navigate = useNavigate();
 
-    const handleInstructorClick = (Creator: (typeof instructors)[0]) => {
-        navigate(`/${Creator.slug}`);
+    const handleInstructorClick = (instructor: (typeof instructors)[0]) => {
+        navigate(`/${instructor.slug}`);
     };
 
     return (
-        <section className="py-16 bg-white">
+        <section className="py-20 bg-white">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="flex justify-between items-center mb-12">
-                    <div>
-                        <h2 className="text-3xl font-bold text-gray-900">Featured Instructors</h2>
-                        <p className="mt-2 text-lg text-gray-600">Learn from industry experts</p>
+                    <div className="space-y-1">
+                        <h2 className="text-3xl font-bold tracking-tight">Featured Instructors</h2>
+                        <p className="text-muted-foreground">Learn from industry-leading experts in blockchain and Web3</p>
                     </div>
-                    <button
-                        onClick={() => navigate('/instructors')}
-                        className="text-purple-600 hover:text-purple-700 font-medium flex items-center gap-2"
-                    >
-                        View all
-                        <span className="text-xl">→</span>
-                    </button>
+                    <Button variant="ghost" className="gap-2" onClick={() => navigate('/instructors')}>
+                        View all <ChevronRight className="h-4 w-4" />
+                    </Button>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                    {instructors.map((Creator) => (
-                        <div
-                            key={Creator.id}
-                            className="bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden cursor-pointer"
-                            onClick={() => handleInstructorClick(Creator)}
+                    {instructors.map((instructor) => (
+                        <Card
+                            key={instructor.id}
+                            className="group hover:shadow-lg transition-all duration-300 cursor-pointer"
+                            onClick={() => handleInstructorClick(instructor)}
                         >
-                            <div className="p-6">
+                            <CardHeader className="relative p-6 pb-0">
+                                <div className="absolute top-4 right-4">
+                                    <Badge variant="secondary" className="bg-yellow-50 text-yellow-700">
+                                        <Trophy className="w-3 h-3 mr-1" />
+                                        Top Instructor
+                                    </Badge>
+                                </div>
                                 <div className="flex items-center gap-4">
-                                    <img
-                                        src={Creator.avatar}
-                                        alt={Creator.name}
-                                        className="w-16 h-16 rounded-full object-cover"
-                                    />
-                                    <div>
-                                        <h3 className="text-lg font-semibold text-gray-900">
-                                            {Creator.name}
+                                    <Avatar className="w-16 h-16 border-2 border-purple-100">
+                                        <AvatarImage src={instructor.avatar} alt={instructor.name} />
+                                        <AvatarFallback>{instructor.name.split(' ').map(n => n[0]).join('')}</AvatarFallback>
+                                    </Avatar>
+                                    <div className="space-y-1">
+                                        <h3 className="text-lg font-semibold tracking-tight group-hover:text-purple-600 transition-colors">
+                                            {instructor.name}
                                         </h3>
-                                        <p className="text-purple-600">{Creator.role}</p>
+                                        <p className="text-sm text-muted-foreground">{instructor.role}</p>
+                                    </div>
+                                </div>
+                            </CardHeader>
+
+                            <CardContent className="p-6">
+                                <div className="grid grid-cols-3 gap-4 mb-6">
+                                    <div className="text-center p-3 bg-gray-50 rounded-lg">
+                                        <Star className="w-5 h-5 text-yellow-400 mx-auto mb-1" />
+                                        <span className="block font-semibold">{instructor.rating}</span>
+                                        <span className="text-xs text-muted-foreground">Rating</span>
+                                    </div>
+                                    <div className="text-center p-3 bg-gray-50 rounded-lg">
+                                        <Users className="w-5 h-5 text-blue-400 mx-auto mb-1" />
+                                        <span className="block font-semibold">{instructor.students}</span>
+                                        <span className="text-xs text-muted-foreground">Students</span>
+                                    </div>
+                                    <div className="text-center p-3 bg-gray-50 rounded-lg">
+                                        <BookOpen className="w-5 h-5 text-green-400 mx-auto mb-1" />
+                                        <span className="block font-semibold">{instructor.courses}</span>
+                                        <span className="text-xs text-muted-foreground">Courses</span>
                                     </div>
                                 </div>
 
-                                <div className="mt-6 flex items-center gap-2">
-                                    <Star className="h-5 w-5 text-purple-600 fill-current" />
-                                    <span className="font-medium">{Creator.rating}</span>
-                                    <span className="text-gray-500">•</span>
-                                    <Users className="h-5 w-5 text-gray-400" />
-                                    <span className="text-gray-600">{Creator.students}</span>
-                                    <span className="text-gray-500">•</span>
-                                    <BookOpen className="h-5 w-5 text-gray-400" />
-                                    <span className="text-gray-600">{Creator.courses} courses</span>
+                                <div className="flex flex-wrap gap-2">
+                                    <Badge variant="outline" className="bg-purple-50 border-purple-100">
+                                        {instructor.duration}
+                                    </Badge>
+                                    <Badge variant="outline" className="bg-blue-50 border-blue-100">
+                                        {instructor.level}
+                                    </Badge>
                                 </div>
 
-                                <div className="mt-6 flex items-center justify-between text-sm">
-                                    <div className="flex items-center gap-2">
-                                        <span className="px-3 py-1 rounded-full bg-purple-50 text-purple-700">
-                                            {Creator.duration}
-                                        </span>
-                                        <span className="px-3 py-1 rounded-full bg-gray-50 text-gray-700">
-                                            {Creator.level}
-                                        </span>
-                                    </div>
-                                </div>
-
-                                <button
+                                <Button
+                                    variant="outline"
+                                    className="w-full mt-6 border-2 hover:bg-purple-50 hover:text-purple-700 transition-colors"
                                     onClick={(e) => {
                                         e.stopPropagation();
-                                        handleInstructorClick(Creator);
+                                        handleInstructorClick(instructor);
                                     }}
-                                    className="mt-6 w-full bg-white text-purple-600 border-2 border-purple-600 px-4 py-2 rounded-full hover:bg-purple-50 transition-colors font-medium"
                                 >
                                     View Profile
-                                </button>
-                            </div>
-                        </div>
+                                </Button>
+                            </CardContent>
+                        </Card>
                     ))}
                 </div>
             </div>

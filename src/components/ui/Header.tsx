@@ -21,7 +21,6 @@ export default function Header() {
 
     const createMenuItems = [
         { path: '/create/ebook', label: 'eBook' },
-        { path: '/create/research-paper', label: 'Research Paper' },
         { path: '/create/file', label: 'File' },
         { path: '/create/course', label: 'Course' },
         { path: '/create/article', label: 'Article' },

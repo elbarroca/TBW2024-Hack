@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { CategoryList } from '@/components/courses/CategoryList';
 import { ChevronDown, Search, Filter } from 'lucide-react';
 import { ContentCard } from '@/components/content/ContentCard';
 
@@ -75,6 +74,14 @@ const PRICE_RANGES = [
     { id: 'low', name: '$1-$10', range: [1, 10] },
     { id: 'medium', name: '$10-$50', range: [10, 50] },
     { id: 'high', name: '$50+', range: [50, Infinity] },
+];
+
+const CATEGORIES = [
+    { id: 'all', name: 'All Categories' },
+    { id: 'defi', name: 'DeFi' },
+    { id: 'memecoins', name: 'Memecoins' },
+    { id: 'security', name: 'Security' },
+    { id: 'marketing', name: 'Marketing' }
 ];
 
 export default function ContentMarketplace() {
@@ -159,10 +166,21 @@ export default function ContentMarketplace() {
                         className={`transition-all duration-300 ${showFilters ? 'block' : 'hidden'}`}
                     >
                         {/* Categories */}
-                        <CategoryList
-                            selectedCategory={selectedCategory}
-                            onCategorySelect={setSelectedCategory}
-                        />
+                        <div className="flex flex-wrap gap-4 mb-6">
+                            {CATEGORIES.map((category) => (
+                                <button
+                                    key={category.id}
+                                    onClick={() => setSelectedCategory(category.id)}
+                                    className={`px-6 py-2 rounded-full border transition-colors ${
+                                        selectedCategory === category.id
+                                            ? 'bg-purple-50 border-purple-400 text-purple-700'
+                                            : 'bg-white border-gray-200 hover:border-purple-400'
+                                    }`}
+                                >
+                                    {category.name}
+                                </button>
+                            ))}
+                        </div>
 
                         {/* Content Type and Price Range Filters */}
                         <div className="flex flex-wrap gap-4 mt-6">

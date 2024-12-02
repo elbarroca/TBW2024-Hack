@@ -45,16 +45,16 @@ export default function CoursesPage() {
             }
 
             // Creator Rating filter
-            if (selectedRating !== 'all' && course.instructorRating) {
+            if (selectedRating !== 'all' && course.rating) {
                 const minRating = parseFloat(selectedRating);
-                if (course.instructorRating < minRating) {
+                if (course.rating < minRating) {
                     return false;
                 }
             }
 
             // Certificate filter
             if (selectedCertificate !== 'all') {
-                const hasCertificate = course.offersCertificate || false;
+                const hasCertificate = course.certificate || false;
                 if (selectedCertificate === 'yes' && !hasCertificate) {
                     return false;
                 }

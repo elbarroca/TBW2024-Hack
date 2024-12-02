@@ -1,6 +1,10 @@
 import { ArrowRight, Sparkles, BookOpen, Shield, Users } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { motion } from 'framer-motion';
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { cn } from "@/lib/utils";
 
 export function Hero() {
     const [isLoaded, setIsLoaded] = useState(false);
@@ -28,106 +32,323 @@ export function Hero() {
         },
     ];
 
+    const containerVariants = {
+        hidden: { opacity: 0, y: 20 },
+        visible: {
+            opacity: 1,
+            y: 0,
+            transition: {
+                duration: 0.6,
+                staggerChildren: 0.2
+            }
+        }
+    };
+
+    const itemVariants = {
+        hidden: { opacity: 0, y: 20 },
+        visible: {
+            opacity: 1,
+            y: 0,
+            transition: { duration: 0.6 }
+        }
+    };
+
     return (
-        <section className="relative overflow-hidden bg-gradient-to-br from-[#9945FF] via-[#14F195] to-[#00C2FF] pt-16">
-            {/* Background pattern */}
-            <div className="absolute inset-0 bg-grid-white/[0.05] bg-[size:60px_60px]" />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
+        <>
+        <section className="relative min-h-screen overflow-hidden bg-gradient-to-br from-[#9945FF] via-[#14F195] to-[#00C2FF] pt-16">
+            {/* Animated background particles */}
+            <div className="absolute inset-0">
+                {[...Array(20)].map((_, i) => (
+                    <motion.div
+                        key={i}
+                        className="absolute h-2 w-2 rounded-full bg-white/20"
+                        animate={{
+                            x: ['0%', '100%'],
+                            y: ['-100%', '100%'],
+                            scale: [1, 0.5, 1],
+                        }}
+                        transition={{
+                            duration: Math.random() * 10 + 20,
+                            repeat: Infinity,
+                            ease: 'linear',
+                            delay: Math.random() * 5,
+                        }}
+                        style={{
+                            left: `${Math.random() * 100}%`,
+                            top: `${Math.random() * 100}%`,
+                        }}
+                    />
+                ))}
+            </div>
+
+            {/* Background patterns */}
+            <div className="absolute inset-0 bg-grid-white/[0.05] bg-[size:60px_60px] animate-grid-flow" />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent backdrop-blur-[2px]" />
 
             <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div className="py-20 md:py-28">
-                    <div
-                        className={`grid grid-cols-1 md:grid-cols-2 gap-12 items-center transition-opacity duration-500 ${isLoaded ? 'opacity-100' : 'opacity-0'}`}
-                    >
+                <motion.div
+                    className="py-20 md:py-28"
+                    variants={containerVariants}
+                    initial="hidden"
+                    animate="visible"
+                >
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
                         {/* Left Column - Content */}
-                        <div className="text-center md:text-left space-y-6">
-                            <div className="inline-flex items-center px-4 py-2 rounded-full bg-white/10 backdrop-blur-sm border border-white/20">
-                                <Sparkles className="h-5 w-5 text-yellow-300 mr-2" />
+                        <motion.div 
+                            className="text-center md:text-left space-y-8"
+                            variants={itemVariants}
+                        >
+                            <motion.div
+                                className="inline-flex items-center px-4 py-2 rounded-full bg-white/10 backdrop-blur-sm border border-white/20"
+                                whileHover={{ scale: 1.05 }}
+                                whileTap={{ scale: 0.95 }}
+                            >
+                                <Sparkles className="h-5 w-5 text-yellow-300 mr-2 animate-pulse" />
                                 <span className="text-white font-medium">Welcome to Mentora</span>
-                            </div>
+                            </motion.div>
 
-                            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white leading-tight">
+                            <motion.h1 
+                                className="text-4xl md:text-5xl lg:text-6xl font-bold text-white leading-tight"
+                                variants={itemVariants}
+                            >
                                 Master Web3 Development with{' '}
-                                <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#14F195] via-[#00C2FF] to-[#14F195] animate-gradient">
-                                    Expert Guidance
+                                <span className="relative">
+                                    <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#14F195] via-[#00C2FF] to-[#14F195] animate-gradient">
+                                        Expert Guidance
+                                    </span>
+                                    <motion.span
+                                        className="absolute -inset-1 bg-gradient-to-r from-[#14F195]/20 via-[#00C2FF]/20 to-[#14F195]/20 blur-lg"
+                                        animate={{
+                                            opacity: [0.5, 1, 0.5],
+                                        }}
+                                        transition={{
+                                            duration: 2,
+                                            repeat: Infinity,
+                                        }}
+                                    />
                                 </span>
-                            </h1>
+                            </motion.h1>
 
-                            <p className="text-xl text-gray-100 max-w-2xl">
+                            <motion.p 
+                                className="text-xl text-gray-100 max-w-2xl"
+                                variants={itemVariants}
+                            >
                                 Join our community of innovators and build the future of the web.
                                 Learn blockchain, smart contracts, and decentralized applications
                                 from industry experts.
-                            </p>
+                            </motion.p>
 
-                            <div className="flex flex-col sm:flex-row gap-4 justify-center md:justify-start pt-4">
-                                <button
+                            <motion.div 
+                                className="flex flex-col sm:flex-row gap-4 justify-center md:justify-start pt-4"
+                                variants={itemVariants}
+                            >
+                                <Button
                                     onClick={() => navigate('/courses')}
-                                    className="inline-flex items-center px-6 py-3 rounded-full bg-[#14F195] text-gray-900 font-semibold shadow-lg hover:bg-[#00C2FF] hover:text-white transition-all duration-200 group"
+                                    className="relative group bg-[#14F195] text-gray-900 hover:bg-[#00C2FF] hover:text-white transition-all duration-300"
+                                    size="lg"
                                 >
-                                    Get Started
+                                    <span className="relative z-10">Get Started</span>
+                                    <motion.span
+                                        className="absolute inset-0 bg-gradient-to-r from-[#14F195] to-[#00C2FF] rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                                        whileHover={{ scale: 1.05 }}
+                                    />
                                     <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
-                                </button>
-                                <button
+                                </Button>
+                                <Button
                                     onClick={() => navigate('/about')}
-                                    className="inline-flex items-center px-6 py-3 rounded-full text-white border-2 border-[#14F195]/20 hover:border-[#14F195]/40 hover:bg-white/10 transition-all duration-200"
+                                    variant="outline"
+                                    className="border-2 border-[#14F195]/20 hover:border-[#14F195]/40 hover:bg-white/10"
+                                    size="lg"
                                 >
                                     Learn More
-                                </button>
-                            </div>
+                                </Button>
+                            </motion.div>
 
                             {/* Features Grid */}
-                            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-12">
+                            <motion.div 
+                                className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-12"
+                                variants={containerVariants}
+                            >
                                 {features.map((feature, index) => (
-                                    <div
+                                    <motion.div
                                         key={index}
-                                        className="flex items-center space-x-3 bg-white/10 backdrop-blur-sm rounded-lg p-4 border border-white/20"
+                                        variants={itemVariants}
+                                        whileHover={{ scale: 1.05 }}
+                                        className="relative"
                                     >
-                                        <feature.icon className="h-6 w-6 text-[#14F195]" />
-                                        <div>
-                                            <h3 className="text-white font-medium">
-                                                {feature.title}
-                                            </h3>
-                                            <p className="text-white/70 text-sm">
-                                                {feature.description}
-                                            </p>
-                                        </div>
-                                    </div>
+                                        <Card className="bg-white/10 backdrop-blur-sm border-white/20 p-4 overflow-hidden">
+                                            <motion.div
+                                                className="absolute inset-0 bg-gradient-to-r from-[#14F195]/10 to-[#00C2FF]/10"
+                                                animate={{
+                                                    opacity: [0.5, 0.8, 0.5],
+                                                }}
+                                                transition={{
+                                                    duration: 2,
+                                                    repeat: Infinity,
+                                                    delay: index * 0.3,
+                                                }}
+                                            />
+                                            <div className="relative flex items-center space-x-3">
+                                                <feature.icon className="h-6 w-6 text-[#14F195]" />
+                                                <div>
+                                                    <h3 className="text-white font-medium">{feature.title}</h3>
+                                                    <p className="text-white/70 text-sm">{feature.description}</p>
+                                                </div>
+                                            </div>
+                                        </Card>
+                                    </motion.div>
                                 ))}
-                            </div>
-                        </div>
+                            </motion.div>
+                        </motion.div>
 
                         {/* Right Column - Visual */}
-                        <div className="relative hidden md:block">
-                            <div className="absolute -inset-4 bg-[#14F195]/10 rounded-2xl backdrop-blur-lg transform rotate-6" />
+                        <motion.div 
+                            className="relative hidden md:block"
+                            variants={itemVariants}
+                        >
+                            <motion.div
+                                className="absolute -inset-4 bg-[#14F195]/10 rounded-2xl backdrop-blur-lg"
+                                animate={{
+                                    rotate: [6, -2, 6],
+                                    scale: [1, 1.02, 1],
+                                }}
+                                transition={{
+                                    duration: 8,
+                                    repeat: Infinity,
+                                    ease: "easeInOut",
+                                }}
+                            />
                             <div className="relative bg-gradient-to-br from-black/80 to-black/60 rounded-xl p-6 shadow-2xl border border-[#14F195]/20">
-                                <div className="aspect-[4/3] rounded-lg overflow-hidden bg-black/50">
-                                    <img
+                                <motion.div 
+                                    className="aspect-[4/3] rounded-lg overflow-hidden bg-black/50"
+                                    whileHover={{ scale: 1.02 }}
+                                    transition={{ duration: 0.3 }}
+                                >
+                                    <motion.img
                                         src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f"
                                         alt="Learning Platform"
-                                        className={`w-full h-full object-cover transition-all duration-700 ${
-                                            isLoaded
-                                                ? 'opacity-90 hover:scale-105'
-                                                : 'opacity-0 scale-95'
-                                        }`}
+                                        className={cn(
+                                            "w-full h-full object-cover transition-all duration-700",
+                                            isLoaded ? "opacity-90" : "opacity-0 scale-95"
+                                        )}
                                         onLoad={() => setIsLoaded(true)}
+                                        animate={isLoaded ? { scale: [0.95, 1] } : {}}
                                     />
-                                </div>
+                                </motion.div>
                                 <div className="mt-4 grid grid-cols-3 gap-4">
                                     {[...Array(3)].map((_, i) => (
-                                        <div
+                                        <motion.div
                                             key={i}
-                                            className={`h-24 rounded-lg bg-gradient-to-br from-[#14F195]/20 to-[#00C2FF]/20 animate-pulse transition-opacity duration-500 ${
-                                                isLoaded ? 'opacity-100' : 'opacity-0'
-                                            }`}
-                                            style={{ animationDelay: `${i * 200}ms` }}
+                                            className="h-24 rounded-lg bg-gradient-to-br from-[#14F195]/20 to-[#00C2FF]/20"
+                                            animate={{
+                                                opacity: [0.5, 1, 0.5],
+                                                scale: [1, 1.02, 1],
+                                            }}
+                                            transition={{
+                                                duration: 2,
+                                                repeat: Infinity,
+                                                delay: i * 0.3,
+                                            }}
                                         />
                                     ))}
                                 </div>
                             </div>
-                        </div>
+                        </motion.div>
                     </div>
-                </div>
+                </motion.div>
             </div>
         </section>
+
+        {/* Why Choose Mentora Section */}
+        <section className="bg-white py-24 relative overflow-hidden">
+            <div className="absolute inset-0 bg-[url('/grid-pattern.svg')] opacity-5" />
+            
+            <motion.div 
+                className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8"
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.8 }}
+            >
+                <div className="text-center mb-16">
+                    <motion.h2 
+                        className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent mb-6"
+                        initial={{ opacity: 0, y: 20 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        viewport={{ once: true }}
+                        transition={{ duration: 0.8, delay: 0.2 }}
+                    >
+                        Why Choose Mentora?
+                    </motion.h2>
+                    <motion.p 
+                        className="text-xl text-gray-600 max-w-3xl mx-auto"
+                        initial={{ opacity: 0, y: 20 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        viewport={{ once: true }}
+                        transition={{ duration: 0.8, delay: 0.4 }}
+                    >
+                        Join the future of Web3 education with our unique approach to learning and development
+                    </motion.p>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    {[
+                        {
+                            title: "No Middleman",
+                            description: "Direct peer-to-peer learning with zero intermediaries or platform fees",
+                            icon: "🔗",
+                            stats: "100% Direct Access"
+                        },
+                        {
+                            title: "Own Your Content",
+                            description: "Full ownership and control of your created content on the blockchain",
+                            icon: "📜",
+                            stats: "True Digital Ownership"
+                        },
+                        {
+                            title: "NFT Certification",
+                            description: "Receive verifiable blockchain credentials as NFTs upon completion",
+                            icon: "🏆",
+                            stats: "Blockchain-Verified"
+                        }
+                    ].map((item, index) => (
+                        <motion.div
+                            key={index}
+                            className="relative group"
+                            initial={{ opacity: 0, y: 20 }}
+                            whileInView={{ opacity: 1, y: 0 }}
+                            viewport={{ once: true }}
+                            transition={{ duration: 0.8, delay: 0.2 * index }}
+                        >
+                            <div className="absolute -inset-0.5 bg-gradient-to-r from-purple-600 to-blue-600 rounded-lg blur opacity-0 group-hover:opacity-100 transition duration-1000 group-hover:duration-200" />
+                            <div className="relative bg-white p-8 rounded-lg shadow-xl border border-gray-200">
+                                <div className="text-4xl mb-4">{item.icon}</div>
+                                <h3 className="text-xl font-bold text-gray-900 mb-2">{item.title}</h3>
+                                <p className="text-gray-600 mb-4">{item.description}</p>
+                                <div className="text-sm font-semibold text-purple-600">{item.stats}</div>
+                            </div>
+                        </motion.div>
+                    ))}
+                </div>
+
+                <motion.div 
+                    className="mt-16 text-center"
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.8, delay: 0.8 }}
+                >
+                    <Button
+                        onClick={() => navigate('/courses')}
+                        className="bg-gradient-to-r from-purple-600 to-blue-600 text-white hover:from-purple-700 hover:to-blue-700 transition-all duration-300"
+                        size="lg"
+                    >
+                        Start Your Journey
+                        <ArrowRight className="ml-2 h-5 w-5" />
+                    </Button>
+                </motion.div>
+            </motion.div>
+        </section>
+        </>
     );
 }
