@@ -47,6 +47,8 @@ export interface Course {
     lastUpdated: string;
     whatYouWillLearn: string[];
     modules?: CourseModule[];
+    certificate?: boolean;
+    tags?: string[];
 }
 
 export interface CourseModule {

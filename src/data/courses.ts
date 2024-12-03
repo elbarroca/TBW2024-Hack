@@ -14,8 +14,8 @@ export const COURSES: Course[] = [
             title: 'Senior Blockchain Developer',
             expertise: ['Blockchain Development'],
         },
-        image: '/images/courses/blockchain.jpg',
-        category: 'Blockchain',
+        image: 'https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Ftse1.mm.bing.net%2Fth%3Fid%3DOIP.UeXBhm81HgmFKnkZECcM4AHaEK%26pid%3DApi%26h%3D160&f=1&ipt=c83b045b78a44520382e1b82a43fd227eba51940485a3b4d7c41cc15a4ce873b&ipo=images',
+        category: 'Development',
         duration: '8 weeks',
         enrolled: 1234,
         rating: 4.8,
@@ -34,6 +34,8 @@ export const COURSES: Course[] = [
         modules: [
             /* ... */
         ],
+        certificate: true,
+        tags: ['Smart Contracts', 'Solana Development', 'Blockchain Architecture', 'dApp Building'],
     },
     {
         id: 'web3-design-patterns',
@@ -48,8 +50,8 @@ export const COURSES: Course[] = [
             title: 'Lead UX Designer',
             expertise: ['UX Design', 'Web3'],
         },
-        image: '/images/courses/design.jpg',
-        category: 'Design',
+        image: 'https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Ftse1.mm.bing.net%2Fth%3Fid%3DOIP.8bP5oHwyakDwv-Xo2JYC8wHaEc%26pid%3DApi%26h%3D160&f=1&ipt=5b5fa1fd42e9e0304e8a653822d7e27d706eea9f93a6abca94daea36987548a5&ipo=images',
+        category: 'Development',
         duration: '6 weeks',
         enrolled: 892,
         rating: 4.7,
@@ -61,6 +63,8 @@ export const COURSES: Course[] = [
         whatYouWillLearn: [
             /* ... */
         ],
+        certificate: true,
+        tags: ['Web3 Integration', 'Frontend Development', 'Backend Systems', 'dApp Building'],
     },
     {
         id: 'smart-contract-security',
@@ -75,8 +79,8 @@ export const COURSES: Course[] = [
             title: 'Senior Security Engineer',
             expertise: ['Blockchain Security'],
         },
-        image: '/images/courses/security.jpg',
-        category: 'Security',
+        image: 'https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Ftse1.mm.bing.net%2Fth%3Fid%3DOIP.DwcMbd5xKc9QkfJdjUjsOQHaEF%26pid%3DApi%26h%3D160&f=1&ipt=9f5fc0886b2b8aa41e555f734dc69ddcd05b6adf30490292a12d16e2985a81cf&ipo=images',
+        category: 'Development',
         duration: '10 weeks',
         enrolled: 1567,
         rating: 4.9,
@@ -89,6 +93,8 @@ export const COURSES: Course[] = [
         whatYouWillLearn: [
             /* ... */
         ],
+        certificate: true,
+        tags: ['Smart Contracts', 'Security Best Practices', 'Testing & Auditing'],
     },
     {
         id: 'defi-protocol-development',
@@ -103,7 +109,7 @@ export const COURSES: Course[] = [
             title: 'DeFi Protocol Architect',
             expertise: ['DeFi', 'Blockchain'],
         },
-        image: '/images/courses/defi.jpg',
+        image: 'https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Ftse1.mm.bing.net%2Fth%3Fid%3DOIP.8bP5oHwyakDwv-Xo2JYC8wHaEc%26pid%3DApi%26h%3D160&f=1&ipt=5b5fa1fd42e9e0304e8a653822d7e27d706eea9f93a6abca94daea36987548a5&ipo=images',
         category: 'DeFi',
         duration: '12 weeks',
         enrolled: 2156,
@@ -117,6 +123,8 @@ export const COURSES: Course[] = [
         whatYouWillLearn: [
             /* ... */
         ],
+        certificate: false,
+        tags: ['Yield Farming', 'Liquidity Pools', 'DEX Trading', 'AMM'],
     },
     {
         id: 'nft-marketplace',
@@ -131,8 +139,8 @@ export const COURSES: Course[] = [
             title: 'NFT Platform Developer',
             expertise: ['NFT', 'Blockchain'],
         },
-        image: '/images/courses/nft.jpg',
-        category: 'NFT',
+        image: 'https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Ftse1.mm.bing.net%2Fth%3Fid%3DOIP.UeXBhm81HgmFKnkZECcM4AHaEK%26pid%3DApi%26h%3D160&f=1&ipt=c83b045b78a44520382e1b82a43fd227eba51940485a3b4d7c41cc15a4ce873b&ipo=images',
+        category: 'NFTs & Gaming',
         duration: '10 weeks',
         enrolled: 1876,
         rating: 4.7,
@@ -145,6 +153,8 @@ export const COURSES: Course[] = [
         whatYouWillLearn: [
             /* ... */
         ],
+        certificate: true,
+        tags: ['NFT Trading', 'NFT Projects', 'Digital Collectibles', 'GameFi'],
     },
 ];
 
