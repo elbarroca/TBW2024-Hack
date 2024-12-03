@@ -1,34 +1,48 @@
-import { Facebook, Instagram, Twitter, Mail, Phone, MapPin } from "lucide-react"
+import { Github, Globe, LucideIcon } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
 
+interface SocialLink {
+  icon: LucideIcon | (() => JSX.Element);
+  href: string;
+  label: string;
+}
+
+const XIcon = () => (
+  <svg viewBox="0 0 24 24" className="h-5 w-5 fill-current">
+    <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+  </svg>
+);
+
 const Footer = () => {
-  const socialLinks = [
-    { icon: Facebook, href: "https://facebook.com", label: "Facebook" },
-    { icon: Instagram, href: "https://instagram.com", label: "Instagram" },
-    { icon: Twitter, href: "https://twitter.com", label: "Twitter" },
+  const socialLinks: SocialLink[] = [
+    { icon: Github, href: "https://github.com", label: "GitHub" },
+    { icon: XIcon, href: "https://x.com", label: "X (Twitter)" },
+    { icon: Globe, href: "https://mentora.com", label: "Website" },
   ]
 
   const navigationLinks = [
     { href: "/", label: "Home" },
+    { href: "/courses", label: "Courses" },
+    { href: "/content", label: "Content" },
     { href: "/about", label: "About" },
-    { href: "/blog", label: "Blog" },
-    { href: "/contact", label: "Contact" },
   ]
 
   return (
     <footer className="bg-background border-t">
       <div className="container px-4 py-8 mx-auto">
-        <div className="grid grid-cols-1 gap-8 md:grid-cols-4">
+        <div className="grid grid-cols-1 gap-8 md:grid-cols-3">
           {/* Branding Section */}
           <div className="space-y-4">
-            <div className="relative h-8">
-              <h2 className="text-2xl font-bold bg-gradient-to-r from-purple-600 to-teal-400 bg-clip-text text-transparent">
-                Mentora
-              </h2>
+            <div className="flex items-center space-x-3">
+              <img 
+                src="/logo.svg" 
+                alt="Mentora" 
+                className="h-20 w-auto"
+              />
             </div>
             <p className="text-sm text-muted-foreground">
-              Empowering communities through sustainable solutions and innovative technology.
+              Empowering communities through Web3 education and innovative technology.
             </p>
           </div>
 
@@ -41,7 +55,6 @@ const Footer = () => {
                   key={link.label}
                   href={link.href}
                   className="block text-sm text-muted-foreground hover:text-primary transition-colors"
-                  aria-label={`Navigate to ${link.label}`}
                 >
                   {link.label}
                 </a>
@@ -51,45 +64,35 @@ const Footer = () => {
 
           {/* Contact Information */}
           <div>
-            <h3 className="text-lg font-semibold mb-4">Contact Us</h3>
-            <div className="space-y-2">
+            <h3 className="text-lg font-semibold mb-4">Connect</h3>
+            <div className="space-y-4">
               <div className="flex items-center space-x-2 text-sm text-muted-foreground">
-                <Mail className="h-4 w-4" />
-                <span>contact@company.com</span>
+                <span>contact@mentora.com</span>
               </div>
-              <div className="flex items-center space-x-2 text-sm text-muted-foreground">
-                <Phone className="h-4 w-4" />
-                <span>+1 (555) 123-4567</span>
-              </div>
-              <div className="flex items-center space-x-2 text-sm text-muted-foreground">
-                <MapPin className="h-4 w-4" />
-                <span>123 Business Street, City, Country</span>
-              </div>
-            </div>
-          </div>
-
-          {/* Social Links */}
-          <div>
-            <h3 className="text-lg font-semibold mb-4">Follow Us</h3>
-            <div className="flex space-x-4">
-              {socialLinks.map((social) => (
-                <Button
-                  key={social.label}
-                  variant="ghost"
-                  size="icon"
-                  className="hover:text-primary"
-                  asChild
-                >
-                  <a
-                    href={social.href}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    aria-label={`Visit our ${social.label} page`}
+              <div className="flex space-x-4">
+                {socialLinks.map((social) => (
+                  <Button
+                    key={social.label}
+                    variant="ghost"
+                    size="icon"
+                    className="hover:text-primary"
+                    asChild
                   >
-                    <social.icon className="h-5 w-5" />
-                  </a>
-                </Button>
-              ))}
+                    <a
+                      href={social.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      aria-label={`Visit our ${social.label} page`}
+                    >
+                      {typeof social.icon === 'function' ? (
+                        <social.icon />
+                      ) : (
+                        <social.icon className="h-5 w-5" />
+                      )}
+                    </a>
+                  </Button>
+                ))}
+              </div>
             </div>
           </div>
         </div>

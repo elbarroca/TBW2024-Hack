@@ -1,12 +1,13 @@
 import { useState, useMemo } from 'react';
 import { Search, Filter } from 'lucide-react';
 import { CourseCard } from '@/components/courses/CourseCard';
-import { CategoryList } from '@/components/courses/CategoryList';
+import { CategoryList, CategoryKey } from '@/components/courses/CategoryList';
 import { COURSES } from '@/data/courses';
 
 export default function CoursesPage() {
     const [searchQuery, setSearchQuery] = useState('');
     const [selectedCategory, setSelectedCategory] = useState('all');
+    const [selectedTags, setSelectedTags] = useState<string[]>([]);
     const [selectedLevel, setSelectedLevel] = useState('all');
     const [selectedPrice, setSelectedPrice] = useState('all');
     const [selectedRating, setSelectedRating] = useState('all');
@@ -27,8 +28,16 @@ export default function CoursesPage() {
             }
 
             // Category filter
-            if (selectedCategory !== 'all' && course.category?.toLowerCase() !== selectedCategory) {
+            if (selectedCategory !== 'all' && course.category !== selectedCategory) {
                 return false;
+            }
+
+            // Tags filter
+            if (selectedTags.length > 0) {
+                const courseTags = course.tags || [];
+                if (!selectedTags.some(tag => courseTags.includes(tag))) {
+                    return false;
+                }
             }
 
             // Level filter
@@ -95,6 +104,7 @@ export default function CoursesPage() {
     }, [
         searchQuery,
         selectedCategory,
+        selectedTags,
         selectedLevel,
         selectedPrice,
         selectedRating,
@@ -108,6 +118,14 @@ export default function CoursesPage() {
         setSelectedDuration((prev) =>
             prev.includes(duration) ? prev.filter((d) => d !== duration) : [...prev, duration]
         );
+    };
+
+    const handleTagSelect = (tag: string) => {
+        setSelectedTags(prev => [...prev, tag]);
+    };
+
+    const handleTagRemove = (tag: string) => {
+        setSelectedTags(prev => prev.filter(t => t !== tag));
     };
 
     return (
@@ -137,8 +155,14 @@ export default function CoursesPage() {
             {/* Category List */}
             <div className="py-6 bg-white border-b">
                 <CategoryList
-                    onCategorySelect={setSelectedCategory}
-                    selectedCategory={selectedCategory}
+                    selectedMainCategory={selectedCategory === 'all' ? null : selectedCategory as CategoryKey}
+                    selectedTags={selectedTags}
+                    onMainCategorySelect={(category) => {
+                        setSelectedCategory(category || 'all');
+                        setSelectedTags([]); // Clear tags when changing category
+                    }}
+                    onTagSelect={handleTagSelect}
+                    onTagRemove={handleTagRemove}
                 />
             </div>
 

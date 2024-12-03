@@ -2,7 +2,7 @@ import { Hero } from '../components/landing/Hero';
 import FeaturedCourses from '../components/landing/FeaturedCourses';
 import FeaturedCreators from '../components/landing/FeaturedCreators';
 import { CallToAction } from '../components/landing/CallToAction';
-import Header from '../components/ui/Header';
+import Header from '../components/layout/Header';
 import Footer from '../components/layout/Footer';
 
 export default function LandingPage() {

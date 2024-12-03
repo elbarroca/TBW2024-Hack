@@ -1,5 +1,5 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import Header from './components/ui/Header';
+import Header from './components/layout/Header.tsx';
 import CoursesPage from './pages/courses';
 import AboutPage from './pages/about';
 import LandingPage from './pages';

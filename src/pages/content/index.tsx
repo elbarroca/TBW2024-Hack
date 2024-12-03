@@ -1,6 +1,7 @@
 import { useState } from 'react';
-import { ChevronDown, Search, Filter } from 'lucide-react';
+import { Search } from 'lucide-react';
 import { ContentCard } from '@/components/content/ContentCard';
+import { CategoryList, CategoryKey, COURSE_CATEGORIES } from '@/components/courses/CategoryList';
 
 interface ContentItem {
     id: string;
@@ -11,10 +12,13 @@ interface ContentItem {
     thumbnail: string;
     downloads: number;
     rating: number;
-    category: string;
+    category: CategoryKey;
+    description: string;
+    lastUpdated: string;
+    tags?: string[];
 }
 
-// Mock data
+// Enhanced mock data with high-quality images and more metadata
 const MOCK_CONTENT: ContentItem[] = [
     {
         id: '1',
@@ -22,10 +26,13 @@ const MOCK_CONTENT: ContentItem[] = [
         creator: 'Alex Thompson',
         price: 29.99,
         type: 'ebooks',
-        thumbnail: '/content/defi-guide.jpg',
+        thumbnail: '/content/defi-guide-enhanced.jpg',
         downloads: 1200,
         rating: 4.8,
-        category: 'defi',
+        category: 'DeFi',
+        tags: ['Yield Farming', 'DEX Trading', 'Liquidity Pools'],
+        description: 'Master DeFi trading with comprehensive strategies and real-world examples',
+        lastUpdated: '2024-01-15',
     },
     {
         id: '2',
@@ -33,10 +40,13 @@ const MOCK_CONTENT: ContentItem[] = [
         creator: 'Sarah Chen',
         price: 9.99,
         type: 'pdfs',
-        thumbnail: '/content/meme-analysis.jpg',
+        thumbnail: '/content/meme-analysis-pro.jpg',
         downloads: 3500,
         rating: 4.5,
-        category: 'memecoins',
+        category: 'Memecoins',
+        tags: ['BONK', 'Meme Trading', 'Token Launch'],
+        description: 'Professional framework for analyzing and evaluating meme coins',
+        lastUpdated: '2024-01-20',
     },
     {
         id: '3',
@@ -44,10 +54,13 @@ const MOCK_CONTENT: ContentItem[] = [
         creator: 'Michael Rodriguez',
         price: 49.99,
         type: 'ebooks',
-        thumbnail: '/content/security-guide.jpg',
+        thumbnail: '/content/security-guide-premium.jpg',
         downloads: 800,
         rating: 4.9,
-        category: 'security',
+        category: 'Development',
+        tags: ['Smart Contracts', 'Security Best Practices', 'Testing & Auditing'],
+        description: 'Essential security practices for smart contract development',
+        lastUpdated: '2024-01-18',
     },
     {
         id: '4',
@@ -55,10 +68,13 @@ const MOCK_CONTENT: ContentItem[] = [
         creator: 'Emma Davis',
         price: 0,
         type: 'blogs',
-        thumbnail: '/content/marketing-basics.jpg',
+        thumbnail: '/content/marketing-master.jpg',
         downloads: 5000,
         rating: 4.3,
-        category: 'marketing',
+        category: 'Education',
+        tags: ['Blockchain Basics', 'Crypto Fundamentals', 'Research Methods'],
+        description: 'Comprehensive guide to marketing in the crypto space',
+        lastUpdated: '2024-01-22',
     },
 ];
 
@@ -69,166 +85,94 @@ const CONTENT_TYPES = [
     { id: 'research', name: 'Research', icon: '🔬' },
 ];
 
-const PRICE_RANGES = [
-    { id: 'free', name: 'Free', range: [0, 0] },
-    { id: 'low', name: '$1-$10', range: [1, 10] },
-    { id: 'medium', name: '$10-$50', range: [10, 50] },
-    { id: 'high', name: '$50+', range: [50, Infinity] },
-];
-
-const CATEGORIES = [
-    { id: 'all', name: 'All Categories' },
-    { id: 'defi', name: 'DeFi' },
-    { id: 'memecoins', name: 'Memecoins' },
-    { id: 'security', name: 'Security' },
-    { id: 'marketing', name: 'Marketing' }
-];
-
 export default function ContentMarketplace() {
-    const [selectedCategory, setSelectedCategory] = useState('all');
+    const [selectedCategory, setSelectedCategory] = useState<CategoryKey | null>(null);
+    const [selectedTags, setSelectedTags] = useState<string[]>([]);
     const [selectedType, setSelectedType] = useState('all');
-    const [selectedPriceRange, setSelectedPriceRange] = useState('all');
     const [searchQuery, setSearchQuery] = useState('');
-    const [showFilters, setShowFilters] = useState(false);
 
-    const handleBuyClick = (id: string) => {
-        // TODO: Implement purchase flow
-        console.log('Buy clicked for content:', id);
+    const handleTagSelect = (tag: string) => {
+        setSelectedTags(prev => [...prev, tag]);
+    };
+
+    const handleTagRemove = (tag: string) => {
+        setSelectedTags(prev => prev.filter(t => t !== tag));
     };
 
     const filteredContent = MOCK_CONTENT.filter((content) => {
-        const matchesCategory = selectedCategory === 'all' || content.category === selectedCategory;
+        const matchesCategory = !selectedCategory || content.category === selectedCategory;
         const matchesType = selectedType === 'all' || content.type === selectedType;
-        const matchesSearch =
+        const matchesSearch = !searchQuery || 
             content.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
             content.creator.toLowerCase().includes(searchQuery.toLowerCase());
+        const matchesTags = selectedTags.length === 0 || 
+            selectedTags.some(tag => content.tags?.includes(tag));
 
-        let matchesPriceRange = true;
-        if (selectedPriceRange !== 'all') {
-            const range = PRICE_RANGES.find((r) => r.id === selectedPriceRange)?.range;
-            if (range) {
-                matchesPriceRange = content.price >= range[0] && content.price <= range[1];
-            }
-        }
-
-        return matchesCategory && matchesType && matchesSearch && matchesPriceRange;
+        return matchesCategory && matchesType && matchesSearch && matchesTags;
     });
 
     return (
-        <div className="min-h-screen bg-gray-50 pt-16">
-            {/* Hero Section */}
-            <div className="bg-gradient-to-r from-purple-600 to-blue-600 text-white">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-32">
-                    <h1 className="text-4xl md:text-6xl font-bold text-center mb-8">
-                        Monetize Your Content On-Chain
+        <div className="min-h-screen bg-gray-50">
+            {/* Hero Section with Enhanced Gradient */}
+            <div className="bg-gradient-to-br from-purple-500 via-emerald-400 to-yellow-500 pt-40 pb-24">
+                <div className="container mx-auto px-4">
+                    <h1 className="text-4xl md:text-6xl font-bold text-white mb-6 text-center">
+                        Discover Premium Web3 Content
                     </h1>
-                    <p className="text-xl md:text-2xl text-center mb-12 text-purple-100 max-w-3xl mx-auto">
-                        Sell blogs, eBooks, PDFs, and more directly to your audience with the power
-                        of decentralization
+                    <p className="text-xl text-purple-100 mb-12 text-center max-w-3xl mx-auto">
+                        Access high-quality resources, guides, and educational content
                     </p>
-                    <div className="flex justify-center">
-                        <button className="bg-white text-purple-600 px-8 py-4 rounded-full font-semibold hover:bg-purple-50 transition-colors text-lg">
-                            Start Selling
-                        </button>
+                    <div className="relative max-w-2xl mx-auto">
+                        <input
+                            type="text"
+                            placeholder="Search content..."
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                            className="w-full pl-12 pr-4 py-4 rounded-xl text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-orange-300 shadow-lg"
+                        />
+                        <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
                     </div>
                 </div>
             </div>
 
-            {/* Search and Filters */}
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-                <div className="flex flex-col space-y-6">
-                    {/* Top Bar with Search and Filter Toggle */}
-                    <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
-                        {/* Search Bar */}
-                        <div className="relative flex-1 w-full">
-                            <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
-                            <input
-                                type="text"
-                                placeholder="Search content..."
-                                value={searchQuery}
-                                onChange={(e) => setSearchQuery(e.target.value)}
-                                className="w-full pl-12 pr-4 py-3 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-purple-400"
-                            />
-                        </div>
+            {/* Category List */}
+            <div className="py-6 bg-white border-b">
+                <CategoryList
+                    selectedMainCategory={selectedCategory}
+                    selectedTags={selectedTags}
+                    onMainCategorySelect={setSelectedCategory}
+                    onTagSelect={handleTagSelect}
+                    onTagRemove={handleTagRemove}
+                />
+            </div>
 
-                        {/* Filter Toggle Button */}
-                        <button
-                            onClick={() => setShowFilters(!showFilters)}
-                            className="flex items-center space-x-2 px-4 py-2 rounded-lg border border-gray-200 hover:border-purple-400 transition-colors"
-                        >
-                            <Filter className="h-5 w-5 text-gray-600" />
-                            <span>Filters</span>
-                        </button>
-                    </div>
-
-                    {/* Expandable Filters Section */}
-                    <div
-                        className={`transition-all duration-300 ${showFilters ? 'block' : 'hidden'}`}
+            {/* Content Type Filter */}
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+                <div className="flex gap-4 overflow-x-auto pb-2">
+                    <button
+                        onClick={() => setSelectedType('all')}
+                        className={`px-6 py-2 rounded-full border transition-colors whitespace-nowrap ${
+                            selectedType === 'all'
+                                ? 'bg-purple-50 border-purple-400 text-purple-700'
+                                : 'bg-white border-gray-200 hover:border-purple-400'
+                        }`}
                     >
-                        {/* Categories */}
-                        <div className="flex flex-wrap gap-4 mb-6">
-                            {CATEGORIES.map((category) => (
-                                <button
-                                    key={category.id}
-                                    onClick={() => setSelectedCategory(category.id)}
-                                    className={`px-6 py-2 rounded-full border transition-colors ${
-                                        selectedCategory === category.id
-                                            ? 'bg-purple-50 border-purple-400 text-purple-700'
-                                            : 'bg-white border-gray-200 hover:border-purple-400'
-                                    }`}
-                                >
-                                    {category.name}
-                                </button>
-                            ))}
-                        </div>
-
-                        {/* Content Type and Price Range Filters */}
-                        <div className="flex flex-wrap gap-4 mt-6">
-                            <div className="flex-1 flex flex-wrap gap-4">
-                                <button
-                                    onClick={() => setSelectedType('all')}
-                                    className={`px-6 py-2 rounded-full border transition-colors ${
-                                        selectedType === 'all'
-                                            ? 'bg-purple-50 border-purple-400 text-purple-700'
-                                            : 'bg-white border-gray-200 hover:border-purple-400'
-                                    }`}
-                                >
-                                    All Types
-                                </button>
-                                {CONTENT_TYPES.map((type) => (
-                                    <button
-                                        key={type.id}
-                                        onClick={() => setSelectedType(type.id)}
-                                        className={`flex items-center space-x-2 px-6 py-2 rounded-full border transition-colors ${
-                                            selectedType === type.id
-                                                ? 'bg-purple-50 border-purple-400 text-purple-700'
-                                                : 'bg-white border-gray-200 hover:border-purple-400'
-                                        }`}
-                                    >
-                                        <span>{type.icon}</span>
-                                        <span>{type.name}</span>
-                                    </button>
-                                ))}
-                            </div>
-
-                            {/* Price Range Dropdown */}
-                            <div className="relative">
-                                <select
-                                    value={selectedPriceRange}
-                                    onChange={(e) => setSelectedPriceRange(e.target.value)}
-                                    className="appearance-none bg-white border border-gray-200 rounded-full px-6 py-2 pr-10 focus:outline-none focus:ring-2 focus:ring-purple-400"
-                                >
-                                    <option value="all">All Prices</option>
-                                    {PRICE_RANGES.map((range) => (
-                                        <option key={range.id} value={range.id}>
-                                            {range.name}
-                                        </option>
-                                    ))}
-                                </select>
-                                <ChevronDown className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none" />
-                            </div>
-                        </div>
-                    </div>
+                        All Types
+                    </button>
+                    {CONTENT_TYPES.map((type) => (
+                        <button
+                            key={type.id}
+                            onClick={() => setSelectedType(type.id)}
+                            className={`flex items-center gap-2 px-6 py-2 rounded-full border transition-colors whitespace-nowrap ${
+                                selectedType === type.id
+                                    ? 'bg-purple-50 border-purple-400 text-purple-700'
+                                    : 'bg-white border-gray-200 hover:border-purple-400'
+                            }`}
+                        >
+                            <span>{type.icon}</span>
+                            <span>{type.name}</span>
+                        </button>
+                    ))}
                 </div>
             </div>
 
@@ -236,9 +180,28 @@ export default function ContentMarketplace() {
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                     {filteredContent.map((content) => (
-                        <ContentCard key={content.id} {...content} onBuyClick={handleBuyClick} />
+                        <ContentCard
+                            key={content.id}
+                            id={content.id}
+                            title={content.title}
+                            creator={content.creator}
+                            price={content.price}
+                            type={content.type}
+                            thumbnail={content.thumbnail}
+                            downloads={content.downloads}
+                            rating={content.rating}
+                            onBuyClick={(id) => console.log('Buy clicked for content:', id)}
+                        />
                     ))}
                 </div>
+                
+                {filteredContent.length === 0 && (
+                    <div className="text-center py-12">
+                        <p className="text-gray-500 text-lg">
+                            No content found matching your criteria
+                        </p>
+                    </div>
+                )}
             </div>
         </div>
     );
