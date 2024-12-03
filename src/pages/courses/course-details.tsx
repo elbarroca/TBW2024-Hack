@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import { 
     Star, Clock, CheckCircle2, Users, 
     MessageCircle, Play,
-    Github, Linkedin
+    Github, Linkedin, Lock
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { COURSES } from '@/data/courses';
@@ -16,7 +16,8 @@ import {
     DialogTitle,
 } from "@/components/ui/Dialog";
 import Footer from '@/components/layout/Footer';
-
+import { Lesson, LessonPart } from '@/types/course';
+import { courseStrings } from '@/data/strings';
 const fadeInUp = {
     hidden: { opacity: 0, y: 20 },
     visible: { opacity: 1, y: 0 }
@@ -225,6 +226,130 @@ export default function CourseDetailsPage() {
                                                 <p className="text-sm text-gray-600">
                                                     Master this concept through practical examples and hands-on exercises
                                                 </p>
+                                            </div>
+                                        </motion.div>
+                                    ))}
+                                </div>
+                            </div>
+                        </motion.div>
+
+                        {/* Course Curriculum */}
+                        <motion.div 
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: 0.3 }}
+                            className="bg-white rounded-xl shadow-sm overflow-hidden border border-purple-100/20"
+                        >
+                            <div className="border-b border-purple-100 bg-gradient-to-r from-purple-50/50 to-blue-50/50 p-8">
+                                <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                                    <div>
+                                        <h3 className="text-2xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
+                                            {courseStrings.curriculum.sectionTitle}
+                                        </h3>
+                                        <p className="mt-2 text-gray-600 flex items-center gap-2">
+                                            <span className="flex items-center">
+                                                <CheckCircle2 className="h-4 w-4 text-purple-600 mr-1" />
+                                                {course.lessons?.length || 0} {courseStrings.curriculum.lessonCountLabel}
+                                            </span>
+                                            <span className="text-gray-300">•</span>
+                                            <span className="flex items-center">
+                                                <Play className="h-4 w-4 text-blue-600 mr-1" />
+                                                {course.lessons?.reduce((total: number, lesson: Lesson) => total + (lesson.parts?.length || 0), 0)} {courseStrings.curriculum.partsLabel}
+                                            </span>
+                                        </p>
+                                    </div>
+                                    <div className="flex items-center gap-2 bg-white/50 backdrop-blur-sm px-4 py-2 rounded-full border border-purple-100/20">
+                                        <Clock className="h-5 w-5 text-purple-600" />
+                                        <span className="text-gray-700 font-medium">{course.duration} {courseStrings.curriculum.totalDurationLabel}</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div className="p-8">
+                                <div className="space-y-6">
+                                    {course.lessons?.map((lesson: Lesson, lessonIndex: number) => (
+                                        <motion.div 
+                                            key={lessonIndex}
+                                            initial={{ opacity: 0, x: -20 }}
+                                            animate={{ opacity: 1, x: 0 }}
+                                            transition={{ delay: 0.1 * lessonIndex }}
+                                            className="group"
+                                        >
+                                            <div className="space-y-4 rounded-xl border border-purple-100/20 bg-white p-6 shadow-sm transition-all duration-200 hover:shadow-md">
+                                                <div className="flex items-center justify-between">
+                                                    <div className="flex items-center gap-4">
+                                                        <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-purple-100 font-bold text-purple-600">
+                                                            {lessonIndex + 1}
+                                                        </div>
+                                                        <div>
+                                                            <h4 className="text-lg font-semibold text-gray-900">
+                                                                {lesson.title}
+                                                            </h4>
+                                                            <p className="text-sm text-gray-500">{lesson.duration}</p>
+                                                        </div>
+                                                    </div>
+                                                    <Badge variant="secondary" className="bg-purple-50 text-purple-700 border-purple-100">
+                                                        {lesson.parts?.length || 0} {courseStrings.curriculum.partsLabel.toLowerCase()}
+                                                    </Badge>
+                                                </div>
+                                                <div className="space-y-3 pl-14">
+                                                    {lesson.parts?.map((part: LessonPart, partIndex: number) => (
+                                                        <motion.div 
+                                                            key={partIndex}
+                                                            initial={{ opacity: 0 }}
+                                                            animate={{ opacity: 1 }}
+                                                            transition={{ delay: 0.1 * partIndex }}
+                                                            className="flex items-center justify-between rounded-lg border border-gray-100 bg-gray-50/50 p-4 transition-all duration-200 hover:bg-gray-50"
+                                                        >
+                                                            <div className="flex items-center space-x-4">
+                                                                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-white shadow-sm ring-1 ring-purple-100">
+                                                                    {part.type === 'video' && <Play className="h-4 w-4 text-purple-600" />}
+                                                                    {part.type === 'quiz' && <MessageCircle className="h-4 w-4 text-blue-600" />}
+                                                                    {part.type === 'assignment' && <CheckCircle2 className="h-4 w-4 text-green-600" />}
+                                                                </div>
+                                                                <div>
+                                                                    <h5 className="font-medium text-gray-900 flex items-center gap-2">
+                                                                        {part.title}
+                                                                        {part.isPreview && (
+                                                                            <Badge variant="secondary" className="bg-green-50 text-green-700 text-xs">
+                                                                                {courseStrings.curriculum.previewAvailable}
+                                                                            </Badge>
+                                                                        )}
+                                                                    </h5>
+                                                                    <div className="flex items-center gap-2 text-sm text-gray-500">
+                                                                        <span>{part.duration}</span>
+                                                                        <span className="text-gray-300">•</span>
+                                                                        <span>
+                                                                            {part.type === 'video' && courseStrings.curriculum.videoLabel}
+                                                                            {part.type === 'quiz' && courseStrings.curriculum.quizLabel}
+                                                                            {part.type === 'assignment' && courseStrings.curriculum.assignmentLabel}
+                                                                        </span>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <Button 
+                                                                variant="ghost" 
+                                                                className={`
+                                                                    transition-all duration-200
+                                                                    ${part.isPreview 
+                                                                        ? 'text-purple-600 hover:text-purple-700 hover:bg-purple-50' 
+                                                                        : 'text-gray-400 hover:text-gray-500 hover:bg-gray-50 cursor-not-allowed'
+                                                                    }
+                                                                `}
+                                                                disabled={!part.isPreview}
+                                                                aria-label={part.isPreview ? courseStrings.a11y.previewButton : courseStrings.curriculum.lockedContent}
+                                                            >
+                                                                {part.isPreview ? (
+                                                                    courseStrings.curriculum.previewButton
+                                                                ) : (
+                                                                    <div className="flex items-center gap-1">
+                                                                        <Lock className="h-4 w-4" />
+                                                                        {courseStrings.curriculum.lockedContent}
+                                                                    </div>
+                                                                )}
+                                                            </Button>
+                                                        </motion.div>
+                                                    ))}
+                                                </div>
                                             </div>
                                         </motion.div>
                                     ))}

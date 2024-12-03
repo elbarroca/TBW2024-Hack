@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { ChevronDown, X } from 'lucide-react';
+import { X } from 'lucide-react';
 import { Badge } from '@/components/ui/Badge';
 import { Input } from '@/components/ui/Input';
 import { cn } from '@/lib/utils';

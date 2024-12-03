@@ -10,4 +10,8 @@ export interface Creator {
   category: string;
   isTopCreator?: boolean;
   twitterHandle?: string;
+  githubHandle?: string;
+  linkedinHandle?: string;
+  website?: string;
+  email?: string;
 } 

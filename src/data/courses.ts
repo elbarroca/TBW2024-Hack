@@ -31,8 +31,79 @@ export const COURSES: Course[] = [
             'Implement token economics',
             'Deploy and test smart contracts',
         ],
-        modules: [
-            /* ... */
+        lessons: [
+            {
+                id: 'introduction',
+                title: 'Introduction to Solana',
+                description: 'Learn the fundamentals of Solana blockchain',
+                duration: '2 hours',
+                order: 1,
+                parts: [
+                    {
+                        id: 'what-is-solana',
+                        title: 'What is Solana?',
+                        duration: '30 min',
+                        type: 'video',
+                        content: {
+                            videoUrl: 'https://example.com/video1'
+                        },
+                        isPreview: true
+                    },
+                    {
+                        id: 'architecture',
+                        title: 'Solana Architecture',
+                        duration: '45 min',
+                        type: 'video',
+                        content: {
+                            videoUrl: 'https://example.com/video2'
+                        },
+                        isPreview: false
+                    },
+                    {
+                        id: 'quiz-1',
+                        title: 'Introduction Quiz',
+                        duration: '45 min',
+                        type: 'quiz',
+                        isPreview: false
+                    }
+                ]
+            },
+            {
+                id: 'smart-contracts',
+                title: 'Smart Contracts in Rust',
+                description: 'Write your first smart contract',
+                duration: '3 hours',
+                order: 2,
+                parts: [
+                    {
+                        id: 'rust-basics',
+                        title: 'Rust Programming Basics',
+                        duration: '1 hour',
+                        type: 'video',
+                        content: {
+                            videoUrl: 'https://example.com/video3'
+                        },
+                        isPreview: false
+                    },
+                    {
+                        id: 'first-contract',
+                        title: 'Your First Smart Contract',
+                        duration: '1 hour',
+                        type: 'video',
+                        content: {
+                            videoUrl: 'https://example.com/video4'
+                        },
+                        isPreview: false
+                    },
+                    {
+                        id: 'assignment-1',
+                        title: 'Build a Token Contract',
+                        duration: '1 hour',
+                        type: 'assignment',
+                        isPreview: false
+                    }
+                ]
+            }
         ],
         certificate: true,
         tags: ['Smart Contracts', 'Solana Development', 'Blockchain Architecture', 'dApp Building'],

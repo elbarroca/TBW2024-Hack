@@ -1,3 +1,4 @@
+import React from "react"
 import { Github, Globe, LucideIcon } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
@@ -84,11 +85,9 @@ const Footer = () => {
                       rel="noopener noreferrer"
                       aria-label={`Visit our ${social.label} page`}
                     >
-                      {typeof social.icon === 'function' ? (
-                        <social.icon />
-                      ) : (
-                        <social.icon className="h-5 w-5" />
-                      )}
+                      {social.icon && React.createElement(social.icon, {
+                        className: "h-5 w-5"
+                      })}
                     </a>
                   </Button>
                 ))}

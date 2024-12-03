@@ -1,12 +1,14 @@
 import { useState } from 'react';
 import { Search } from 'lucide-react';
 import { ContentCard } from '@/components/content/ContentCard';
-import { CategoryList, CategoryKey, COURSE_CATEGORIES } from '@/components/courses/CategoryList';
+import { CategoryList, CategoryKey } from '@/components/courses/CategoryList';
 
 interface ContentItem {
     id: string;
     title: string;
     creator: string;
+    creatorSlug: string;
+    contentSlug: string;
     price: number;
     type: string;
     thumbnail: string;
@@ -24,6 +26,8 @@ const MOCK_CONTENT: ContentItem[] = [
         id: '1',
         title: 'The Complete Guide to DeFi Trading',
         creator: 'Alex Thompson',
+        creatorSlug: 'alex-thompson',
+        contentSlug: 'defi-trading-guide',
         price: 29.99,
         type: 'ebooks',
         thumbnail: '/content/defi-guide-enhanced.jpg',
@@ -38,6 +42,8 @@ const MOCK_CONTENT: ContentItem[] = [
         id: '2',
         title: 'Meme Coin Analysis Framework',
         creator: 'Sarah Chen',
+        creatorSlug: 'sarah-chen',
+        contentSlug: 'meme-coin-analysis',
         price: 9.99,
         type: 'pdfs',
         thumbnail: '/content/meme-analysis-pro.jpg',
@@ -52,6 +58,8 @@ const MOCK_CONTENT: ContentItem[] = [
         id: '3',
         title: 'Smart Contract Security Best Practices',
         creator: 'Michael Rodriguez',
+        creatorSlug: 'michael-rodriguez',
+        contentSlug: 'smart-contract-security',
         price: 49.99,
         type: 'ebooks',
         thumbnail: '/content/security-guide-premium.jpg',
@@ -66,6 +74,8 @@ const MOCK_CONTENT: ContentItem[] = [
         id: '4',
         title: 'Crypto Marketing Fundamentals',
         creator: 'Emma Davis',
+        creatorSlug: 'emma-davis',
+        contentSlug: 'crypto-marketing-fundamentals',
         price: 0,
         type: 'blogs',
         thumbnail: '/content/marketing-master.jpg',
@@ -182,15 +192,15 @@ export default function ContentMarketplace() {
                     {filteredContent.map((content) => (
                         <ContentCard
                             key={content.id}
-                            id={content.id}
                             title={content.title}
                             creator={content.creator}
+                            creatorSlug={content.creatorSlug}
+                            contentSlug={content.contentSlug}
                             price={content.price}
                             type={content.type}
                             thumbnail={content.thumbnail}
                             downloads={content.downloads}
                             rating={content.rating}
-                            onBuyClick={(id) => console.log('Buy clicked for content:', id)}
                         />
                     ))}
                 </div>

@@ -2,9 +2,9 @@ import { useState } from 'react';
 import { Search, Star, Users, BookOpen, Sparkles } from 'lucide-react';
 import { CreatorCard } from '@/components/creator/CreatorCard';
 import { Input } from "@/components/ui/Input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/Tabs";
 import { motion } from "framer-motion";
+import { CategoryList } from '@/components/courses/CategoryList';
 
 const container = {
   hidden: { opacity: 0 },
@@ -31,6 +31,7 @@ type Creator = {
     courses: number;
     students: number;
     category: string;
+    tags: string[];
     slug: string;
     twitterHandle?: string;
     isTopCreator?: boolean;
@@ -46,7 +47,8 @@ const creators: Creator[] = [
         bio: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
         courses: 10,
         students: 12500,
-        category: 'blockchain',
+        category: 'Development',
+        tags: ['Smart Contracts', 'Solana Development', 'Web3 Integration', 'dApp Building'],
         slug: 'alex-rivera',
         twitterHandle: '@alexrivera',
         isTopCreator: true,
@@ -60,7 +62,8 @@ const creators: Creator[] = [
         bio: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
         courses: 8,
         students: 9800,
-        category: 'security',
+        category: 'Development',
+        tags: ['Security Best Practices', 'Testing & Auditing', 'Smart Contracts'],
         slug: 'sarah-chen',
         twitterHandle: '@sarahchen',
     },
@@ -68,51 +71,47 @@ const creators: Creator[] = [
         id: '3',
         name: 'Michael Chang',
         image: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e',
-        expertise: 'Smart Contract Engineer',
+        expertise: 'DeFi Protocol Architect',
         rating: '4.7',
         bio: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
         courses: 7,
         students: 8200,
-        category: 'engineering',
+        category: 'DeFi',
+        tags: ['Yield Farming', 'Liquidity Pools', 'DEX Trading', 'Protocol Deep Dive'],
         slug: 'michael-chang',
     },
     {
         id: '4',
         name: 'Emma Wilson',
         image: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330',
-        expertise: 'DeFi Protocol Architect',
+        expertise: 'NFT & Gaming Expert',
         rating: '4.9',
         bio: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
         courses: 9,
         students: 11300,
-        category: 'architecture',
+        category: 'NFTs & Gaming',
+        tags: ['NFT Trading', 'GameFi', 'Play-to-Earn', 'Metaverse'],
         slug: 'emma-wilson',
     },
 ];
 
 export default function CreatorsPage() {
     const [searchQuery, setSearchQuery] = useState('');
-    const [selectedCategory, setSelectedCategory] = useState('all');
-    const [sortBy, setSortBy] = useState('popularity');
+    const [selectedTags, setSelectedTags] = useState<string[]>([]);
 
-    const filteredCreators = creators
-        .filter((creator) => {
-            const matchesCategory = selectedCategory === 'all' || creator.category === selectedCategory;
-            const matchesSearch =
-                creator.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                creator.expertise.toLowerCase().includes(searchQuery.toLowerCase());
-            return matchesCategory && matchesSearch;
-        })
-        .sort((a, b) => {
-            switch (sortBy) {
-                case 'rating':
-                    return parseFloat(b.rating) - parseFloat(a.rating);
-                case 'courses':
-                    return b.courses - a.courses;
-                default:
-                    return b.students - a.students;
-            }
-        });
+    const handleTagsChange = (newTags: string[]) => {
+        setSelectedTags(newTags);
+    };
+
+    const filteredCreators = creators.filter((creator) => {
+        const matchesSearch = creator.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            creator.expertise.toLowerCase().includes(searchQuery.toLowerCase());
+        
+        const matchesTags = selectedTags.length === 0 || 
+            selectedTags.some(tag => creator.tags.includes(tag));
+
+        return matchesSearch && matchesTags;
+    });
 
     const featuredCreators = creators.filter(creator => creator.isTopCreator);
 
@@ -148,8 +147,8 @@ export default function CreatorsPage() {
                         transition={{ duration: 0.6, delay: 0.2 }}
                         className="max-w-4xl mx-auto space-y-4"
                     >
-                        <div className="flex gap-4 flex-col sm:flex-row">
-                            <div className="relative flex-1">
+                        <div className="flex gap-4 flex-col">
+                            <div className="relative">
                                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 h-5 w-5" />
                                 <Input
                                     type="text"
@@ -159,28 +158,11 @@ export default function CreatorsPage() {
                                     onChange={(e) => setSearchQuery(e.target.value)}
                                 />
                             </div>
-                            <Select value={selectedCategory} onValueChange={setSelectedCategory}>
-                                <SelectTrigger className="w-full sm:w-[180px] bg-white/90 backdrop-blur-sm border-purple-200">
-                                    <SelectValue placeholder="Category" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    <SelectItem value="all">All Categories</SelectItem>
-                                    <SelectItem value="blockchain">Blockchain</SelectItem>
-                                    <SelectItem value="security">Security</SelectItem>
-                                    <SelectItem value="engineering">Engineering</SelectItem>
-                                    <SelectItem value="architecture">Architecture</SelectItem>
-                                </SelectContent>
-                            </Select>
-                            <Select value={sortBy} onValueChange={setSortBy}>
-                                <SelectTrigger className="w-full sm:w-[180px] bg-white/90 backdrop-blur-sm border-purple-200">
-                                    <SelectValue placeholder="Sort by" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    <SelectItem value="popularity">Most Popular</SelectItem>
-                                    <SelectItem value="rating">Highest Rated</SelectItem>
-                                    <SelectItem value="courses">Most Courses</SelectItem>
-                                </SelectContent>
-                            </Select>
+                            <CategoryList 
+                                selectedTags={selectedTags}
+                                onChange={handleTagsChange}
+                                maxTags={5}
+                            />
                         </div>
                     </motion.div>
 

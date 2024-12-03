@@ -24,6 +24,9 @@ import {
   GraduationCap,
   ChevronLeft,
   Trophy,
+  Github,
+  Globe,
+  Linkedin,
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import Footer from '@/components/layout/Footer';
@@ -502,16 +505,46 @@ export default function CreatorProfile() {
             <h1 className="mt-6 text-4xl font-bold text-gray-900">{creator.name}</h1>
             <p className="mt-2 text-xl text-gray-600">{creator.bio}</p>
             <div className="mt-6 flex justify-center space-x-4">
-              {creator.twitterHandle && (
-                <Button variant="outline" className="gap-2">
-                  <Twitter className="h-4 w-4" />
-                  Follow
+              {creator.socialLinks?.twitter && (
+                <Button variant="outline" className="gap-2" asChild>
+                  <a href={`https://x.com/${creator.socialLinks.twitter}`} target="_blank" rel="noopener noreferrer">
+                    <Twitter className="h-4 w-4" />
+                    Follow on X
+                  </a>
                 </Button>
               )}
-              <Button variant="outline" className="gap-2">
-                <Mail className="h-4 w-4" />
-                Contact
-              </Button>
+              {creator.socialLinks?.github && (
+                <Button variant="outline" className="gap-2" asChild>
+                  <a href={`https://github.com/${creator.socialLinks.github}`} target="_blank" rel="noopener noreferrer">
+                    <Github className="h-4 w-4" />
+                    GitHub
+                  </a>
+                </Button>
+              )}
+              {creator.socialLinks?.linkedin && (
+                <Button variant="outline" className="gap-2" asChild>
+                  <a href={`https://linkedin.com/in/${creator.socialLinks.linkedin}`} target="_blank" rel="noopener noreferrer">
+                    <Linkedin className="h-4 w-4" />
+                    LinkedIn
+                  </a>
+                </Button>
+              )}
+              {creator.socialLinks?.website && (
+                <Button variant="outline" className="gap-2" asChild>
+                  <a href={creator.socialLinks.website} target="_blank" rel="noopener noreferrer">
+                    <Globe className="h-4 w-4" />
+                    Website
+                  </a>
+                </Button>
+              )}
+              {creator.socialLinks?.email && (
+                <Button variant="outline" className="gap-2" asChild>
+                  <a href={`mailto:${creator.socialLinks.email}`}>
+                    <Mail className="h-4 w-4" />
+                    Contact
+                  </a>
+                </Button>
+              )}
             </div>
           </motion.div>
         </div>

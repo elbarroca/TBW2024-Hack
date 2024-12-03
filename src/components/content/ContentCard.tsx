@@ -11,32 +11,42 @@ import {
     TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
+import { useNavigate } from 'react-router-dom';
 
 interface ContentCardProps {
-    id: string;
     title: string;
     creator: string;
+    creatorSlug: string;
+    contentSlug: string;
     price: number;
     type: string;
     thumbnail: string;
     downloads: number;
     rating: number;
-    onBuyClick: (id: string) => void;
 }
 
 export function ContentCard({
-    id,
     title,
     creator,
+    creatorSlug,
+    contentSlug,
     price,
     type,
     thumbnail,
     downloads,
     rating,
-    onBuyClick,
 }: ContentCardProps) {
+    const navigate = useNavigate();
+
+    const handleClick = () => {
+        navigate(`/${creatorSlug}/${type.toLowerCase()}/${contentSlug}`);
+    };
+
     return (
-        <Card className="group relative overflow-hidden transition-all duration-500 hover:shadow-2xl hover:-translate-y-1 border border-gray-100/50 bg-white/50 backdrop-blur-sm">
+        <Card 
+            className="group relative overflow-hidden transition-all duration-500 hover:shadow-2xl hover:-translate-y-1 border border-gray-100/50 bg-white/50 backdrop-blur-sm cursor-pointer"
+            onClick={handleClick}
+        >
             <div className="relative pb-[56.25%] bg-gradient-to-br from-purple-50/80 to-gray-50/80 overflow-hidden">
                 <img
                     src={thumbnail}
@@ -116,7 +126,7 @@ export function ContentCard({
                         </div>
                     </div>
                     <Button
-                        onClick={() => onBuyClick(id)}
+                        onClick={handleClick}
                         className={cn(
                             "bg-gradient-to-r from-purple-600 to-indigo-600",
                             "hover:from-purple-700 hover:to-indigo-700",

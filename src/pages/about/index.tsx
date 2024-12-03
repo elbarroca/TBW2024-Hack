@@ -17,7 +17,7 @@ export default function AboutPage() {
             <main className="bg-gradient-to-b from-gray-50 to-white">
                 {/* Hero Section */}
                 <motion.div
-                    className="relative bg-gradient-to-r from-purple-900 via-blue-900 to-purple-900 text-white overflow-hidden min-h-[50vh] flex items-center justify-center"
+                    className="relative bg-gradient-to-r from-purple-900 via-blue-900 to-purple-900 text-white overflow-hidden min-h-[50vh] flex items-center justify-center pt-24"
                     initial={{ backgroundPosition: '0% 50%' }}
                     animate={{ backgroundPosition: '100% 50%' }}
                     transition={{ duration: 20, repeat: Infinity, repeatType: 'reverse' }}

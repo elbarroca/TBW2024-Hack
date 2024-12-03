@@ -1,8 +1,23 @@
-export interface Lesson {
+export interface LessonPart {
     id: string;
     title: string;
     duration: string;
+    type: 'video' | 'quiz' | 'assignment';
+    content?: {
+        videoUrl?: string;
+        ipfsHash?: string;
+        arweaveHash?: string;
+    };
     isPreview: boolean;
+}
+
+export interface Lesson {
+    id: string;
+    title: string;
+    description?: string;
+    duration: string;
+    parts: LessonPart[];
+    order: number;
 }
 
 export interface Module {
@@ -46,7 +61,7 @@ export interface Course {
     language: string;
     lastUpdated: string;
     whatYouWillLearn: string[];
-    modules?: CourseModule[];
+    lessons?: Lesson[];
     certificate?: boolean;
     tags?: string[];
 }
@@ -58,23 +73,6 @@ export interface CourseModule {
     lessons: Lesson[];
     duration: string;
     order: number;
-}
-
-export interface Lesson {
-    id: string;
-    title: string;
-    description?: string;
-    duration: string;
-    type: 'video' | 'quiz' | 'assignment';
-    content: {
-        videoUrl?: string;
-        ipfsHash?: string;
-        arweaveHash?: string;
-    };
-    isPreview: boolean;
-    order: number;
-    materials: CourseMaterial[];
-    quiz?: Quiz;
 }
 
 export interface CourseMaterial {

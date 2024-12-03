@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { Star, Users, BookOpen, Award, ExternalLink, Twitter } from 'lucide-react';
+import { Star, Users, BookOpen, Award, ExternalLink, Twitter, Apple, Linkedin, Youtube } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/button";
@@ -16,6 +16,9 @@ interface CreatorCardProps {
   slug: string;
   isTopCreator?: boolean;
   twitterHandle?: string;
+  appleHandle?: string;
+  linkedinHandle?: string;
+  youtubeHandle?: string;
   tags?: string[];
 }
 
@@ -30,6 +33,9 @@ export const CreatorCard = ({
   slug,
   isTopCreator,
   twitterHandle,
+  appleHandle,
+  linkedinHandle,
+  youtubeHandle,
   tags = []
 }: CreatorCardProps) => {
   return (
@@ -60,16 +66,52 @@ export const CreatorCard = ({
             <CardTitle className="text-xl font-bold text-gray-900">
               {name}
             </CardTitle>
-            {twitterHandle && (
-              <a 
-                href={`https://twitter.com/${twitterHandle}`} 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="text-gray-600 hover:text-blue-500 transition-colors duration-300"
-              >
-                <Twitter className="w-5 h-5" />
-              </a>
-            )}
+            <div className="flex items-center space-x-3">
+              {twitterHandle && (
+                <a 
+                  href={`https://twitter.com/${twitterHandle}`} 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="text-gray-600 hover:text-blue-500 transition-colors duration-300"
+                  aria-label={`Follow ${name} on Twitter`}
+                >
+                  <Twitter className="w-5 h-5" />
+                </a>
+              )}
+              {linkedinHandle && (
+                <a 
+                  href={`https://linkedin.com/in/${linkedinHandle}`} 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="text-gray-600 hover:text-blue-700 transition-colors duration-300"
+                  aria-label={`Connect with ${name} on LinkedIn`}
+                >
+                  <Linkedin className="w-5 h-5" />
+                </a>
+              )}
+              {youtubeHandle && (
+                <a 
+                  href={`https://youtube.com/@${youtubeHandle}`} 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="text-gray-600 hover:text-red-600 transition-colors duration-300"
+                  aria-label={`Subscribe to ${name} on YouTube`}
+                >
+                  <Youtube className="w-5 h-5" />
+                </a>
+              )}
+              {appleHandle && (
+                <a 
+                  href={`https://music.apple.com/${appleHandle}`} 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="text-gray-600 hover:text-black transition-colors duration-300"
+                  aria-label={`Listen to ${name} on Apple Music`}
+                >
+                  <Apple className="w-5 h-5" />
+                </a>
+              )}
+            </div>
           </div>
           <CardDescription className="text-gray-600 font-medium">
             {expertise}
@@ -93,23 +135,23 @@ export const CreatorCard = ({
           {bio}
         </div>
         
-        <div className="flex flex-col gap-3 p-4 rounded-lg bg-gray-50">
-          <div className="flex items-center justify-between">
-            <span className="flex items-center text-sm font-medium text-gray-700">
-              <BookOpen className="w-4 h-4 mr-2 text-gray-600" />
-              {courses} Courses
-            </span>
-            <div className="flex items-center bg-white px-3 py-1 rounded-full shadow-sm border border-gray-200">
-              <Star className="w-4 h-4 text-yellow-400" />
-              <span className="ml-1.5 text-sm font-bold text-gray-700">{rating}</span>
-            </div>
+        <div className="grid grid-cols-3 gap-4">
+          <div className="flex flex-col items-center p-3 rounded-lg bg-indigo-50 hover:bg-indigo-100 transition-colors duration-300">
+            <BookOpen className="w-6 h-6 text-indigo-600 mb-2" />
+            <span className="text-lg font-bold text-indigo-700">{courses}</span>
+            <span className="text-xs text-indigo-600 font-medium">Courses</span>
           </div>
           
-          <div className="flex items-center">
-            <span className="flex items-center text-sm font-medium text-gray-700">
-              <Users className="w-4 h-4 mr-2 text-gray-600" />
-              {students.toLocaleString()} Students
-            </span>
+          <div className="flex flex-col items-center p-3 rounded-lg bg-violet-50 hover:bg-violet-100 transition-colors duration-300">
+            <Users className="w-6 h-6 text-violet-600 mb-2" />
+            <span className="text-lg font-bold text-violet-700">{students.toLocaleString()}</span>
+            <span className="text-xs text-violet-600 font-medium">Students</span>
+          </div>
+          
+          <div className="flex flex-col items-center p-3 rounded-lg bg-amber-50 hover:bg-amber-100 transition-colors duration-300">
+            <Star className="w-6 h-6 text-amber-500 mb-2" />
+            <span className="text-lg font-bold text-amber-700">{rating}</span>
+            <span className="text-xs text-amber-600 font-medium">Rating</span>
           </div>
         </div>
       </CardContent>
@@ -130,4 +172,3 @@ export const CreatorCard = ({
     </Card>
   );
 };
-

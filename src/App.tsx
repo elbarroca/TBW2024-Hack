@@ -37,9 +37,8 @@ export default function App() {
                         <Route path="video" element={<CreateVideo />} />
                         <Route path="article" element={<CreateArticle />} />
                     </Route>
-
                     {/* Dynamic Routes - Order matters! Most specific first */}
-                    <Route path="/content/:creatorSlug/:contentSlug" element={<ContentPage />} />
+                    <Route path="/:creatorSlug/:contentType/:contentSlug" element={<ContentPage />} />
                     <Route path="/:creatorSlug/:courseSlug" element={<CourseDetailsPage />} />
                     <Route path="/:slug" element={<CreatorProfile />} />
                 </Routes>
