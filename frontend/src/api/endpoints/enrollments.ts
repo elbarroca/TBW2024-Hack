@@ -1,9 +1,8 @@
 import { baseApi, handleResponse } from '../client';
-import type { Enrollment } from '@/types/course';
 
 export const enrollmentsApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
-    getEnrollments: builder.query<Enrollment[], void>({
+    getEnrollments: builder.query<any[], void>({
       query: () => 'enrollments',
       transformResponse: handleResponse,
       providesTags: ['Enrollment'],

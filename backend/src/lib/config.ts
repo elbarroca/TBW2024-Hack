@@ -8,11 +8,14 @@ const solanaApi = createSolanaRpcApi(DEFAULT_RPC_CONFIG);
 
 export const config = {
   HOST: process.env.HOST || "127.0.0.1",
-  PORT: process.env.PORT || "3001",
+  PORT: process.env.PORT || "3000",
+  CORS_ORIGIN: process.env.CORS_ORIGIN?.split(",") || ["http://localhost:5173"],
   RPC: createRpc({
     api: solanaApi,
     transport: heliusRpcTransport,
   }),
+  SUPABASE_URL: process.env.SUPABASE_URL!,
+  SUPABASE_KEY: process.env.SUPABASE_KEY!,
 };
 
 const requiredEnvVariables = [

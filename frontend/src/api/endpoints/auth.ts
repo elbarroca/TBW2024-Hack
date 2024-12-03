@@ -1,32 +1,45 @@
-import { User } from '@/types/user';
-import { baseApi, handleResponse } from '../client';
-import type { AuthResponse, ChallengeResponse, VerifyRequest } from '@/types/api';
+import { baseApi } from '../client';
+import type { User } from '@/types/user';
+import type { ApiResponse, NonceResponse } from '@/types/api';
+
+interface NonceRequest {
+  publicKey: string;
+}
+
+interface VerifyRequest {
+  message: string;
+  signature: string;
+}
+
+interface AuthResponse {
+  user: User;
+}
 
 export const authApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
-    requestNonce: builder.mutation<ChallengeResponse, { address: string }>({
+    requestNonce: builder.mutation<ApiResponse<NonceResponse>, NonceRequest>({
       query: (body) => ({
-        url: 'auth/nonce',
+        url: '/auth/nonce',
         method: 'POST',
         body,
       }),
-      transformResponse: handleResponse,
     }),
-
-    verifySignature: builder.mutation<AuthResponse, VerifyRequest>({
+    
+    verifySignature: builder.mutation<ApiResponse<AuthResponse>, VerifyRequest>({
       query: (body) => ({
-        url: 'auth/verify',
+        url: '/auth/verify',
         method: 'POST',
         body,
       }),
-      transformResponse: handleResponse,
-      invalidatesTags: ['Auth', 'User'],
+      invalidatesTags: ['Auth'],
     }),
-
-    getMe: builder.query<User, void>({
-      query: () => 'auth/me',
-      transformResponse: handleResponse,
-      providesTags: ['User', 'Auth'],
+    
+    logout: builder.mutation<ApiResponse<{ message: string }>, void>({
+      query: () => ({
+        url: '/auth/logout',
+        method: 'POST',
+      }),
+      invalidatesTags: ['Auth'],
     }),
   }),
 });
@@ -34,5 +47,5 @@ export const authApi = baseApi.injectEndpoints({
 export const {
   useRequestNonceMutation,
   useVerifySignatureMutation,
-  useGetMeQuery,
+  useLogoutMutation,
 } = authApi; 

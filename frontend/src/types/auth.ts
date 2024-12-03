@@ -2,10 +2,28 @@ import type { User } from './user';
 
 export enum LoginStatus {
   IDLE = 'IDLE',
-  LOADING = 'LOADING',
   IN = 'IN',
-  OUT = 'OUT',
+  OUT = 'OUT'
 }
+
+export enum UserRole {
+  STUDENT = 'student',
+  INSTRUCTOR = 'instructor',
+  ADMIN = 'admin'
+}
+
+export interface SignMessagePayload {
+  publicKey: string;
+  nonce: string;
+  statement: string;
+}
+
+export interface Permission {
+  operation: string;
+  resource: string;
+}
+
+export type RolePermissions = Record<UserRole, Permission[]>;
 
 export interface AuthState {
   user: User | null;

@@ -12,35 +12,36 @@ CREATE TYPE payment_status AS ENUM ('pending', 'completed', 'failed');
 -- Create login_attempts table
 CREATE TABLE login_attempts (
     address TEXT PRIMARY KEY,
-    nonce TEXT,
-    ttl TEXT,
+    nonce TEXT NOT NULL,
+    ttl TIMESTAMP WITH TIME ZONE NOT NULL,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
 -- Create users table
 CREATE TABLE users (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id TEXT PRIMARY KEY,
+    auth_user_id UUID UNIQUE,
     address TEXT UNIQUE,
-    avatar_url TEXT,
-    full_name TEXT,
-    email TEXT UNIQUE,
+    avatar_url TEXT NULL,
+    full_name TEXT NULL,
+    email TEXT NULL UNIQUE,
     role user_role DEFAULT 'student',
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-    last_auth TIMESTAMP WITH TIME ZONE,
-    last_auth_status TEXT,
-    nonce TEXT,
-    billing_address JSONB,
-    payment_method JSONB
+    last_auth TIMESTAMP WITH TIME ZONE NULL,
+    last_auth_status TEXT NULL,
+    nonce TEXT NULL,
+    billing_address JSONB NULL,
+    payment_method JSONB NULL
 );
 
 -- Create courses table
 CREATE TABLE courses (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id TEXT PRIMARY KEY DEFAULT gen_random_uuid()::text,
     title TEXT NOT NULL,
     description TEXT NOT NULL,
-    instructor_id UUID NOT NULL REFERENCES users(id),
-    price TEXT NOT NULL,
+    instructor_id TEXT NOT NULL REFERENCES users(id),
+    price NUMERIC NOT NULL,
     currency TEXT NOT NULL,
     duration INTEGER NOT NULL, -- in minutes
     level TEXT CHECK (level IN ('beginner', 'intermediate', 'advanced')),
@@ -53,8 +54,8 @@ CREATE TABLE courses (
 
 -- Create modules table
 CREATE TABLE modules (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    course_id UUID NOT NULL REFERENCES courses(id) ON DELETE CASCADE,
+    id TEXT PRIMARY KEY DEFAULT gen_random_uuid()::text,
+    course_id TEXT NOT NULL REFERENCES courses(id) ON DELETE CASCADE,
     title TEXT NOT NULL,
     description TEXT NOT NULL,
     order_number INTEGER NOT NULL,
@@ -65,8 +66,8 @@ CREATE TABLE modules (
 
 -- Create lessons table
 CREATE TABLE lessons (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    module_id UUID NOT NULL REFERENCES modules(id) ON DELETE CASCADE,
+    id TEXT PRIMARY KEY DEFAULT gen_random_uuid()::text,
+    module_id TEXT NOT NULL REFERENCES modules(id) ON DELETE CASCADE,
     title TEXT NOT NULL,
     description TEXT NOT NULL,
     content_type content_type NOT NULL,
@@ -80,10 +81,10 @@ CREATE TABLE lessons (
 
 -- Create payments table
 CREATE TABLE payments (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    user_id UUID NOT NULL REFERENCES users(id),
-    course_id UUID NOT NULL REFERENCES courses(id),
-    amount TEXT NOT NULL,
+    id TEXT PRIMARY KEY DEFAULT gen_random_uuid()::text,
+    user_id TEXT NOT NULL REFERENCES users(id),
+    course_id TEXT NOT NULL REFERENCES courses(id),
+    amount NUMERIC NOT NULL,
     currency TEXT NOT NULL,
     payment_method payment_method NOT NULL,
     status payment_status DEFAULT 'pending',
@@ -95,12 +96,12 @@ CREATE TABLE payments (
 
 -- Create enrollments table
 CREATE TABLE enrollments (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-    course_id UUID NOT NULL REFERENCES courses(id) ON DELETE CASCADE,
+    id TEXT PRIMARY KEY DEFAULT gen_random_uuid()::text,
+    user_id TEXT NOT NULL REFERENCES users(id),
+    course_id TEXT NOT NULL REFERENCES courses(id) ON DELETE CASCADE,
     status enrollment_status DEFAULT 'active',
-    progress NUMERIC DEFAULT 0 CHECK (progress >= 0 AND progress <= 100),
-    payment_id UUID REFERENCES payments(id),
+    progress NUMERIC NOT NULL DEFAULT 0 CHECK (progress >= 0 AND progress <= 100),
+    payment_id TEXT REFERENCES payments(id),
     enrolled_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     completed_at TIMESTAMP WITH TIME ZONE,
     last_accessed TIMESTAMP WITH TIME ZONE,
@@ -109,11 +110,11 @@ CREATE TABLE enrollments (
 
 -- Create progress_tracking table
 CREATE TABLE progress_tracking (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    enrollment_id UUID NOT NULL REFERENCES enrollments(id) ON DELETE CASCADE,
-    lesson_id UUID NOT NULL REFERENCES lessons(id) ON DELETE CASCADE,
+    id TEXT PRIMARY KEY DEFAULT gen_random_uuid()::text,
+    enrollment_id TEXT NOT NULL REFERENCES enrollments(id) ON DELETE CASCADE,
+    lesson_id TEXT NOT NULL REFERENCES lessons(id) ON DELETE CASCADE,
     status lesson_status DEFAULT 'not_started',
-    progress_percentage NUMERIC DEFAULT 0 CHECK (progress_percentage >= 0 AND progress_percentage <= 100),
+    progress_percentage NUMERIC NOT NULL DEFAULT 0 CHECK (progress_percentage >= 0 AND progress_percentage <= 100),
     last_position INTEGER,
     completed_at TIMESTAMP WITH TIME ZONE,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
@@ -177,54 +178,12 @@ CREATE TRIGGER update_payments_updated_at
     FOR EACH ROW
     EXECUTE FUNCTION update_updated_at_column();
 
--- Create RLS policies
-ALTER TABLE users ENABLE ROW LEVEL SECURITY;
-ALTER TABLE courses ENABLE ROW LEVEL SECURITY;
-ALTER TABLE modules ENABLE ROW LEVEL SECURITY;
-ALTER TABLE lessons ENABLE ROW LEVEL SECURITY;
-ALTER TABLE enrollments ENABLE ROW LEVEL SECURITY;
-ALTER TABLE progress_tracking ENABLE ROW LEVEL SECURITY;
-ALTER TABLE payments ENABLE ROW LEVEL SECURITY;
-
--- Example RLS policies (customize these based on your needs)
-CREATE POLICY "Users can view their own data"
-    ON users FOR SELECT
-    USING (auth.uid() = id);
-
-CREATE POLICY "Public can view published courses"
-    ON courses FOR SELECT
-    USING (published = true);
-
-CREATE POLICY "Instructors can manage their own courses"
-    ON courses FOR ALL
-    USING (instructor_id = auth.uid());
-
-CREATE POLICY "Enrolled users can view course content"
-    ON modules FOR SELECT
-    USING (EXISTS (
-        SELECT 1 FROM enrollments
-        WHERE user_id = auth.uid()
-        AND course_id = modules.course_id
-    ));
-
-CREATE POLICY "Users can view their own enrollments"
-    ON enrollments FOR SELECT
-    USING (user_id = auth.uid());
-
-CREATE POLICY "Instructors can view course enrollments"
-    ON enrollments FOR SELECT
-    USING (EXISTS (
-        SELECT 1 FROM courses
-        WHERE courses.id = enrollments.course_id
-        AND courses.instructor_id = auth.uid()
-    ));
-
 -- Create content table
 CREATE TABLE content (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id TEXT PRIMARY KEY DEFAULT gen_random_uuid()::text,
     title TEXT NOT NULL,
     description TEXT,
-    creator_id UUID NOT NULL REFERENCES users(id),
+    creator_id TEXT NOT NULL REFERENCES users(id),
     type content_type NOT NULL,
     file_url TEXT NOT NULL,
     thumbnail_url TEXT,
@@ -238,21 +197,178 @@ CREATE TABLE content (
 
 -- Create content_categories table for tagging
 CREATE TABLE content_categories (
-    content_id UUID REFERENCES content(id) ON DELETE CASCADE,
+    content_id TEXT REFERENCES content(id) ON DELETE CASCADE,
     category TEXT NOT NULL,
     PRIMARY KEY (content_id, category)
 );
 
 -- Create purchases table
 CREATE TABLE content_purchases (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    content_id UUID NOT NULL REFERENCES content(id),
-    buyer_id UUID NOT NULL REFERENCES users(id),
+    id TEXT PRIMARY KEY DEFAULT gen_random_uuid()::text,
+    content_id TEXT NOT NULL REFERENCES content(id),
+    buyer_id TEXT NOT NULL REFERENCES users(id),
     transaction_signature TEXT NOT NULL,
     price_paid NUMERIC NOT NULL,
     currency TEXT NOT NULL,
     purchased_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
+
+-- Enable RLS on all tables
+ALTER TABLE users ENABLE ROW LEVEL SECURITY;
+ALTER TABLE courses ENABLE ROW LEVEL SECURITY;
+ALTER TABLE modules ENABLE ROW LEVEL SECURITY;
+ALTER TABLE lessons ENABLE ROW LEVEL SECURITY;
+ALTER TABLE enrollments ENABLE ROW LEVEL SECURITY;
+ALTER TABLE progress_tracking ENABLE ROW LEVEL SECURITY;
+ALTER TABLE payments ENABLE ROW LEVEL SECURITY;
+ALTER TABLE content ENABLE ROW LEVEL SECURITY;
+ALTER TABLE content_categories ENABLE ROW LEVEL SECURITY;
+ALTER TABLE content_purchases ENABLE ROW LEVEL SECURITY;
+
+-- Drop existing policies
+DROP POLICY IF EXISTS "Allow public insert to users" ON users;
+DROP POLICY IF EXISTS "Users can view their own data" ON users;
+DROP POLICY IF EXISTS "Users can update their own data" ON users;
+
+-- Updated auth policies
+CREATE POLICY "Allow public insert to users"
+    ON users FOR INSERT
+    WITH CHECK (true);
+
+CREATE POLICY "Enable read for users"
+    ON users FOR SELECT
+    USING (true);
+
+CREATE POLICY "Enable update for own profile"
+    ON users FOR UPDATE
+    USING (auth.uid()::text = id)
+    WITH CHECK (auth.uid()::text = id);
+
+-- Login attempts policies
+CREATE POLICY "Enable insert for anon"
+    ON login_attempts FOR INSERT
+    WITH CHECK (true);
+
+CREATE POLICY "Enable select for authenticated"
+    ON login_attempts FOR SELECT
+    USING (auth.role() = 'authenticated' OR auth.role() = 'service_role');
+
+CREATE POLICY "Enable delete for service role"
+    ON login_attempts FOR DELETE
+    USING (auth.role() = 'service_role');
+
+-- Grant permissions
+GRANT USAGE ON SCHEMA public TO anon, authenticated;
+GRANT ALL ON login_attempts TO anon, authenticated;
+GRANT ALL ON users TO anon;
+GRANT ALL ON users TO authenticated;
+GRANT ALL ON users TO service_role;
+
+-- Create new policies with TEXT comparison
+CREATE POLICY "Public can view published courses"
+    ON courses FOR SELECT
+    USING (published = true);
+
+CREATE POLICY "Instructors can manage their own courses"
+    ON courses FOR ALL
+    USING (instructor_id = auth.uid()::text);
+
+CREATE POLICY "Enrolled users can view course content"
+    ON modules FOR SELECT
+    USING (EXISTS (
+        SELECT 1 FROM enrollments
+        WHERE user_id = auth.uid()::text
+        AND course_id = modules.course_id
+    ));
+
+CREATE POLICY "Users can view their own enrollments"
+    ON enrollments FOR SELECT
+    USING (user_id = auth.uid()::text);
+
+CREATE POLICY "Instructors can view course enrollments"
+    ON enrollments FOR SELECT
+    USING (EXISTS (
+        SELECT 1 FROM courses
+        WHERE courses.id = enrollments.course_id
+        AND courses.instructor_id = auth.uid()::text
+    ));
+
+-- Add policies for content tables
+CREATE POLICY "Public can view published content"
+    ON content FOR SELECT
+    USING (published = true);
+
+CREATE POLICY "Creators can manage their own content"
+    ON content FOR ALL
+    USING (creator_id = auth.uid()::text);
+
+CREATE POLICY "Users can view their purchased content"
+    ON content FOR SELECT
+    USING (EXISTS (
+        SELECT 1 FROM content_purchases
+        WHERE content_id = id
+        AND buyer_id = auth.uid()::text
+    ));
+
+CREATE POLICY "Users can view their own purchases"
+    ON content_purchases FOR SELECT
+    USING (buyer_id = auth.uid()::text);
+
+CREATE POLICY "Users can create purchases"
+    ON content_purchases FOR INSERT
+    WITH CHECK (buyer_id = auth.uid()::text);
+
+-- Add policies for content categories
+CREATE POLICY "Anyone can view content categories"
+    ON content_categories FOR SELECT
+    USING (true);
+
+CREATE POLICY "Creators can manage content categories"
+    ON content_categories FOR ALL
+    USING (EXISTS (
+        SELECT 1 FROM content
+        WHERE content.id = content_id
+        AND content.creator_id = auth.uid()::text
+    ));
+
+-- Add policies for progress tracking
+CREATE POLICY "Users can view their own progress"
+    ON progress_tracking FOR SELECT
+    USING (EXISTS (
+        SELECT 1 FROM enrollments
+        WHERE enrollments.id = enrollment_id
+        AND enrollments.user_id = auth.uid()::text
+    ));
+
+CREATE POLICY "Users can create progress"
+    ON progress_tracking FOR INSERT WITH CHECK (
+        EXISTS (
+            SELECT 1 FROM enrollments
+            WHERE enrollments.id = enrollment_id
+            AND enrollments.user_id = auth.uid()::text
+        )
+    );
+
+CREATE POLICY "Users can update their own progress"
+    ON progress_tracking FOR UPDATE
+    USING (EXISTS (
+        SELECT 1 FROM enrollments
+        WHERE enrollments.id = enrollment_id
+        AND enrollments.user_id = auth.uid()::text
+    ));
+
+-- Add policies for payments
+CREATE POLICY "Users can view their own payments"
+    ON payments FOR SELECT
+    USING (user_id = auth.uid()::text);
+
+CREATE POLICY "Users can create payments"
+    ON payments FOR INSERT
+    WITH CHECK (user_id = auth.uid()::text);
+
+CREATE POLICY "Users can update their own payments"
+    ON payments FOR UPDATE
+    USING (user_id = auth.uid()::text);
 
 -- Add indexes for common queries
 CREATE INDEX idx_users_role ON users(role);
@@ -262,12 +378,12 @@ CREATE INDEX idx_content_price ON content(price);
 
 -- Add cascade deletes where appropriate
 ALTER TABLE modules
-  DROP CONSTRAINT modules_course_id_fkey,
+  DROP CONSTRAINT IF EXISTS modules_course_id_fkey,
   ADD CONSTRAINT modules_course_id_fkey
   FOREIGN KEY (course_id) REFERENCES courses(id) ON DELETE CASCADE;
 
 ALTER TABLE lessons
-  DROP CONSTRAINT lessons_module_id_fkey,
+  DROP CONSTRAINT IF EXISTS lessons_module_id_fkey,
   ADD CONSTRAINT lessons_module_id_fkey
   FOREIGN KEY (module_id) REFERENCES modules(id) ON DELETE CASCADE;
 
@@ -275,3 +391,7 @@ ALTER TABLE lessons
 ALTER TABLE users 
   ADD CONSTRAINT users_role_check 
   CHECK (role IN ('student', 'instructor', 'admin'));
+
+-- Update indexes
+DROP INDEX IF EXISTS idx_users_id;
+CREATE INDEX idx_users_id ON users(id);

@@ -1,13 +1,20 @@
 import type { BaseModel, Json } from './db';
 
-export type UserRole = 'student' | 'instructor' | 'admin';
+export enum UserRole {
+  STUDENT = 'student',
+  INSTRUCTOR = 'instructor',
+  ADMIN = 'admin'
+}
 
-export interface User extends BaseModel {
+export interface User {
+  id: string;
   address: string | null;
   avatar_url: string | null;
   full_name: string | null;
-  email: string;
+  email: string | null;
   role: UserRole;
+  created_at: string;
+  updated_at: string;
   last_auth: string | null;
   last_auth_status: string | null;
   nonce: string | null;
@@ -15,7 +22,7 @@ export interface User extends BaseModel {
   payment_method: Json | null;
 }
 
-export type NewUser = Omit<User, keyof BaseModel | 'role'> & { role: UserRole };
+export type NewUser = Pick<User, 'id' | 'role'> & Partial<Omit<User, 'id' | 'role'>>;
 
 export interface UserWithToken {
   user: User;

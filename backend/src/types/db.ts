@@ -14,68 +14,71 @@ export interface Database {
       login_attempts: {
         Row: {
           address: string
-          nonce: string | null
-          ttl: string | null
+          nonce: string
+          ttl: string
           created_at: string
         }
         Insert: {
           address: string
-          nonce?: string | null
-          ttl?: string | null
+          nonce: string
+          ttl: string
           created_at?: string
         }
         Update: {
           address?: string
-          nonce?: string | null
-          ttl?: string | null
+          nonce?: string
+          ttl?: string
           created_at?: string
         }
       }
       users: {
         Row: {
-          id: string
-          address: string | null
-          avatar_url: string | null
-          full_name: string | null
-          email: string
-          role: 'student' | 'instructor' | 'admin'
-          created_at: string
-          updated_at: string
-          last_auth: string | null
-          last_auth_status: string | null
-          nonce: string | null
-          billing_address: Json | null
-          payment_method: Json | null
+          id: string;
+          auth_user_id: string | null;
+          address: string | null;
+          avatar_url: string | null;
+          full_name: string | null;
+          email: string | null;
+          role: 'student' | 'instructor' | 'admin';
+          created_at: string;
+          updated_at: string;
+          last_auth: string | null;
+          last_auth_status: string | null;
+          nonce: string | null;
+          billing_address: Json | null;
+          payment_method: Json | null;
         }
         Insert: {
-          id?: string
-          address?: string | null
-          avatar_url?: string | null
-          full_name?: string | null
-          email: string
-          role?: 'student' | 'instructor' | 'admin'
-          created_at?: string
-          updated_at?: string
-          last_auth?: string | null
-          last_auth_status?: string | null
-          nonce?: string | null
-          billing_address?: Json | null
-          payment_method?: Json | null
+          id: string;
+          auth_user_id?: string | null;
+          address?: string | null;
+          avatar_url?: string | null;
+          full_name?: string | null;
+          email?: string | null;
+          role: 'student' | 'instructor' | 'admin';
+          created_at?: string;
+          updated_at?: string;
+          last_auth?: string | null;
+          last_auth_status?: string | null;
+          nonce?: string | null;
+          billing_address?: Json | null;
+          payment_method?: Json | null;
         }
         Update: {
-          id?: string
-          address?: string | null
-          avatar_url?: string | null
-          full_name?: string | null
-          email?: string
-          role?: 'student' | 'instructor' | 'admin'
-          created_at?: string
-          updated_at?: string
-          last_auth?: string | null
-          last_auth_status?: string | null
-          nonce?: string | null
-          billing_address?: Json | null
-          payment_method?: Json | null
+          id?: string;
+          auth_user_id?: string | null;
+          address?: string | null;
+          avatar_url?: string | null;
+          full_name?: string | null;
+          email?: string | null;
+          role?: 'student' | 'instructor' | 'admin';
+          created_at?: string;
+          updated_at?: string;
+          last_auth?: string | null;
+          last_auth_status?: string | null;
+          nonce?: string | null;
+          billing_address?: Json | null;
+          payment_method?: Json | null;
         }
       }
       content: {
@@ -293,6 +296,35 @@ export interface Database {
           completed_at: string | null;
         };
         Update: Partial<Database['public']['Tables']['progress_tracking']['Insert']>;
+      };
+      content_purchases: {
+        Row: {
+          id: string;
+          content_id: string;
+          buyer_id: string;
+          transaction_signature: string;
+          price_paid: number;
+          currency: string;
+          purchased_at: string;
+        };
+        Insert: {
+          id?: string;
+          content_id: string;
+          buyer_id: string;
+          transaction_signature: string;
+          price_paid: number;
+          currency: string;
+          purchased_at?: string;
+        };
+        Update: {
+          id?: string;
+          content_id?: string;
+          buyer_id?: string;
+          transaction_signature?: string;
+          price_paid?: number;
+          currency?: string;
+          purchased_at?: string;
+        };
       };
     }
     Views: {

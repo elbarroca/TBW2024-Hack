@@ -29,8 +29,7 @@ const enrollmentSchema = t.Object({
   payment_id: t.Optional(t.String())
 });
 
-const enrollmentRoutes = new Elysia()
-  .use(verifyAuth)
+const enrollmentRoutes = new Elysia({ prefix: '/enrollments' })
   .get("/enrollments/:id", async ({ params, request }: { 
     params: { id: string }, 
     request: RequestWithUser 

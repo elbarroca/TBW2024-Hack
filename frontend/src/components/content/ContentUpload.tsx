@@ -1,12 +1,12 @@
 import { useState } from 'react';
 import { useDropzone } from 'react-dropzone';
-import { useCreateContentMutation } from '@/api';
-import { toast } from '@/components/ui/toast';
+import { useCreateContentMutation } from '@/api/endpoints/content';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
 import { Select } from '@/components/ui/select';
+import { Textarea } from '@/components/ui/textarea';
 import type { ContentType } from '@/types/content';
+import { toast } from '../ui/use-toast';
 
 export function ContentUpload() {
   const [title, setTitle] = useState('');

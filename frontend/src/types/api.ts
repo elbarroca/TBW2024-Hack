@@ -1,20 +1,47 @@
 import { User } from '@/types/user';
 
-export interface ApiResponse<T> {
-  data?: T;
-  error?: string;
-  status: number;
+// Base response interface
+export interface BaseResponse {
+  statusCode: number;
 }
 
+// Success response with generic data type
+export interface SuccessResponse<T> extends BaseResponse {
+  status: 'success';
+  data: T;
+}
+
+// Error response
+export interface ErrorResponse extends BaseResponse {
+  status: 'error';
+  error: string;
+  details?: any;
+}
+
+// Union type for API responses
+export type ApiResponse<T> = SuccessResponse<T> | ErrorResponse;
+
+// Type guard functions
+export const isSuccessResponse = <T>(
+  response: ApiResponse<T>
+): response is SuccessResponse<T> => {
+  return response.status === 'success';
+};
+
+export const isErrorResponse = <T>(
+  response: ApiResponse<T>
+): response is ErrorResponse => {
+  return response.status === 'error';
+};
+
+// Response types for specific endpoints
 export interface AuthResponse {
   user: User;
   token: string;
-  status: number;
 }
 
-export interface ChallengeResponse {
+export interface NonceResponse {
   nonce: string;
-  status: number;
 }
 
 export interface VerifyRequest {
@@ -37,4 +64,17 @@ export interface Payment {
   status: 'pending' | 'completed' | 'failed';
   created_at: string;
   transaction_hash?: string;
-} 
+}
+
+export interface PaginationParams {
+  page?: number;
+  limit?: number;
+}
+
+export interface PaginatedResponse<T> {
+  data: T[];
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+}

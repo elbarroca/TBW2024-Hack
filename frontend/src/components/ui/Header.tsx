@@ -9,7 +9,7 @@ export default function Header() {
     const navigate = useNavigate();
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const [isCreateMenuOpen, setIsCreateMenuOpen] = useState(false);
-    const { address } = useAppSelector((state) => state.auth);
+    const { publicKey } = useAppSelector((state) => state.auth);
 
     // Base navigation links
     const navLinks = [
@@ -29,14 +29,14 @@ export default function Header() {
     ];
 
     // Add Profile link if wallet is connected
-    const allNavLinks = address ? [...navLinks, { path: '/profile', label: 'Profile' }] : navLinks;
+    const allNavLinks = publicKey ? [...navLinks, { path: '/profile', label: 'Profile' }] : navLinks;
 
     // Effect to handle navigation when wallet disconnects
     useEffect(() => {
-        if (!address && location.pathname === '/profile') {
+        if (!publicKey && location.pathname === '/profile') {
             navigate('/', { replace: true });
         }
-    }, [address, location.pathname, navigate]);
+    }, [publicKey, location.pathname, navigate]);
 
     // Close create menu when clicking outside
     useEffect(() => {
@@ -84,7 +84,7 @@ export default function Header() {
                             ))}
 
                             {/* Create Dropdown */}
-                            {address && (
+                            {publicKey && (
                                 <div className="relative create-menu">
                                     <button
                                         onClick={(e) => {
@@ -118,7 +118,7 @@ export default function Header() {
                                 </div>
                             )}
 
-                            {address && (
+                            {publicKey && (
                                 <Link
                                     to="/profile"
                                     className={`${
@@ -171,7 +171,7 @@ export default function Header() {
                             ))}
 
                             {/* Mobile Create Menu */}
-                            {address && (
+                            {publicKey && (
                                 <div className="px-3 py-2">
                                     <div className="text-sm font-medium text-gray-500 mb-2">
                                         Create Content

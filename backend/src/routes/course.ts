@@ -1,5 +1,5 @@
 import { Elysia, t } from "elysia";
-import { verifyAuth, requireRole, checkPermission } from "../middleware/auth";
+import { verifyAuth } from "../middleware/auth";
 import {
   createCourse,
   getCourseWithModules,
@@ -60,11 +60,9 @@ interface CourseInput {
   thumbnail_url?: string;
 }
 
-export const courseRoutes = new Elysia()
-  .use(verifyAuth)
-  .group("/courses", app => app
-    .post("/",
-      async ({ body, request }: { body: CourseInput, request: RequestWithUser }) => {
+export const courseRoutes = new Elysia({ prefix: '/courses' })
+  .post("/",
+    async ({ body, request }: { body: CourseInput, request: RequestWithUser }) => {
         if (!request.user) throw new Error('Unauthorized');
         
         const course = await createCourse({
@@ -80,7 +78,7 @@ export const courseRoutes = new Elysia()
           if (!request.user?.role || !['instructor', 'admin'].includes(request.user.role)) {
             throw new Error('Unauthorized');
           }
-          return checkPermission('create', 'courses');
+          //return checkPermission('create', 'courses');
         }
       })
 
@@ -93,7 +91,7 @@ export const courseRoutes = new Elysia()
         return { course, status: 200 };
       },
       {
-        beforeHandle: ({ request }: HandlerContext) => checkPermission('read', 'courses')
+        //beforeHandle: ({ request }: HandlerContext) => checkPermission('read', 'courses')
       })
 
     .put("/:id",
@@ -116,7 +114,7 @@ export const courseRoutes = new Elysia()
           if (!request.user?.role || !['instructor', 'admin'].includes(request.user.role)) {
             throw new Error('Unauthorized');
           }
-          return checkPermission('update', 'courses');
+          //return checkPermission('update', 'courses');
         }
       })
 
@@ -139,7 +137,6 @@ export const courseRoutes = new Elysia()
           if (!request.user?.role || !['instructor', 'admin'].includes(request.user.role)) {
             throw new Error('Unauthorized');
           }
-          return checkPermission('update', 'courses');
+          //return checkPermission('update', 'courses');
         }
       })
-  );

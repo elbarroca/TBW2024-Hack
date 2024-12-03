@@ -11,7 +11,7 @@ import {
     Shield,
     Calendar,
 } from 'lucide-react';
-import { Button } from '@/components/ui/Button';
+import { Button } from '@/components/ui/button';
 import { FEATURED_COURSES } from '@/data/courses';
 import { Course } from '@/types/course';
 import { Badge } from '@/components/ui/Badge';

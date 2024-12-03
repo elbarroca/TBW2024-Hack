@@ -27,9 +27,7 @@ const createContentSchema = t.Object({
   metadata: t.Optional(t.Record(t.String(), t.Any()))
 });
 
-export const contentRoutes = new Elysia()
-  .use(verifyAuth)
-  .group("/content", app => app
+export const contentRoutes = new Elysia({ prefix: '/content' })
     .post("/upload", async ({ body, request }: { 
       body: CreateContentRequest, 
       request: RequestWithUser 
@@ -118,4 +116,3 @@ export const contentRoutes = new Elysia()
         return { error: error.message, status: 500 };
       }
     })
-  );

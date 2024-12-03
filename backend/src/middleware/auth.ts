@@ -1,56 +1,79 @@
-import { Elysia } from "elysia";
-import type { RequestWithUser } from "../types/content";
-import { UserRole } from "../types/user";
-import { verifyToken } from "../lib/jwt";
+import { Elysia } from 'elysia'
+import type { User } from '../types/user'
+import { cookieConfig } from '../lib/cookie.config'
 
-// Define allowed operations per role
-const rolePermissions: Record<UserRole, string[]> = {
-  student: ['read'],
-  instructor: ['read', 'create', 'update'],
-  admin: ['read', 'create', 'update', 'delete']
-};
+class AuthError extends Error {
+  constructor(
+    message: string,
+    public status: number = 401
+  ) {
+    super(message)
+    this.name = 'AuthError'
+  }
+}
 
-// Define resource access per role
-const roleResources: Record<UserRole, string[]> = {
-  student: ['courses', 'content', 'enrollments', 'progress'],
-  instructor: ['courses', 'content', 'modules', 'lessons'],
-  admin: ['*']  // All resources
-};
+export const authMiddleware = new Elysia()
+  .error({
+    UNAUTHORIZED: AuthError
+  })
+  .derive(({ jwt, cookie }: any) => ({
+    getUser: async () => {
+      const token = cookie.auth_token.value
 
-export const verifyAuth = new Elysia()
-  .derive(({ request }: { request: RequestWithUser }) => {
-    const authHeader = request.headers.get('authorization');
-    if (!authHeader?.startsWith('Bearer ')) {
-      return { user: null };
+      if (!token) {
+        throw new AuthError('No token provided')
+      }
+
+      const payload = await jwt.verify(token)
+      if (!payload) {
+        throw new AuthError('Invalid token')
+      }
+
+      return payload as { id: string; role: string }
     }
-
-    const token = authHeader.split(' ')[1];
-    const user = verifyToken(token);
-    return { user };
-  });
-
-export const requireRole = (roles: UserRole[]) => 
-  new Elysia().derive(({ request }: { request: RequestWithUser }) => {
-    const user = request.user;
-    if (!user || !roles.includes(user.role as UserRole)) {
-      throw new Error('Unauthorized: Insufficient permissions');
+  }))
+  .derive(({ getUser }) => ({
+    requireAuth: async () => {
+      const user = await getUser()
+      if (!user) {
+        throw new AuthError('Authentication required')
+      }
+      return user
+    },
+    requireRole: async (allowedRoles: string[]) => {
+      const user = await getUser()
+      if (!user || !allowedRoles.includes(user.role)) {
+        throw new AuthError('Insufficient permissions', 403)
+      }
+      return user
     }
-  });
+  }))
 
-export const checkPermission = (operation: string, resource: string) =>
-  new Elysia().derive(({ request }: { request: RequestWithUser }) => {
-    const user = request.user;
-    if (!user) {
-      throw new Error('Unauthorized');
+export const verifyAuth = authMiddleware.derive(({ requireAuth }) => ({
+  beforeHandle: async ({ set }: any) => {
+    try {
+      await requireAuth()
+    } catch (error) {
+      if (error instanceof AuthError) {
+        set.status = error.status
+        return { error: error.message }
+      }
+      throw error
     }
+  }
+}))
 
-    const userPerms = rolePermissions[user.role as UserRole];
-    const userResources = roleResources[user.role as UserRole];
-
-    const hasPermission = userPerms.includes(operation) && 
-      (userResources.includes('*') || userResources.includes(resource));
-
-    if (!hasPermission) {
-      throw new Error(`Unauthorized: Cannot ${operation} ${resource}`);
+export const verifyRole = (roles: string[]) => 
+  authMiddleware.derive(({ requireRole }) => ({
+    beforeHandle: async ({ set }: any) => {
+      try {
+        await requireRole(roles)
+      } catch (error) {
+        if (error instanceof AuthError) {
+          set.status = error.status
+          return { error: error.message }
+        }
+        throw error
+      }
     }
-  }); 
+  }))

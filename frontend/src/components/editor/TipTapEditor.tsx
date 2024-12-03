@@ -18,7 +18,7 @@ import {
     Heading2,
     Code,
 } from 'lucide-react';
-import { Button } from '@/components/ui/Button';
+import { Button } from '../ui/button';
 
 interface TipTapEditorProps {
     content: string;

@@ -14,7 +14,7 @@ const getBalancesQuerySchema = t.Object({
   user: t.String(),
 });
 
-export const solanaManager = new Elysia()
+export const solanaManager = new Elysia({ prefix: '/solana' })
   .get(
     "/getBalances",
     async ({ query }: { query: GetBalancesQuery }) => {
