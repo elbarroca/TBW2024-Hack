@@ -9,12 +9,12 @@ import { solanaManager } from "./routes/solana";
 import enrollmentRoutes from "./routes/enrollment";
 import { contentRoutes } from "./routes/content";
 import { courseRoutes } from "./routes/course";
-import { verifyAuth } from "./middleware/auth";
 import { cookieConfig } from './lib/cookie.config'
 import { errorHandler } from './types/apiError';
+import { auth } from "./middleware/auth";
 
 const apiGroup = new Elysia({ prefix: '/api' })
-  .use(verifyAuth)
+  .use(auth)
   .use(userRoutes)
   .use(solanaManager)
   .use(enrollmentRoutes)

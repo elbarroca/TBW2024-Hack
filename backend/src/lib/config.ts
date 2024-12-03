@@ -1,10 +1,10 @@
-import { createDefaultRpcTransport, createRpc, createSolanaRpcApi, DEFAULT_RPC_CONFIG } from "@solana/rpc";
+import { createDefaultRpcTransport, createRpc, createSolanaRpcApi } from "@solana/rpc";
 
 const heliusRpcTransport = createDefaultRpcTransport({ 
   url: `https://mainnet.helius-rpc.com/?api-key=${process.env.RPC_KEY!}` 
 });
 
-const solanaApi = createSolanaRpcApi(DEFAULT_RPC_CONFIG);
+const solanaApi = createSolanaRpcApi({ defaultCommitment: 'confirmed' });
 
 export const config = {
   HOST: process.env.HOST || "127.0.0.1",

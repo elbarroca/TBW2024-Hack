@@ -8,7 +8,6 @@ import {
   addContentCategories
 } from "../db/content";
 import type { CreateContentRequest, ContentParams, RequestWithUser } from "../types/content";
-import { verifyAuth } from "../middleware/auth";
 
 const createContentSchema = t.Object({
   title: t.String(),

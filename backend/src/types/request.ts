@@ -8,7 +8,12 @@ export interface WalletUser {
   email?: string;
 }
 
-export interface RequestWithUser {
-  user: WalletUser | null;
-  headers?: Headers;
+export interface RequestWithUser extends Request {
+  user: {
+    id: string;
+    role: UserRole;
+    address?: string;
+    email?: string;
+  } | null;
+  headers: Headers;
 } 

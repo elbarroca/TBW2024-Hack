@@ -7,7 +7,6 @@ import {
   updateEnrollmentStatus 
 } from "../db/enrollment";
 import { Database } from "../types/db";
-import { verifyAuth } from "../middleware/auth";
 import type { RequestWithUser } from "../types/content";
 
 // Schema definitions

@@ -1,4 +1,5 @@
 import { ContentType } from "./content"
+import type { BillingAddress, PaymentMethod } from './user';
 
 export type Json =
   | string
@@ -45,8 +46,8 @@ export interface Database {
           last_auth: string | null;
           last_auth_status: string | null;
           nonce: string | null;
-          billing_address: Json | null;
-          payment_method: Json | null;
+          billing_address: BillingAddress | null;
+          payment_method: PaymentMethod | null;
         }
         Insert: {
           id: string;
@@ -61,8 +62,8 @@ export interface Database {
           last_auth?: string | null;
           last_auth_status?: string | null;
           nonce?: string | null;
-          billing_address?: Json | null;
-          payment_method?: Json | null;
+          billing_address?: BillingAddress | null;
+          payment_method?: PaymentMethod | null;
         }
         Update: {
           id?: string;
@@ -77,8 +78,8 @@ export interface Database {
           last_auth?: string | null;
           last_auth_status?: string | null;
           nonce?: string | null;
-          billing_address?: Json | null;
-          payment_method?: Json | null;
+          billing_address?: BillingAddress | null;
+          payment_method?: PaymentMethod | null;
         }
       }
       content: {
@@ -331,7 +332,34 @@ export interface Database {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      is_claims_admin: {
+        Args: Record<string, never>
+        Returns: boolean
+      }
+      get_my_claims: {
+        Args: Record<string, never>
+        Returns: Json
+      }
+      get_my_claim: {
+        Args: { claim: string }
+        Returns: Json
+      }
+      get_claims: {
+        Args: { uid: string }
+        Returns: Json
+      }
+      get_claim: {
+        Args: { uid: string; claim: string }
+        Returns: Json
+      }
+      set_claim: {
+        Args: { uid: string; claim: string; value: Json }
+        Returns: string
+      }
+      delete_claim: {
+        Args: { uid: string; claim: string }
+        Returns: string
+      }
     }
     Enums: {
       [_ in never]: never

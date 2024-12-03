@@ -1,7 +1,11 @@
 import type { BaseModel } from './db';
 import type { User } from './user';
 
-export type CourseLevel = 'beginner' | 'intermediate' | 'advanced';
+export enum CourseLevel {
+  BEGINNER = 'beginner',
+  INTERMEDIATE = 'intermediate',
+  ADVANCED = 'advanced'
+}
 
 export interface Course extends BaseModel {
   title: string;

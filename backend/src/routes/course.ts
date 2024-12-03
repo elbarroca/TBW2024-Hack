@@ -1,5 +1,4 @@
 import { Elysia, t } from "elysia";
-import { verifyAuth } from "../middleware/auth";
 import {
   createCourse,
   getCourseWithModules,

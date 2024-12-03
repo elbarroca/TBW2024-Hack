@@ -3,11 +3,12 @@ import type { User } from '@/types/user';
 import type { ApiResponse, NonceResponse } from '@/types/api';
 
 interface NonceRequest {
-  publicKey: string;
+  address: string;
 }
 
 interface VerifyRequest {
-  message: string;
+  address: string;
+  nonce: string;
   signature: string;
 }
 

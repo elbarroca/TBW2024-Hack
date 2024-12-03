@@ -2,18 +2,20 @@ import React, { createContext, useContext, useCallback, useEffect } from 'react'
 import { useWallet } from '@solana/wallet-adapter-react';
 import { useAppDispatch, useAppSelector } from '@/store';
 import { useRequestNonceMutation, useVerifySignatureMutation, useLogoutMutation } from '@/api/endpoints/auth';
-import { setUser, setPublicKey, setAuthError, setAuthLoading } from '@/store/auth';
+import { setUser, setPublicKey, setAuthError, setAuthLoading, resetAuth } from '@/store/auth';
 import { LoginStatus, UserRole } from '@/types/auth';
 import bs58 from 'bs58';
 import { ApiResponse, AuthResponse, isErrorResponse } from '@/types/api';
+import { PublicKey } from '@solana/web3.js';
 
 interface AuthContextType {
-  login: () => Promise<void>;
   logout: () => Promise<void>;
   can: (operation: string, resource: string) => boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
+
+const MESSAGE_PREFIX = 'Sign this message to log in to Mentora // ';
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const dispatch = useAppDispatch();
@@ -23,37 +25,32 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [logoutMutation] = useLogoutMutation();
   const { loginStatus } = useAppSelector(state => state.auth);
 
-  const login = useCallback(async () => {
+  const login = useCallback(async (publicKey: PublicKey | null) => {
     if (!publicKey || !signMessage || loginStatus === LoginStatus.IN) return;
     
+    dispatch(setPublicKey(publicKey.toBase58()));
     try {
       dispatch(setAuthLoading(true));
       
       // Request nonce
       const nonceResponse = await requestNonce({ 
-        publicKey: publicKey.toBase58() 
+        address: publicKey.toBase58() 
       }).unwrap();
       
       if (isErrorResponse(nonceResponse)) {
         throw new Error(nonceResponse.error);
       }
       
-      // Create sign message
-      const messagePayload = {
-        publicKey: publicKey.toBase58(),
-        nonce: nonceResponse.data.nonce,
-        statement: 'SignIn'
-      };
-
-      const message = `${messagePayload.statement}${messagePayload.nonce}`;
-      console.log('Frontend signing message:', message);
+      // Create message with the same prefix as backend
+      const message = MESSAGE_PREFIX + nonceResponse.data.nonce;
       const encodedMessage = new TextEncoder().encode(message);
       const signedMessage = await signMessage(encodedMessage);
       const signature = bs58.encode(signedMessage);
       
       // Verify signature
       const authResponse = await verifySignature({ 
-        message: JSON.stringify(messagePayload),
+        address: publicKey.toBase58(),
+        nonce: nonceResponse.data.nonce,
         signature 
       }).unwrap() as ApiResponse<AuthResponse>;
       
@@ -74,6 +71,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const logout = useCallback(async () => {
     try {
       await logoutMutation().unwrap();
+      dispatch(resetAuth());
     } catch (error) {
       console.error('Logout error:', error);
     } finally {
@@ -103,12 +101,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, []);
 
   useEffect(() => {
-    dispatch(setPublicKey(publicKey?.toBase58() || null));
-    login();
-  }, [publicKey, dispatch, login]);
+    login(publicKey);
+  }, [publicKey, login]);
 
   return (
-    <AuthContext.Provider value={{ login, logout, can }}>
+    <AuthContext.Provider value={{ logout, can }}>
       {children}
     </AuthContext.Provider>
   );

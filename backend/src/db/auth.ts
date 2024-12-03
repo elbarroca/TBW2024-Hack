@@ -1,19 +1,30 @@
-import { LoginAttempt, SignInAttempt } from "../types/auth";
-import { supabase } from "./client";
+import { supabase } from './client';
+import type { LoginAttempt } from '../types/auth';
+import { User, UserRole } from '../types/user';
+import { createToken } from '../lib/auth';
 
-export async function saveLoginAttempt(attempt: SignInAttempt): Promise<void> {
+export async function createLoginAttempt(
+  address: string, 
+  nonce: string
+): Promise<boolean> {
+  const ttl = new Date(Date.now() + 5 * 60 * 1000).toISOString();
+  const created_at = new Date().toISOString();
+
   const { error } = await supabase
     .from('login_attempts')
     .upsert({
-      address: attempt.address,
-      nonce: attempt.nonce,
-      ttl: attempt.ttl
+      address,
+      nonce,
+      ttl,
+      created_at
     });
 
   if (error) {
-    console.error('Error saving login attempt:', error);
-    throw error;
+    console.error('Error creating login attempt:', error);
+    return false;
   }
+
+  return true;
 }
 
 export async function getLoginAttempt(address: string): Promise<LoginAttempt | null> {
@@ -31,14 +42,17 @@ export async function getLoginAttempt(address: string): Promise<LoginAttempt | n
   return data;
 }
 
-export async function validateLoginAttempt(address: string, nonce: string): Promise<boolean> {
+export async function validateLoginAttempt(
+  address: string, 
+  nonce: string
+): Promise<boolean> {
   const attempt = await getLoginAttempt(address);
   if (!attempt) return false;
 
-  const ttl = new Date(attempt.ttl!).getTime();
-  const now = Date.now();
+  const ttl = new Date(attempt.ttl || '');
+  const now = new Date();
 
-  return attempt.nonce === nonce && ttl > now;
+  return attempt.nonce === nonce && now < ttl;
 }
 
 export async function clearLoginAttempt(address: string): Promise<void> {
@@ -51,4 +65,55 @@ export async function clearLoginAttempt(address: string): Promise<void> {
     console.error('Error clearing login attempt:', error);
     throw error;
   }
-} 
+}
+
+async function getOrCreateUser(address: string): Promise<User> {
+  const { data: existingUser, error: fetchError } = await supabase
+    .from('users')
+    .select('*')
+    .eq('address', address)
+    .single();
+
+  if (existingUser) {
+    return {
+      ...existingUser,
+      role: existingUser.role as UserRole
+    };
+  }
+
+  if (fetchError && fetchError.code !== 'PGRST116') {
+    throw fetchError;
+  } else if (!existingUser) {
+    // Create new user if doesn't exist
+    const { data: authUser, error: authError } = await supabase.auth.admin.createUser({
+        email: `${address}@email.com`,
+        user_metadata: { address },
+    });
+    
+    if (authError) throw authError;
+
+    let { data, error } = await supabase
+        .from('users')
+        .select('*')
+        .eq('address', address)
+        .single();
+
+    if (error) throw error;
+    if (!data) throw new Error('User not found');
+    
+    return {
+      ...data,
+      role: data.role as UserRole
+    };
+  }
+
+  throw fetchError;
+}
+
+export async function getUser(address: string): Promise<{ user: User, accessToken: string }> {
+  const user = await getOrCreateUser(address);
+  const accessToken = createToken(user);
+  await supabase.rpc('set_claim', { uid: user.id, claim: 'userrole', value: UserRole.STUDENT });
+
+  return { user, accessToken };
+}

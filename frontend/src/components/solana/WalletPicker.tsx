@@ -5,11 +5,13 @@ import { Button } from '@/components/ui/button';
 import { useMemo } from 'react';
 import { Wallet, LogOut } from 'lucide-react';
 import { useAppSelector } from '@/store';
+import { useAuth } from '@/contexts/AuthProvider';
 
 export function WalletPicker() {
-    const { wallets, select, disconnect } = useWallet();
+    const { wallets, select } = useWallet();
     const { publicKey } = useAppSelector((state) => state.auth);
-
+    const { logout } = useAuth();
+    
     const solanaWallets = useMemo(() => {
         return wallets
             .filter(
@@ -29,7 +31,7 @@ export function WalletPicker() {
     if (publicKey) {
         return (
             <Button 
-                onClick={() => disconnect()}
+                onClick={logout}
                 className="flex items-center gap-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
             >
                 {truncateAddress(publicKey)}
