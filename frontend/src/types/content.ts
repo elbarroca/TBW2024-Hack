@@ -1,4 +1,4 @@
-export type ContentType = 'video' | 'text' | 'article' | 'ebook' | 'research_paper' | 'file';
+export type ContentType = 'video' | 'article' | 'ebook' | 'course' | 'file';
 
 export interface Content {
   id: string;
@@ -10,7 +10,6 @@ export interface Content {
   thumbnail_url?: string;
   price: number;
   currency: string;
-  metadata?: Record<string, any>;
   published: boolean;
   created_at: string;
   updated_at: string;
@@ -25,6 +24,6 @@ export interface CreateContentInput {
   thumbnail_url?: string;
   price: number;
   currency: string;
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
   categories?: string[];
-} 
+}

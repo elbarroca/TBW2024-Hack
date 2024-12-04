@@ -2,18 +2,18 @@ import { useState } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { useCreateContentMutation } from '@/api/endpoints/content';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Select } from '@/components/ui/select';
-import { Textarea } from '@/components/ui/textarea';
+import { Input } from '@/components/ui/Input';
+import { Select, SelectItem } from '@/components/ui/select';
+import { Textarea } from '@/components/ui/Textarea';
 import type { ContentType } from '@/types/content';
 import { toast } from '../ui/use-toast';
+import { Label } from '@/components/ui/Label';
 
 export function ContentUpload() {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [price, setPrice] = useState('0');
   const [type, setType] = useState<ContentType>('article');
-  const [categories, setCategories] = useState<string[]>([]);
   const [file, setFile] = useState<File | null>(null);
   const [thumbnail, setThumbnail] = useState<File | null>(null);
 
@@ -34,6 +34,7 @@ export function ContentUpload() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
     if (!file) {
       toast({
         title: "Error",
@@ -45,36 +46,51 @@ export function ContentUpload() {
 
     try {
       const formData = new FormData();
-      formData.append('title', title);
-      formData.append('description', description);
-      formData.append('type', type);
-      formData.append('price', price);
-      formData.append('currency', 'USDC');
-      formData.append('file', file);
-      if (thumbnail) formData.append('thumbnail', thumbnail);
-      formData.append('categories', JSON.stringify(categories));
 
-      const result = await createContent(formData).unwrap();
+      // Create the content request object
+      const contentRequest = {
+        title,
+        description,
+        type,
+        price: parseFloat(price),
+        currency: 'USDC',
+        file,
+        thumbnail: thumbnail || undefined,
+      };
+
+      // Append all fields to FormData
+      Object.entries(contentRequest).forEach(([key, value]) => {
+        if (value !== undefined) {
+          if (value instanceof File) {
+            formData.append(key, value);
+          } else {
+            formData.append(key, value.toString());
+          }
+        }
+      });
+
+      await createContent(formData).unwrap();
       
       toast({
         title: "Success",
         description: "Content uploaded successfully",
+        variant: "default",
       });
 
       // Reset form
       setTitle('');
       setDescription('');
-      setPrice('0');
       setType('article');
-      setCategories([]);
+      setPrice('0');
       setFile(null);
       setThumbnail(null);
 
-    } catch (error) {
+    } catch (err) {
+      console.error(err);
       toast({
         title: "Error",
         description: "Failed to upload content",
-        variant: "destructive"
+        variant: "destructive",
       });
     }
   };
@@ -83,41 +99,47 @@ export function ContentUpload() {
     <form onSubmit={handleSubmit} className="space-y-6">
       {/* Form fields */}
       <div className="space-y-4">
-        <Input
-          label="Title"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-          required
-        />
+        <div className="space-y-2">
+          <Label htmlFor="title">Title</Label>
+          <Input
+            id="title"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            required
+          />
+        </div>
 
-        <Textarea
-          label="Description"
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-          required
-        />
+        <div className="space-y-2">
+          <Label htmlFor="description">Description</Label>
+          <Textarea
+            id="description"
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            required
+          />
+        </div>
 
-        <Select
-          label="Content Type"
-          value={type}
-          onChange={(value) => setType(value as ContentType)}
-          options={[
-            { label: 'Article', value: 'article' },
-            { label: 'Video', value: 'video' },
-            { label: 'E-Book', value: 'ebook' },
-            { label: 'Research Paper', value: 'research_paper' },
-            { label: 'File', value: 'file' }
-          ]}
-        />
+        <div className="space-y-2">
+          <Label htmlFor="type">Content Type</Label>
+          <Select value={type} onValueChange={(value: string) => setType(value as ContentType)}>
+            <SelectItem value="article">Article</SelectItem>
+            <SelectItem value="video">Video</SelectItem>
+            <SelectItem value="file">File</SelectItem>
+            <SelectItem value="course">Course</SelectItem>
+          </Select>
+        </div>
 
-        <Input
-          type="number"
-          label="Price (USDC)"
-          value={price}
-          onChange={(e) => setPrice(e.target.value)}
-          min="0"
-          step="0.01"
-        />
+        <div className="space-y-2">
+          <Label htmlFor="price">Price (USDC)</Label>
+          <Input
+            id="price"
+            type="number"
+            value={price}
+            onChange={(e) => setPrice(e.target.value)}
+            min="0"
+            step="0.01"
+          />
+        </div>
 
         {/* File Upload */}
         <div {...getFileProps()} className="border-2 border-dashed p-6 text-center rounded-lg">
@@ -137,7 +159,7 @@ export function ContentUpload() {
       <Button
         type="submit"
         disabled={isLoading || !file}
-        loading={isLoading}
+        className={isLoading ? 'opacity-50 cursor-not-allowed' : ''}
       >
         {isLoading ? 'Uploading...' : 'Upload Content'}
       </Button>

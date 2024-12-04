@@ -33,7 +33,7 @@ export const CreatorCard = ({
   tags = []
 }: CreatorCardProps) => {
   return (
-    <Card className="group relative overflow-hidden hover:shadow-lg transition-all duration-500 border-gray-200 hover:border-gray-300 bg-white">
+    <Card className="group relative overflow-hidden hover:shadow-lg transition-all duration-500 border-gray-200 hover:border-gray-300 bg-white sm:hover:scale-105">
       <div className="absolute inset-0 bg-gradient-to-br from-gray-50 via-white to-gray-50 opacity-0 group-hover:opacity-50 transition-opacity duration-500" />
       
       <CardHeader className="space-y-4">
@@ -130,4 +130,3 @@ export const CreatorCard = ({
     </Card>
   );
 };
-

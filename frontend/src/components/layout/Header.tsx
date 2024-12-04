@@ -15,7 +15,7 @@ export default function Header() {
     const navigate = useNavigate();
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const [isCreateMenuOpen, setIsCreateMenuOpen] = useState(false);
-    const { address } = useAppSelector((state) => state.auth);
+    const { address } = useAppSelector((state: { auth: { address: string } }) => state.auth);
 
     // Base navigation links with icons
     const navLinks: NavLink[] = [
@@ -25,6 +25,7 @@ export default function Header() {
         { path: '/about', label: 'About', icon: Info },
     ];
 
+    // Create menu items - only shown when connected
     const createMenuItems = [
         { path: '/create/ebook', label: 'eBook' },
         { path: '/create/file', label: 'File' },
@@ -33,10 +34,8 @@ export default function Header() {
         { path: '/create/video', label: 'Video' },
     ];
 
-    // Add Profile link if wallet is connected
-    const allNavLinks: NavLink[] = address 
-        ? [...navLinks, { path: '/profile', label: 'Profile', icon: Users }] 
-        : navLinks;
+    // Add Profile link only if wallet is connected
+    const allNavLinks = address ? [...navLinks, { path: '/profile', label: 'Profile', icon: Users }] : navLinks;
 
     // Effect to handle navigation when wallet disconnects
     useEffect(() => {
@@ -83,7 +82,7 @@ export default function Header() {
                     <div className="hidden md:flex items-center space-x-8">
                         <nav className="flex items-center space-x-6">
                             {/* Regular Nav Links */}
-                            {navLinks.map((link) => (
+                            {allNavLinks.map((link) => (
                                 <Link
                                     key={link.path}
                                     to={link.path}
@@ -103,7 +102,7 @@ export default function Header() {
                                 </Link>
                             ))}
 
-                            {/* Create Dropdown */}
+                            {/* Create Dropdown - Only show when connected */}
                             {address && (
                                 <div className="relative create-menu">
                                     <button
@@ -136,19 +135,6 @@ export default function Header() {
                                         </div>
                                     )}
                                 </div>
-                            )}
-
-                            {address && (
-                                <Link
-                                    to="/profile"
-                                    className={`${
-                                        location.pathname === '/profile'
-                                            ? 'text-purple-600 font-medium'
-                                            : 'text-gray-600 hover:text-purple-600'
-                                    } transition-colors text-sm font-medium`}
-                                >
-                                    Profile
-                                </Link>
                             )}
                         </nav>
 
@@ -193,7 +179,7 @@ export default function Header() {
                                 </Link>
                             ))}
 
-                            {/* Mobile Create Menu */}
+                            {/* Mobile Create Menu - Only show when connected */}
                             {address && (
                                 <div className="px-3 py-2">
                                     <div className="text-sm font-medium text-gray-500 mb-2">

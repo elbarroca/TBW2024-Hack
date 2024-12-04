@@ -1,8 +1,8 @@
 import React from 'react';
-import { CourseList } from '../../components/creator/CourseList';
-import { CourseStats } from '../../components/creator/CourseStats';
-import { CourseAnalytics } from '../../components/creator/CourseAnalytics';
-import { EarningsChart } from '../../components/creator/EarningsChart';
+import { CourseList } from '../../components/creator earning/CourseList';
+import { CourseStats } from '../../components/creator earning/CourseStats';
+import { CourseAnalytics } from '../../components/creator earning/CourseAnalytics';
+import { EarningsChart } from '../../components/creator earning/EarningsChart';
 
 export default function CreatorDashboard() {
     return (

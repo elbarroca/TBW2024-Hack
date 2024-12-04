@@ -4,11 +4,12 @@ import type { ApiResponse } from '@/types/api';
 
 export const contentApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
-    createContent: builder.mutation<Content, CreateContentInput>({
+    createContent: builder.mutation<Content, FormData>({
       query: (data) => ({
         url: 'content/upload',
         method: 'POST',
         body: data,
+        formData: true,
       }),
       transformResponse: (response: ApiResponse<Content>) => 
         handleResponse(response),

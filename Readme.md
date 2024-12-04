@@ -6,7 +6,7 @@ Mentora was created during the **Taipei Blockchain Week Hackathon** by a passion
 ---
 
 ## **👩‍💻 About Us**  
-We’re **Ricardo Castelo** and **Ricardo Barroca**, a duo of blockchain enthusiasts on a mission to enhance decentralization in education.  
+We’re **Ricardo Castelló** and **Ricardo Barroca**, a duo of blockchain enthusiasts on a mission to enhance decentralization in education.  
 
 - **Ricardo Castelo**: A blockchain developer with 3 years of experience at 2Degrees, specializing in creating decentralized systems.  
 - **Ricardo Barroca**: An entrepreneur with 3 years of blockchain experience, passionate about building impactful, user-centric solutions.  

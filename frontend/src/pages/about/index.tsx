@@ -1,6 +1,6 @@
 import { fadeInUp, staggerChildren } from '@/lib/animations';
 import { motion } from 'framer-motion';
-import { Twitter, Linkedin, Github, Globe, Rocket, Book, Users } from 'lucide-react';
+import { Twitter, Linkedin, Github, Globe, Rocket, Book, Users, Sparkles } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardFooter } from "@/components/ui/card";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
@@ -10,11 +10,12 @@ import { Badge } from "@/components/ui/Badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/Tabs";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/hover-card";
+import Footer from '@/components/layout/Footer';
 
 export default function AboutPage() {
     return (
         <ScrollArea className="h-screen">
-            <main className="bg-gradient-to-b from-gray-50 to-white">
+            <main className="bg-gradient-to-b from-gray-50 to-white pt-16">
                 {/* Hero Section */}
                 <motion.div
                     className="relative bg-gradient-to-r from-purple-900 via-blue-900 to-purple-900 text-white overflow-hidden min-h-[50vh] flex items-center justify-center"
@@ -382,67 +383,126 @@ export default function AboutPage() {
 
                 {/* Call to Action */}
                 <motion.section
-                    className="py-20 bg-gradient-to-r from-purple-900 to-blue-900 text-white relative overflow-hidden"
+                    className="py-16 bg-gradient-to-r from-violet-600 via-indigo-600 to-blue-600 text-white relative overflow-hidden"
                     initial={{ opacity: 0 }}
                     whileInView={{ opacity: 1 }}
                     viewport={{ once: true }}
                 >
                     <motion.div
-                        className="absolute inset-0 bg-[url('/grid-pattern.svg')] opacity-10"
+                        className="absolute inset-0 bg-[url('/grid-pattern.svg')] opacity-10" 
                         animate={{
-                            scale: [1, 1.1, 1],
-                            rotate: [0, 1, 0],
+                            scale: [1, 1.2, 1],
+                            rotate: [0, 2, 0],
                         }}
                         transition={{
-                            duration: 20,
+                            duration: 10,
                             repeat: Infinity,
                             repeatType: 'reverse',
                         }}
                     />
+                    <div className="absolute inset-0 bg-gradient-to-b from-transparent via-violet-500/10 to-violet-500/20" />
                     <Container className="text-center relative">
                         <motion.div
-                            initial={{ opacity: 0, y: 20 }}
-                            whileInView={{ opacity: 1, y: 0 }}
-                            transition={{ duration: 0.5 }}
-                            className="max-w-3xl mx-auto"
+                            initial={{ opacity: 0, y: 30, scale: 0.9 }}
+                            whileInView={{ 
+                                opacity: 1, 
+                                y: 0,
+                                scale: 1,
+                                transition: {
+                                    type: "spring",
+                                    stiffness: 100,
+                                    damping: 10,
+                                    duration: 0.5
+                                }
+                            }}
+                            className="max-w-3xl mx-auto space-y-6"
                         >
-                            <Badge variant="outline" className="mb-6">Join Us Today</Badge>
-                            <h2 className="text-4xl font-bold mb-6">
+                            <motion.div
+                                initial={{ opacity: 0, y: 20 }}
+                                whileInView={{ opacity: 1, y: 0 }}
+                                transition={{
+                                    delay: 0.1,
+                                    duration: 0.3,
+                                    ease: "easeOut"
+                                }}
+                                className="relative inline-block"
+                            >
+                                <motion.div
+                                    className="absolute -inset-1 bg-gradient-to-r from-violet-400 via-purple-400 to-violet-400 rounded-full blur opacity-30 group-hover:opacity-40 transition-all duration-300"
+                                    animate={{
+                                        scale: [1, 1.05, 1],
+                                    }}
+                                    transition={{
+                                        duration: 2,
+                                        repeat: Infinity,
+                                        repeatType: "reverse",
+                                    }}
+                                />
+                                <Badge 
+                                    variant="outline" 
+                                    className="relative px-4 py-1.5 text-sm backdrop-blur-sm bg-white/10 hover:bg-white/20 border-white/40 hover:border-white/60 transition-all duration-300 shadow-lg shadow-violet-500/20 cursor-pointer group flex items-center gap-1.5 overflow-hidden"
+                                >
+                                    <Sparkles className="w-3.5 h-3.5 text-purple-200 group-hover:text-white transition-colors duration-300" />
+                                    <span className="relative z-10 font-medium bg-gradient-to-r from-white via-purple-100 to-white bg-clip-text text-transparent group-hover:from-white group-hover:via-white group-hover:to-white transition-all duration-300">
+                                        Join Community
+                                    </span>
+                                </Badge>
+                            </motion.div>
+
+                            <h2 className="text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white via-purple-100 to-white">
                                 Shape the Future of Blockchain Education
                             </h2>
-                            <p className="text-xl text-purple-100 mb-8">
+                            <p className="text-lg text-purple-100/90 leading-relaxed">
                                 Whether you're a beginner or a blockchain pro, our platform is here to
-                                empower your journey.
+                                empower your journey into Web3.
                             </p>
-                            <motion.div className="flex justify-center gap-4">
+
+                            <motion.div 
+                                className="flex justify-center gap-4 flex-wrap pt-2"
+                                variants={staggerChildren}
+                                initial="initial"
+                                animate="animate"
+                            >
                                 <Button
                                     size="lg"
-                                    variant="secondary"
-                                    className="bg-white text-purple-900 hover:bg-purple-50"
+                                    className="bg-white/95 text-purple-900 hover:bg-white transition-all duration-300 shadow-[0_0_15px_rgba(255,255,255,0.2)] hover:shadow-[0_0_20px_rgba(255,255,255,0.4)] px-6 py-2 font-medium rounded-xl hover:scale-105 transform"
                                 >
                                     <motion.a
-                                        href="/courses"
+                                        href="/"
                                         className="flex items-center gap-2"
-                                        whileHover={{ scale: 1.05 }}
-                                        whileTap={{ scale: 0.95 }}
+                                        whileHover={{ scale: 1.02 }}
+                                        whileTap={{ scale: 0.98 }}
                                     >
-                                        <Book className="w-4 h-4" />
-                                        Start Learning
+                                        <Globe className="w-4 h-4" />
+                                        Explore Home
                                     </motion.a>
                                 </Button>
                                 <Button
                                     size="lg"
-                                    variant="outline"
-                                    className="border-white text-white hover:bg-white/10"
+                                    className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-500 hover:to-blue-500 text-white transition-all duration-300 shadow-[0_0_15px_rgba(147,51,234,0.2)] hover:shadow-[0_0_20px_rgba(147,51,234,0.4)] px-6 py-2 font-medium rounded-xl border border-white/20 hover:border-white/30 hover:scale-105 transform"
                                 >
                                     <motion.a
-                                        href="/community"
+                                        href="/courses"
                                         className="flex items-center gap-2"
-                                        whileHover={{ scale: 1.05 }}
-                                        whileTap={{ scale: 0.95 }}
+                                        whileHover={{ scale: 1.02 }}
+                                        whileTap={{ scale: 0.98 }}
+                                    >
+                                        <Book className="w-4 h-4" />
+                                        Browse Courses
+                                    </motion.a>
+                                </Button>
+                                <Button
+                                    size="lg"
+                                    className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white transition-all duration-300 shadow-[0_0_15px_rgba(37,99,235,0.2)] hover:shadow-[0_0_20px_rgba(37,99,235,0.4)] px-6 py-2 font-medium rounded-xl border border-white/20 hover:border-white/30 hover:scale-105 transform"
+                                >
+                                    <motion.a
+                                        href="/content"
+                                        className="flex items-center gap-2"
+                                        whileHover={{ scale: 1.02 }}
+                                        whileTap={{ scale: 0.98 }}
                                     >
                                         <Users className="w-4 h-4" />
-                                        Join Community
+                                        View Content
                                     </motion.a>
                                 </Button>
                             </motion.div>
@@ -450,6 +510,7 @@ export default function AboutPage() {
                     </Container>
                 </motion.section>
             </main>
+            <Footer />
         </ScrollArea>
     );
 }
