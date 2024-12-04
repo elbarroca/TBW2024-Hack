@@ -1,7 +1,7 @@
 import { t } from 'elysia'
 
 export const cookieConfig = {
-  secrets: process.env.COOKIE_SECRET!,
+  secrets: process.env.SECRET!,
   sign: ['auth_token'],
   cookie: t.Cookie({
     auth_token: t.Optional(t.String())

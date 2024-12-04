@@ -2,23 +2,41 @@ import type { BaseModel } from './db';
 import type { User } from './user';
 
 export enum CourseLevel {
-  BEGINNER = 'beginner',
-  INTERMEDIATE = 'intermediate',
-  ADVANCED = 'advanced'
+  BEGINNER = 'Beginner',
+  INTERMEDIATE = 'Intermediate',
+  ADVANCED = 'Advanced'
+}
+
+export enum CourseLanguage {
+  ENGLISH = 'English',
+  SPANISH = 'Spanish',
+  FRENCH = 'French',
+  GERMAN = 'German',
+  CHINESE = 'Chinese'
 }
 
 export interface Course extends BaseModel {
   title: string;
   description: string;
   instructor_id: string;
-  price: string;
+  price: number;
   currency: string;
   duration: number;
+  subtitle?: string;
   level: CourseLevel;
-  categories: string[];
-  thumbnail_url: string | null;
+  language: CourseLanguage;
+  enrolled: number;
+  rating: number;
+  reviews: number;
+  original_price?: number;
+  last_updated: string;
+  certificate: boolean;
+  image_url?: string;
+  category?: string;
+  what_you_will_learn?: string[];
   published: boolean;
   instructor?: User;
+  tags?: string[];
 }
 
 export type NewCourse = Omit<Course, keyof BaseModel>;
@@ -26,10 +44,16 @@ export type NewCourse = Omit<Course, keyof BaseModel>;
 export interface CourseInput {
   title: string;
   description: string;
-  price: string;
+  price: number;
   currency: string;
   duration: number;
+  subtitle?: string;
   level: CourseLevel;
-  categories: string[];
-  thumbnail_url?: string;
+  language: CourseLanguage;
+  original_price?: number;
+  certificate?: boolean;
+  image_url?: string;
+  category?: string;
+  what_you_will_learn?: string[];
+  tags?: string[];
 } 

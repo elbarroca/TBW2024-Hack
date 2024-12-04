@@ -9,7 +9,7 @@ export type JWTPayload = {
 
 export const jwtConfig = jwt({
   name: 'jwt',
-  secret: process.env.JWT_SECRET!,
+  secret: process.env.SECRET!,
   exp: '7d',
   schema: t.Object({
     id: t.String(),

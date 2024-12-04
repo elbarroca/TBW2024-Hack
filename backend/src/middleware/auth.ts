@@ -1,6 +1,9 @@
 import { Elysia } from 'elysia'
 import { ApiError } from '../types/apiError'
 import { verifyToken } from '../lib/auth'
+import { UserRole } from '../types/user'
+import { getUserRole } from '../db/auth'
+import { RequestUser } from '../types/request'
 
 const auth = new Elysia()
   .derive(({ request }) => {
@@ -19,7 +22,14 @@ const auth = new Elysia()
       throw new ApiError(401, 'Invalid token')
     }
 
-    return { user: { id: decoded.id } }
+    const userRole = await getUserRole(decoded.id)
+
+    const user: RequestUser = { 
+      id: decoded.id,
+      role: userRole
+    }
+
+    return { user }
   })
 
 export { auth }

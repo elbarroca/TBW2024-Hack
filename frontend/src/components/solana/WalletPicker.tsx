@@ -9,7 +9,7 @@ import { useAuth } from '@/contexts/AuthProvider';
 
 export function WalletPicker() {
     const { wallets, select } = useWallet();
-    const { publicKey } = useAppSelector((state) => state.auth);
+    const { user, publicKey } = useAppSelector((state) => state.auth);
     const { logout } = useAuth();
     
     const solanaWallets = useMemo(() => {
@@ -24,11 +24,11 @@ export function WalletPicker() {
 
     // Function to truncate address
     const truncateAddress = (address: string) => {
-        if (!address) return '';
+        if (!user) return '';
         return `${address.slice(0, 4)}...${address.slice(-4)}`;
     };
 
-    if (publicKey) {
+    if (user && publicKey) {
         return (
             <Button 
                 onClick={logout}

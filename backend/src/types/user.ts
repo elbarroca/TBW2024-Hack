@@ -1,29 +1,21 @@
-export enum UserRole {
-  STUDENT = 'student',
-  INSTRUCTOR = 'instructor',
-  ADMIN = 'admin'
-}
-
-export interface PaymentMethod {
-  type: 'crypto' | 'card';
-  details: {
-    address?: string;
-    card_last4?: string;
-    card_brand?: string;
-  };
-}
+export type UserRole = 'student' | 'instructor' | 'admin';
 
 export interface BillingAddress {
   street: string;
   city: string;
-  state?: string;
+  state: string;
   country: string;
-  postal_code: string;
+  zip: string;
+}
+
+export interface PaymentMethod {
+  type: string;
+  last4: string;
+  expiry: string;
 }
 
 export interface User {
   id: string;
-  auth_user_id: string | null;
   address: string | null;
   avatar_url: string | null;
   full_name: string | null;
@@ -36,6 +28,14 @@ export interface User {
   nonce: string | null;
   billing_address: BillingAddress | null;
   payment_method: PaymentMethod | null;
+  bio: string | null;
+  title: string | null;
+  expertise: string[] | null;
+  twitter_handle: string | null;
+  is_top_creator: boolean;
+  total_students: number;
+  total_courses: number;
+  creator_rating: number;
 }
 
 export type NewUser = Pick<User, 'id' | 'role'> & Partial<Omit<User, 'id' | 'role'>>;
@@ -43,4 +43,18 @@ export type NewUser = Pick<User, 'id' | 'role'> & Partial<Omit<User, 'id' | 'rol
 export interface UserWithToken {
   user: User;
   token: string;
+}
+
+export interface CreatorStats {
+  id: string;
+  full_name: string | null;
+  avatar_url: string | null;
+  bio: string | null;
+  title: string | null;
+  expertise: string[] | null;
+  twitter_handle: string | null;
+  is_top_creator: boolean;
+  course_count: number;
+  total_students: number;
+  avg_rating: number;
 } 

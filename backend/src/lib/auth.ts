@@ -3,13 +3,24 @@ import bs58 from 'bs58';
 import jwt from 'jsonwebtoken';
 import type { User } from '../types/user';
 import { config } from './config';
+import { sleep } from 'bun';
 
 const BLOCK_VALID_FOR_SECONDS = 60;
 const MESSAGE_PREFIX = 'Sign this message to log in to Mentora // ';
 
-export async function generateNonce(): Promise<string> {
-  const slot = await config.RPC.getSlot().send();
-  return slot.toString();
+export async function generateNonce(maxRetries = 5, initialDelay = 100): Promise<string> {
+  for (let attempt = 0; attempt < maxRetries; attempt++) {
+    try {
+      const slot = await config.RPC.getSlot().send();
+      return slot.toString();
+    } catch (error) {
+      if (attempt === maxRetries - 1) continue; // Skip delay on last attempt
+      await sleep(initialDelay * Math.pow(2, attempt));
+    }
+  }
+  
+  // Fallback to timestamp if RPC fails
+  return Date.now().toString();
 }
 
 export async function verifySignature(payload: {

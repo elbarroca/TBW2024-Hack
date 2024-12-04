@@ -1,19 +1,19 @@
-import type { User, UserRole } from './user'
+import { User } from './user';
 
-// to-do: refactor this to be more consistent with other types
-export interface WalletUser {
+export interface RequestUser {
   id: string;
-  role: UserRole;
-  address?: string;
-  email?: string;
+  role: User['role'];
 }
 
-export interface RequestWithUser extends Request {
-  user: {
-    id: string;
-    role: UserRole;
-    address?: string;
-    email?: string;
-  } | null;
-  headers: Headers;
+export interface AuthenticatedRequest extends Request {
+  user: RequestUser;
+}
+
+export interface ElysiaContext {
+  body: unknown;
+  query: Record<string, string | undefined>;
+  params: Record<string, string>;
+  headers: Record<string, string | undefined>;
+  request: Request;
+  [key: string]: any;
 } 

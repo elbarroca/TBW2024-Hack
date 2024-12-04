@@ -4,6 +4,16 @@ CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 -- Create enum types
 DROP TYPE IF EXISTS user_role CASCADE;
 CREATE TYPE user_role AS ENUM ('student', 'instructor', 'admin');
+CREATE TYPE content_type AS ENUM ('video', 'text', 'article', 'ebook', 'research_paper', 'file');
+CREATE TYPE enrollment_status AS ENUM ('active', 'completed', 'cancelled');
+CREATE TYPE lesson_status AS ENUM ('not_started', 'in_progress', 'completed');
+CREATE TYPE payment_method AS ENUM ('crypto', 'card');
+CREATE TYPE payment_status AS ENUM ('pending', 'completed', 'failed');
+DROP TYPE IF EXISTS course_level CASCADE;
+CREATE TYPE course_level AS ENUM ('Beginner', 'Intermediate', 'Advanced');
+
+DROP TYPE IF EXISTS course_language CASCADE;
+CREATE TYPE course_language AS ENUM ('English', 'Spanish', 'French', 'German', 'Chinese');
 
 -- Create login_attempts table
 CREATE TABLE login_attempts (
@@ -27,7 +37,15 @@ CREATE TABLE users (
     last_auth_status TEXT NULL,
     nonce TEXT NULL,
     billing_address JSONB NULL,
-    payment_method JSONB NULL
+    payment_method JSONB NULL,
+    bio TEXT NULL,
+    title TEXT NULL,
+    expertise TEXT[] NULL,
+    twitter_handle TEXT NULL,
+    is_top_creator BOOLEAN DEFAULT false,
+    total_students INTEGER DEFAULT 0,
+    total_courses INTEGER DEFAULT 0,
+    creator_rating NUMERIC(2,1) DEFAULT 0
 );
 
 -- Create courses table
@@ -39,9 +57,18 @@ CREATE TABLE courses (
     price NUMERIC NOT NULL,
     currency TEXT NOT NULL,
     duration INTEGER NOT NULL,
-    level TEXT CHECK (level IN ('beginner', 'intermediate', 'advanced')),
-    categories TEXT[] NOT NULL,
-    thumbnail_url TEXT,
+    subtitle TEXT NULL,
+    level course_level NOT NULL,
+    language course_language DEFAULT 'English',
+    enrolled INTEGER DEFAULT 0,
+    rating NUMERIC(2,1) DEFAULT 0,
+    reviews INTEGER DEFAULT 0,
+    original_price NUMERIC NULL,
+    last_updated DATE,
+    certificate BOOLEAN DEFAULT false,
+    image_url TEXT NULL,
+    category TEXT NULL,
+    what_you_will_learn TEXT[] NULL,
     published BOOLEAN DEFAULT false,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
@@ -98,8 +125,8 @@ CREATE TABLE enrollments (
     progress NUMERIC NOT NULL DEFAULT 0 CHECK (progress >= 0 AND progress <= 100),
     payment_id UUID REFERENCES payments(id),
     enrolled_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-    completed_at TIMESTAMP WITH TIME ZONE,
-    last_accessed TIMESTAMP WITH TIME ZONE,
+    completed_at TIMESTAMP WITH TIME ZONE NULL,
+    last_accessed TIMESTAMP WITH TIME ZONE NULL,
     UNIQUE(user_id, course_id)
 );
 
@@ -111,7 +138,7 @@ CREATE TABLE progress_tracking (
     status lesson_status DEFAULT 'not_started',
     progress_percentage NUMERIC NOT NULL DEFAULT 0 CHECK (progress_percentage >= 0 AND progress_percentage <= 100),
     last_position INTEGER,
-    completed_at TIMESTAMP WITH TIME ZONE,
+    completed_at TIMESTAMP WITH TIME ZONE NULL,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     UNIQUE(enrollment_id, lesson_id)
@@ -121,14 +148,14 @@ CREATE TABLE progress_tracking (
 CREATE TABLE content (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     title TEXT NOT NULL,
-    description TEXT,
+    description TEXT NULL,
     creator_id UUID NOT NULL REFERENCES users(id),
     type content_type NOT NULL,
     file_url TEXT NOT NULL,
-    thumbnail_url TEXT,
+    thumbnail_url TEXT NULL,
     price NUMERIC NOT NULL DEFAULT 0,
     currency TEXT NOT NULL DEFAULT 'USDC',
-    metadata JSONB,
+    metadata JSONB NULL,
     published BOOLEAN DEFAULT false,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
@@ -152,6 +179,14 @@ CREATE TABLE content_purchases (
     purchased_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
+-- Create course_tags table for many-to-many relationship
+CREATE TABLE course_tags (
+    course_id UUID REFERENCES courses(id) ON DELETE CASCADE,
+    tag TEXT NOT NULL,
+    PRIMARY KEY (course_id, tag)
+);
+
+
 -- Create indexes
 CREATE INDEX idx_users_address ON users(address);
 CREATE INDEX idx_users_email ON users(email);
@@ -172,6 +207,12 @@ CREATE INDEX idx_content_type ON content(type);
 CREATE INDEX idx_content_published ON content(published);
 CREATE INDEX idx_content_price ON content(price);
 CREATE INDEX idx_users_id ON users(id);
+CREATE INDEX idx_courses_level ON courses(level);
+CREATE INDEX idx_courses_language ON courses(language);
+CREATE INDEX idx_courses_rating ON courses(rating);
+CREATE INDEX idx_courses_enrolled ON courses(enrolled);
+CREATE INDEX idx_course_tags ON course_tags(tag);
+CREATE INDEX idx_users_top_creator ON users(is_top_creator);
 
 -- Enable RLS
 ALTER TABLE users ENABLE ROW LEVEL SECURITY;
@@ -386,3 +427,78 @@ GRANT ALL ON login_attempts TO anon, authenticated;
 GRANT ALL ON users TO anon;
 GRANT ALL ON users TO authenticated;
 GRANT ALL ON users TO service_role;
+
+
+-- Add policies for course tags
+CREATE POLICY "Public can view course tags"
+    ON course_tags FOR SELECT
+    USING (true);
+
+CREATE POLICY "Instructors can manage course tags"
+    ON course_tags FOR ALL
+    USING (EXISTS (
+        SELECT 1 FROM courses
+        WHERE courses.id = course_id
+        AND courses.instructor_id = auth.uid()::uuid
+    ));
+
+-- Create creator_stats view
+CREATE OR REPLACE VIEW creator_stats AS
+SELECT 
+    u.id,
+    u.full_name,
+    u.avatar_url,
+    u.bio,
+    u.title,
+    u.expertise,
+    u.twitter_handle,
+    u.is_top_creator,
+    COUNT(DISTINCT c.id) as course_count,
+    COUNT(DISTINCT e.user_id) as total_students,
+    COALESCE(AVG(c.rating), 0) as avg_rating
+FROM users u
+LEFT JOIN courses c ON c.instructor_id = u.id
+LEFT JOIN enrollments e ON e.course_id = c.id
+WHERE u.role = 'instructor'
+GROUP BY u.id;
+
+-- Function to update course stats
+CREATE OR REPLACE FUNCTION update_course_stats()
+RETURNS TRIGGER AS $$
+BEGIN
+    -- Update enrolled count
+    UPDATE courses
+    SET enrolled = (
+        SELECT COUNT(*)
+        FROM enrollments
+        WHERE course_id = NEW.course_id
+    )
+    WHERE id = NEW.course_id;
+    
+    -- Update instructor stats
+    UPDATE users
+    SET total_students = (
+        SELECT COUNT(DISTINCT e.user_id)
+        FROM enrollments e
+        JOIN courses c ON c.id = e.course_id
+        WHERE c.instructor_id = (
+            SELECT instructor_id 
+            FROM courses 
+            WHERE id = NEW.course_id
+        )
+    )
+    WHERE id = (
+        SELECT instructor_id 
+        FROM courses 
+        WHERE id = NEW.course_id
+    );
+    
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+-- Trigger for updating stats
+CREATE TRIGGER update_course_stats_trigger
+    AFTER INSERT OR UPDATE ON enrollments
+    FOR EACH ROW
+    EXECUTE FUNCTION update_course_stats();

@@ -1,11 +1,11 @@
-import { useWallet } from '@solana/wallet-adapter-react';
 import { Wallet, CoinsIcon } from 'lucide-react';
 import { WalletPicker } from './WalletPicker';
+import { useAppSelector } from '@/store';
 
 export function ProtectedState() {
-    const { publicKey } = useWallet();
+    const { user } = useAppSelector((state) => state.auth);
 
-    if (!publicKey) {
+    if (!user) {
         return (
             <div className="flex flex-col items-center justify-center p-8 text-center">
                 <div className="rounded-full bg-muted p-3">

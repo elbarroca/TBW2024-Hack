@@ -1,5 +1,6 @@
 import { createApi, fetchBaseQuery, BaseQueryFn, FetchArgs, FetchBaseQueryError } from '@reduxjs/toolkit/query/react';
 import { config } from '@/lib/config';
+import { parseCookies } from 'nookies';
 
 interface ApiErrorResponse {
   statusCode: number;
@@ -23,7 +24,9 @@ const baseQuery: BaseQueryFn<
     baseUrl: config.API_URL,
     credentials: 'include',
     prepareHeaders: (headers) => {
-      const token = localStorage.getItem('token');
+      const cookies = parseCookies();
+      const token = cookies.auth_token;
+      
       if (token) {
         headers.set('authorization', `Bearer ${token}`);
       }
@@ -35,8 +38,6 @@ const baseQuery: BaseQueryFn<
 
   // Handle 401 Unauthorized
   if (result.error && result.error.status === 401) {
-    // Clear local storage
-    localStorage.removeItem('token');
     // You might want to trigger a logout action here
     // api.dispatch(logout());
   }

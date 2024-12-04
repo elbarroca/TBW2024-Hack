@@ -15,7 +15,7 @@ export default function Header() {
     const navigate = useNavigate();
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const [isCreateMenuOpen, setIsCreateMenuOpen] = useState(false);
-    const { publicKey } = useAppSelector((state) => state.auth);
+    const { user } = useAppSelector((state) => state.auth);
 
     // Base navigation links with icons
     const navLinks: NavLink[] = [
@@ -35,14 +35,14 @@ export default function Header() {
     ];
 
     // Add Profile link only if wallet is connected
-    const allNavLinks = publicKey ? [...navLinks, { path: '/profile', label: 'Profile', icon: Users }] : navLinks;
+    const allNavLinks = user ? [...navLinks, { path: '/profile', label: 'Profile', icon: Users }] : navLinks;
 
     // Effect to handle navigation when wallet disconnects
     useEffect(() => {
-        if (!publicKey && location.pathname === '/profile') {
+        if (!user && location.pathname === '/profile') {
             navigate('/', { replace: true });
         }
-    }, [publicKey, location.pathname, navigate]);
+    }, [user, location.pathname, navigate]);
 
     // Close create menu when clicking outside
     useEffect(() => {
@@ -103,7 +103,7 @@ export default function Header() {
                             ))}
 
                             {/* Create Dropdown - Only show when connected */}
-                            {publicKey && (
+                            {user && (
                                 <div className="relative create-menu">
                                     <button
                                         onClick={(e) => {
@@ -180,7 +180,7 @@ export default function Header() {
                             ))}
 
                             {/* Mobile Create Menu - Only show when connected */}
-                            {publicKey && (
+                            {user && (
                                 <div className="px-3 py-2">
                                     <div className="text-sm font-medium text-gray-500 mb-2">
                                         Create Content

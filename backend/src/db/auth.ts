@@ -67,6 +67,21 @@ export async function clearLoginAttempt(address: string): Promise<void> {
   }
 }
 
+export async function getUserRole(userId: string): Promise<UserRole> {
+  const { data, error } = await supabase
+    .from('users')
+    .select('role')
+    .eq('id', userId)
+    .single();
+
+  if (error) {
+    console.error('Error fetching user role:', error);
+    return 'student'; // Default to student role
+  }
+
+  return data?.role || 'student';
+}
+
 async function getOrCreateUser(address: string): Promise<User> {
   const { data: existingUser, error: fetchError } = await supabase
     .from('users')
@@ -101,10 +116,7 @@ async function getOrCreateUser(address: string): Promise<User> {
     if (error) throw error;
     if (!data) throw new Error('User not found');
     
-    return {
-      ...data,
-      role: data.role as UserRole
-    };
+    return data as User;
   }
 
   throw fetchError;
@@ -113,7 +125,7 @@ async function getOrCreateUser(address: string): Promise<User> {
 export async function getUser(address: string): Promise<{ user: User, accessToken: string }> {
   const user = await getOrCreateUser(address);
   const accessToken = createToken(user);
-  await supabase.rpc('set_claim', { uid: user.id, claim: 'userrole', value: UserRole.STUDENT });
+  await supabase.rpc('set_claim', { uid: user.id, claim: 'userrole', value: 'student' });
 
   return { user, accessToken };
-}
+} 

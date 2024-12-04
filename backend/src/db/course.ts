@@ -1,5 +1,6 @@
 import { Database } from "../types/db";
 import { supabase } from "./client";
+import { UserRole } from "../types/user";
 
 type Course = Database['public']['Tables']['courses']['Row'];
 type NewCourse = Database['public']['Tables']['courses']['Insert'];
@@ -7,6 +8,22 @@ type Module = Database['public']['Tables']['modules']['Row'];
 type Lesson = Database['public']['Tables']['lessons']['Row'];
 type NewModule = Database['public']['Tables']['modules']['Insert'];
 type NewLesson = Database['public']['Tables']['lessons']['Insert'];
+
+interface CourseInstructor {
+  id: string;
+  full_name: string | null;
+  avatar_url: string | null;
+  role: UserRole;
+}
+
+interface ModuleWithLessons extends Module {
+  lessons: Lesson[];
+}
+
+export interface CourseWithRelations extends Course {
+  instructor: CourseInstructor;
+  modules: ModuleWithLessons[];
+}
 
 export async function createCourse(course: NewCourse): Promise<Course | null> {
   const { data, error } = await supabase
@@ -22,12 +39,17 @@ export async function createCourse(course: NewCourse): Promise<Course | null> {
   return data;
 }
 
-export async function getCourseWithModules(courseId: string) {
-  const { data: course, error: courseError } = await supabase
+export async function getCourseWithModules(courseId: string): Promise<CourseWithRelations | null> {
+  const { data, error } = await supabase
     .from('courses')
     .select(`
       *,
-      instructor:instructor_id(*),
+      instructor:users!instructor_id(
+        id,
+        full_name,
+        avatar_url,
+        role
+      ),
       modules:modules(
         *,
         lessons:lessons(*)
@@ -36,12 +58,23 @@ export async function getCourseWithModules(courseId: string) {
     .eq('id', courseId)
     .single();
 
-  if (courseError) {
-    console.error('Error fetching course:', courseError);
+  if (error) {
+    console.error('Error fetching course:', error);
     return null;
   }
 
-  return course;
+  if (data) {
+    const instructor = Array.isArray(data.instructor) ? data.instructor[0] : data.instructor;
+    
+    const courseWithRelations: CourseWithRelations = {
+      ...data,
+      instructor: instructor as CourseInstructor,
+      modules: data.modules as ModuleWithLessons[]
+    };
+    return courseWithRelations;
+  }
+
+  return null;
 }
 
 export async function updateCourse(courseId: string, updates: Partial<Course>): Promise<Course | null> {
@@ -131,7 +164,6 @@ export async function getInstructorCourses(instructorId: string): Promise<Course
 }
 
 export async function publishCourse(courseId: string): Promise<boolean> {
-  // Validate course is ready for publishing
   const course = await getCourseWithModules(courseId);
   if (!course || !course.modules?.length) {
     return false;
@@ -142,10 +174,13 @@ export async function publishCourse(courseId: string): Promise<boolean> {
     return false;
   }
 
-  // Publish course
   const { error } = await supabase
     .from('courses')
-    .update({ published: true, updated_at: new Date().toISOString() })
+    .update({ 
+      published: true, 
+      updated_at: new Date().toISOString(),
+      last_updated: new Date().toISOString()
+    })
     .eq('id', courseId);
 
   if (error) {
@@ -168,4 +203,37 @@ export async function deleteCourse(courseId: string): Promise<boolean> {
   }
 
   return true;
-} 
+}
+
+export const createCourseTag = async (courseId: string, tag: string) => {
+  const { data, error } = await supabase
+    .from('course_tags')
+    .insert([{
+      course_id: courseId,
+      tag
+    }])
+    .select()
+    .single();
+
+  if (error) {
+    console.error('Error creating course tag:', error);
+    return null;
+  }
+
+  return data;
+};
+
+export const deleteCourseTagsByCourseId = async (courseId: string) => {
+  const { data, error } = await supabase
+    .from('course_tags')
+    .delete()
+    .eq('course_id', courseId)
+    .select();
+
+  if (error) {
+    console.error('Error deleting course tags:', error);
+    return null;
+  }
+
+  return data;
+}; 

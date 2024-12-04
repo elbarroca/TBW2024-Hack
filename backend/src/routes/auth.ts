@@ -1,4 +1,4 @@
-import { Elysia } from 'elysia';
+import { Cookie, Elysia } from 'elysia';
 import { ApiError } from '../types/apiError';
 import { 
   generateNonce,
@@ -23,6 +23,9 @@ type VerifyRequest = {
     address: string;
     nonce: string;
     signature: string;
+  },
+  cookie: {
+    auth_token: Cookie<string>
   }
 }
 
@@ -46,7 +49,7 @@ export const authRoutes = new Elysia({ prefix: '/auth' })
       statusCode: 200
     };
   })
-  .post('/verify', async ({ body }: VerifyRequest) => {
+  .post('/verify', async ({ body, cookie }: VerifyRequest) => {
     const { address, nonce, signature } = body;
 
     if (!address || !nonce || !signature) {
@@ -74,6 +77,7 @@ export const authRoutes = new Elysia({ prefix: '/auth' })
       const { user, accessToken } = await getUser(address);
       await clearLoginAttempt(address);
 
+      cookie.auth_token.set({ value: accessToken });
       return {
         data: { 
           accessToken, 
@@ -86,11 +90,13 @@ export const authRoutes = new Elysia({ prefix: '/auth' })
       throw new ApiError(500, 'Authentication failed');
     }
   })
-  .post('/logout', async () => {
+  .post('/logout', async ({ cookie }: { cookie: { auth_token: Cookie<string> } }) => {
     try {
       const { error } = await supabase.auth.signOut();
       if (error) throw error;
       
+      cookie.auth_token.remove();
+
       return { data: { message: 'Logged out successfully' } };
     } catch (error) {
       console.error('Logout error:', error);

@@ -1,141 +1,96 @@
-import { Elysia, t } from "elysia";
-import {
-  createCourse,
-  getCourseWithModules,
-  updateCourse,
-  addModuleToCourse,
-  addLessonToModule,
-  updateModuleOrder,
-  updateLessonOrder,
+import { Elysia } from 'elysia';
+import { Permission } from '../types/permissions';
+import { requirePermission } from '../middleware/permissions';
+import { auth } from '../middleware/auth';
+import { 
+  createCourse, 
+  updateCourse, 
+  deleteCourse, 
   publishCourse,
-  deleteCourse
-} from "../db/course";
-import type { RequestWithUser } from "../types/content";
+  getCourseWithModules 
+} from '../db/course';
+import { RequestUser } from '../types/request';
 
-// Add handler context type
-interface HandlerContext {
-  request: RequestWithUser;
-}
+export const courseRoutes = new Elysia()
+  .use(auth)
+  .post(
+    '/courses', 
+    async ({ body, user }: { body: any, user: RequestUser }) => {
+      const course = await createCourse({
+        ...body,
+        instructor_id: user.id,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      });
 
-const courseSchema = t.Object({
-  title: t.String(),
-  description: t.String(),
-  price: t.String(),
-  currency: t.String(),
-  duration: t.Number(),
-  level: t.Union([
-    t.Literal('beginner'),
-    t.Literal('intermediate'),
-    t.Literal('advanced')
-  ]),
-  categories: t.Array(t.String()),
-  thumbnail_url: t.Optional(t.String())
-});
+      return course;
+    },
+    {
+      beforeHandle: requirePermission(Permission.CREATE_COURSE)
+    }
+  )
+  .put(
+    '/courses/:id', 
+    async ({ params, body, user }: { 
+      params: { id: string }, 
+      body: any, 
+      user: RequestUser 
+    }) => {
+      const course = await getCourseWithModules(params.id);
+      if (!course) throw new Error('Course not found');
 
-const moduleSchema = t.Object({
-  title: t.String(),
-  description: t.String(),
-  order_number: t.Number()
-});
+      if (course.instructor_id !== user.id && user.role !== 'admin') {
+        throw new Error('Not authorized to update this course');
+      }
 
-const lessonSchema = t.Object({
-  title: t.String(),
-  description: t.String(),
-  content_type: t.String(),
-  content_url: t.String(),
-  duration: t.Number(),
-  order_number: t.Number()
-});
+      const updatedCourse = await updateCourse(params.id, {
+        ...body,
+        updated_at: new Date().toISOString()
+      });
 
-// Define the course input type
-interface CourseInput {
-  title: string;
-  description: string;
-  price: string;
-  currency: string;
-  duration: number;
-  level: 'beginner' | 'intermediate' | 'advanced';
-  categories: string[];
-  thumbnail_url?: string;
-}
+      return updatedCourse;
+    },
+    {
+      beforeHandle: requirePermission(Permission.UPDATE_COURSE)
+    }
+  )
+  .delete(
+    '/courses/:id', 
+    async ({ params, user }: { 
+      params: { id: string }, 
+      user: RequestUser 
+    }) => {
+      const course = await getCourseWithModules(params.id);
+      if (!course) throw new Error('Course not found');
 
-export const courseRoutes = new Elysia({ prefix: '/courses' })
-  .post("/",
-    async ({ body, request }: { body: CourseInput, request: RequestWithUser }) => {
-        if (!request.user) throw new Error('Unauthorized');
-        
-        const course = await createCourse({
-          ...body as CourseInput,
-          instructor_id: request.user.id,
-          created_at: new Date().toISOString()
-        });
-        return { course, status: 201 };
-      },
-      {
-        body: courseSchema,
-        beforeHandle: ({ request }: HandlerContext) => {
-          if (!request.user?.role || !['instructor', 'admin'].includes(request.user.role)) {
-            throw new Error('Unauthorized');
-          }
-          //return checkPermission('create', 'courses');
-        }
-      })
+      if (course.instructor_id !== user.id && user.role !== 'admin') {
+        throw new Error('Not authorized to delete this course');
+      }
 
-    .get("/:id",
-      async ({ params }) => {
-        const course = await getCourseWithModules(params.id);
-        if (!course) {
-          return { error: "Course not found", status: 404 };
-        }
-        return { course, status: 200 };
-      },
-      {
-        //beforeHandle: ({ request }: HandlerContext) => checkPermission('read', 'courses')
-      })
+      const success = await deleteCourse(params.id);
+      return { success };
+    },
+    {
+      beforeHandle: requirePermission(Permission.DELETE_COURSE)
+    }
+  )
+  .post(
+    '/courses/:id/publish', 
+    async ({ params, user }: { 
+      params: { id: string }, 
+      user: RequestUser 
+    }) => {
+      const course = await getCourseWithModules(params.id);
+      if (!course) throw new Error('Course not found');
 
-    .put("/:id",
-      async ({ params, body, request }: { params: { id: string }, body: CourseInput, request: RequestWithUser }) => {
-        const course = await getCourseWithModules(params.id);
-        if (!course) {
-          return { error: "Course not found", status: 404 };
-        }
+      if (course.instructor_id !== user.id && user.role !== 'admin') {
+        throw new Error('Not authorized to publish this course');
+      }
 
-        if (course.instructor_id !== request.user?.id && request.user?.role !== 'admin') {
-          return { error: "Unauthorized", status: 403 };
-        }
-
-        const updated = await updateCourse(params.id, body as Partial<CourseInput>);
-        return { course: updated, status: 200 };
-      },
-      {
-        body: courseSchema,
-        beforeHandle: ({ request }: HandlerContext) => {
-          if (!request.user?.role || !['instructor', 'admin'].includes(request.user.role)) {
-            throw new Error('Unauthorized');
-          }
-          //return checkPermission('update', 'courses');
-        }
-      })
-
-    .post("/:id/publish",
-      async ({ params, request }: { params: { id: string }, request: RequestWithUser }) => {
-        const course = await getCourseWithModules(params.id);
-        if (!course) {
-          return { error: "Course not found", status: 404 };
-        }
-
-        if (course.instructor_id !== request.user?.id && request.user?.role !== 'admin') {
-          return { error: "Unauthorized", status: 403 };
-        }
-
-        const success = await publishCourse(params.id);
-        return { success, status: 200 };
-      },
-      {
-        beforeHandle: ({ request }: HandlerContext) => {
-          if (!request.user?.role || !['instructor', 'admin'].includes(request.user.role)) {
-            throw new Error('Unauthorized');
-          }
-          //return checkPermission('update', 'courses');
-        }
-      })
+      const success = await publishCourse(params.id);
+      return { success };
+    },
+    {
+      beforeHandle: requirePermission(Permission.PUBLISH_COURSE)
+    }
+  );

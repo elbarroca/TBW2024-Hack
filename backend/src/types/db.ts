@@ -35,7 +35,6 @@ export interface Database {
       users: {
         Row: {
           id: string;
-          auth_user_id: string | null;
           address: string | null;
           avatar_url: string | null;
           full_name: string | null;
@@ -48,10 +47,17 @@ export interface Database {
           nonce: string | null;
           billing_address: BillingAddress | null;
           payment_method: PaymentMethod | null;
+          bio: string | null;
+          title: string | null;
+          expertise: string[] | null;
+          twitter_handle: string | null;
+          is_top_creator: boolean;
+          total_students: number;
+          total_courses: number;
+          creator_rating: number;
         }
         Insert: {
           id: string;
-          auth_user_id?: string | null;
           address?: string | null;
           avatar_url?: string | null;
           full_name?: string | null;
@@ -64,10 +70,17 @@ export interface Database {
           nonce?: string | null;
           billing_address?: BillingAddress | null;
           payment_method?: PaymentMethod | null;
+          bio?: string | null;
+          title?: string | null;
+          expertise?: string[] | null;
+          twitter_handle?: string | null;
+          is_top_creator?: boolean;
+          total_students?: number;
+          total_courses?: number;
+          creator_rating?: number;
         }
         Update: {
           id?: string;
-          auth_user_id?: string | null;
           address?: string | null;
           avatar_url?: string | null;
           full_name?: string | null;
@@ -80,6 +93,14 @@ export interface Database {
           nonce?: string | null;
           billing_address?: BillingAddress | null;
           payment_method?: PaymentMethod | null;
+          bio?: string | null;
+          title?: string | null;
+          expertise?: string[] | null;
+          twitter_handle?: string | null;
+          is_top_creator?: boolean;
+          total_students?: number;
+          total_courses?: number;
+          creator_rating?: number;
         }
       }
       content: {
@@ -149,12 +170,21 @@ export interface Database {
           title: string;
           description: string;
           instructor_id: string;
-          price: string;
+          price: number;
           currency: string;
           duration: number;
-          level: 'beginner' | 'intermediate' | 'advanced';
-          categories: string[];
-          thumbnail_url: string | null;
+          subtitle: string | null;
+          level: 'Beginner' | 'Intermediate' | 'Advanced';
+          language: 'English' | 'Spanish' | 'French' | 'German' | 'Chinese';
+          enrolled: number;
+          rating: number;
+          reviews: number;
+          original_price: number | null;
+          last_updated: string;
+          certificate: boolean;
+          image_url: string | null;
+          category: string | null;
+          what_you_will_learn: string[] | null;
           published: boolean;
           created_at: string;
           updated_at: string;
@@ -164,12 +194,21 @@ export interface Database {
           title: string;
           description: string;
           instructor_id: string;
-          price: string;
+          price: number;
           currency: string;
           duration: number;
-          level: 'beginner' | 'intermediate' | 'advanced';
-          categories: string[];
-          thumbnail_url?: string | null;
+          subtitle?: string | null;
+          level: 'Beginner' | 'Intermediate' | 'Advanced';
+          language: 'English' | 'Spanish' | 'French' | 'German' | 'Chinese';
+          enrolled?: number;
+          rating?: number;
+          reviews?: number;
+          original_price?: number | null;
+          last_updated?: string;
+          certificate?: boolean;
+          image_url?: string | null;
+          category?: string | null;
+          what_you_will_learn?: string[] | null;
           published?: boolean;
           created_at?: string;
           updated_at?: string;
@@ -178,12 +217,21 @@ export interface Database {
           title?: string;
           description?: string;
           instructor_id?: string;
-          price?: string;
+          price?: number;
           currency?: string;
           duration?: number;
-          level?: 'beginner' | 'intermediate' | 'advanced';
-          categories?: string[];
-          thumbnail_url?: string | null;
+          subtitle?: string | null;
+          level?: 'Beginner' | 'Intermediate' | 'Advanced';
+          language?: 'English' | 'Spanish' | 'French' | 'German' | 'Chinese';
+          enrolled?: number;
+          rating?: number;
+          reviews?: number;
+          original_price?: number | null;
+          last_updated?: string;
+          certificate?: boolean;
+          image_url?: string | null;
+          category?: string | null;
+          what_you_will_learn?: string[] | null;
           published?: boolean;
           updated_at?: string;
         };
@@ -327,9 +375,37 @@ export interface Database {
           purchased_at?: string;
         };
       };
+      course_tags: {
+        Row: {
+          course_id: string;
+          tag: string;
+        };
+        Insert: {
+          course_id: string;
+          tag: string;
+        };
+        Update: {
+          course_id?: string;
+          tag?: string;
+        };
+      };
     }
     Views: {
-      [_ in never]: never
+      creator_stats: {
+        Row: {
+          id: string;
+          full_name: string | null;
+          avatar_url: string | null;
+          bio: string | null;
+          title: string | null;
+          expertise: string[] | null;
+          twitter_handle: string | null;
+          is_top_creator: boolean;
+          course_count: number;
+          total_students: number;
+          avg_rating: number;
+        };
+      };
     }
     Functions: {
       is_claims_admin: {

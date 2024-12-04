@@ -1,22 +1,25 @@
-import { baseApi, handleResponse } from '../client';
-import type { TokenInfo, Payment } from '@/types/api';
+import { baseApi } from '../client';
+
+interface GetBalancesResponse {
+  balances: any[];
+}
 
 export const solanaApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
-    getBalances: builder.query<TokenInfo[], string>({
-      query: (address) => `getBalances?user=${address}`,
-      transformResponse: handleResponse,
+    getBalances: builder.query<GetBalancesResponse, string>({
+      query: (user) => ({
+        url: '/solana/getBalances',
+        params: { user },
+      }),
       providesTags: ['Token'],
     }),
-
     sendTransaction: builder.mutation<{ signature: string }, { transaction: string }>({
       query: (body) => ({
-        url: 'sendTransaction',
+        url: '/solana/sendTransaction',
         method: 'POST',
         body,
       }),
-      transformResponse: handleResponse,
-      invalidatesTags: ['Token', 'Transaction'],
+      invalidatesTags: ['Transaction', 'Token'],
     }),
   }),
 });
