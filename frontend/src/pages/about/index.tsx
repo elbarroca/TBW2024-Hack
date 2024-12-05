@@ -85,13 +85,21 @@ export default function AboutPage() {
                                 <Button
                                     size="lg"
                                     variant="outline"
-                                    className="bg-transparent border-white text-white hover:bg-white/10"
+                                    className="bg-transparent border-white text-white hover:bg-white/20 transition-all duration-300"
                                 >
                                     <motion.a
                                         href="#mission"
                                         className="flex items-center gap-2"
-                                        whileHover={{ scale: 1.05 }}
-                                        whileTap={{ scale: 0.95 }}
+                                        whileHover={{ 
+                                            scale: 1.1,
+                                            textShadow: "0 0 8px rgb(255,255,255)",
+                                        }}
+                                        whileTap={{ scale: 0.9 }}
+                                        transition={{
+                                            type: "spring",
+                                            stiffness: 300,
+                                            damping: 10
+                                        }}
                                     >
                                         <Rocket className="w-4 h-4" />
                                         Our Mission
@@ -136,7 +144,8 @@ export default function AboutPage() {
                                                 <Avatar className="w-32 h-32 mx-auto mb-4 ring-4 ring-purple-100">
                                                     <AvatarImage 
                                                         src="https://framerusercontent.com/images/vVZ5boECZpOdVfsfUDdc1ybbWU.jpg?scale-down-to=512" 
-                                                        alt="Ricardo Barroca" 
+                                                        alt="Ricardo Barroca"
+                                                        className="object-cover w-full h-full"
                                                     />
                                                     <AvatarFallback>RB</AvatarFallback>
                                                 </Avatar>
@@ -225,7 +234,8 @@ export default function AboutPage() {
                                                 <Avatar className="w-32 h-32 mx-auto mb-4 ring-4 ring-purple-100">
                                                     <AvatarImage 
                                                         src="https://www.riki.bio/pfpHacker.png" 
-                                                        alt="Ricardo Castelló" 
+                                                        alt="Ricardo Castelló"
+                                                        className="object-cover w-full h-full"
                                                     />
                                                     <AvatarFallback>RC</AvatarFallback>
                                                 </Avatar>

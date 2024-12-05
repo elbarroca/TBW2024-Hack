@@ -1,42 +1,41 @@
-import React, { useEffect, useState } from 'react';
-import { Navigate, useNavigate } from 'react-router-dom';
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import type { LucideIcon } from 'lucide-react';
 import {
-    Wallet,
     Copy,
-    CheckCircle2,
     BookOpen,
     Video,
     PenTool,
-    ChevronDown,
-    Settings,
-    BarChart3,
     Clock,
     ShoppingBag,
-    Calendar,
     Microscope,
     FileUp,
-    Activity,
-    Edit3,
     Globe,
     Twitter,
     Github,
     Linkedin,
-    Plus,
-    X,
     Medal,
-    Tag,
-    Save,
-    XCircle,
     Camera,
-    ExternalLink,
     AlertCircle,
     ArrowRight,
     Upload,
     GraduationCap,
+    ChevronDown,
+    BarChart3,
+    Calendar,
+    Activity,
+    Edit3,
+    Plus,
+    X,
+    Tag,
+    Save,
+    XCircle,
+    ExternalLink,
+    Settings,
 } from 'lucide-react';
 import { useAppSelector } from '@/store';
 import { useAuth } from '@/contexts/AuthProvider';
+import { WalletPicker } from '@/components/solana/WalletPicker';
 
 // Mock data for demonstration
 const mockPurchases = [
@@ -258,25 +257,56 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
 
 export default function ProfilePage() {
     const navigate = useNavigate();
-    const { address, isLoading } = useAppSelector((state) => state.auth);
+    const { user, isAuthenticated, isLoading, resetAuth } = useAuth();
+    const [isEditingDisplayName, setIsEditingDisplayName] = useState(false);
+    const [isEditingSocialLinks, setIsEditingSocialLinks] = useState(false);
+    const [tempDisplayName, setTempDisplayName] = useState('');
+    const [tempSocialLinks, setTempSocialLinks] = useState<SocialLinks>({});
+    const [isConfirmationOpen, setIsConfirmationOpen] = useState(false);
     const [purchaseFilter, setPurchaseFilter] = useState('all');
     const [showSettings, setShowSettings] = useState(false);
     const [profile, setProfile] = useState<CreatorProfile>(initialProfile);
     const [isEditingProfile, setIsEditingProfile] = useState(false);
-    const [isEditingDisplayName, setIsEditingDisplayName] = useState(false);
     const [showToast, setShowToast] = useState(false);
     const [expertiseTags, setExpertiseTags] = useState<ExpertiseTag[]>([]);
     const [tagInput, setTagInput] = useState('');
     const [showTagSuggestions, setShowTagSuggestions] = useState(false);
-    const [editingSocialPlatform, setEditingSocialPlatform] = useState<keyof SocialLinks | null>(
-        null
-    );
+    const [editingSocialPlatform, setEditingSocialPlatform] = useState<keyof SocialLinks | null>(null);
     const [showDisconnectModal, setShowDisconnectModal] = useState(false);
-    const { resetAuth } = useAuth();
+
+    // If loading, show loading state
+    if (isLoading) {
+        return (
+            <div className="flex items-center justify-center min-h-screen">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
+            </div>
+        );
+    }
+
+    // If not authenticated, show wallet connection
+    if (!isAuthenticated) {
+        return (
+            <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-b from-gray-50 to-white p-4">
+                <div className="max-w-md w-full space-y-8 text-center">
+                    <div className="space-y-4">
+                        <h1 className="text-3xl font-bold tracking-tight text-gray-900">
+                            Connect Your Wallet
+                        </h1>
+                        <p className="text-gray-600">
+                            Please connect your wallet to access your profile and start learning.
+                        </p>
+                    </div>
+                    <div className="mt-8">
+                        <WalletPicker />
+                    </div>
+                </div>
+            </div>
+        );
+    }
 
     const copyAddress = () => {
-        if (address) {
-            navigator.clipboard.writeText(address);
+        if (user?.publicKey) {
+            navigator.clipboard.writeText(user.publicKey);
             setShowToast(true);
             setTimeout(() => setShowToast(false), 2000);
         }
@@ -284,12 +314,11 @@ export default function ProfilePage() {
 
     const handleDisplayNameSave = () => {
         setIsEditingDisplayName(false);
-        // TODO: Save display name to backend
     };
 
     const handleDisplayNameCancel = () => {
+        setTempDisplayName('');
         setIsEditingDisplayName(false);
-        setProfile((prev) => ({ ...prev, displayName: prev.displayName }));
     };
 
     const handleSocialLinkEdit = (platform: keyof SocialLinks) => {
@@ -298,7 +327,6 @@ export default function ProfilePage() {
 
     const handleSocialLinkSave = () => {
         setEditingSocialPlatform(null);
-        // TODO: Save social links to backend
     };
 
     const handleSocialLinkCancel = () => {
@@ -306,135 +334,52 @@ export default function ProfilePage() {
         setProfile((prev) => ({ ...prev, socialLinks: { ...prev.socialLinks } }));
     };
 
-    const shortenedAddress = address ? `${address.slice(0, 6)}...${address.slice(-4)}` : '';
-
     const handleContentCreate = (route: string) => {
         navigate(route);
     };
 
-    if (isLoading) {
-        return (
-            <main className="container mx-auto px-4 pt-24">
-                <div className="max-w-7xl mx-auto text-center">
-                    <div className="animate-pulse">
-                        <p className="text-gray-600">Connecting to wallet...</p>
-                    </div>
-                </div>
-            </main>
-        );
-    }
-
-    if (!address) {
-        return <Navigate to="/" replace />;
-    }
-
     return (
         <main className="container mx-auto px-4 pt-24 pb-12">
             <div className="max-w-7xl mx-auto space-y-8">
-                {/* Enhanced Wallet Section */}
-                <div className="bg-gradient-to-r from-purple-600/10 via-teal-400/10 to-purple-600/10 rounded-xl p-8 relative overflow-hidden">
-                    <div className="absolute inset-0 bg-grid-white/10 [mask-image:linear-gradient(0deg,transparent,black)] pointer-events-none" />
-                    <div className="relative flex flex-col md:flex-row items-start justify-between gap-6">
-                        <div className="flex items-start gap-6 w-full md:w-auto">
-                            <div className="group relative">
-                                <div className="w-20 h-20 rounded-full bg-gradient-to-r from-purple-600 to-teal-400 p-0.5 cursor-pointer hover:scale-105 transition-transform">
-                                    <div className="w-full h-full rounded-full bg-white flex items-center justify-center overflow-hidden relative group">
-                                        <Wallet className="w-10 h-10 text-purple-600 group-hover:scale-110 transition-transform" />
-                                        <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                                            <Edit3 className="w-6 h-6 text-white" />
-                                        </div>
-                                    </div>
+                {/* Profile Header */}
+                <div className="bg-white border-b">
+                    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+                        <div className="flex items-center justify-between">
+                            <div className="flex items-center space-x-4">
+                                <div className="h-16 w-16 rounded-full bg-gradient-to-r from-purple-500 to-indigo-500 flex items-center justify-center text-white text-2xl font-bold">
+                                    {user?.displayName?.charAt(0) || user?.publicKey?.slice(0, 2)}
                                 </div>
-                            </div>
-                            <div className="flex-1">
-                                <div className="flex items-center gap-3 mb-2">
-                                    {isEditingDisplayName ? (
-                                        <div className="flex items-center gap-2">
-                                            <input
-                                                type="text"
-                                                value={profile.displayName}
-                                                onChange={(e) =>
-                                                    setProfile({
-                                                        ...profile,
-                                                        displayName: e.target.value,
-                                                    })
-                                                }
-                                                className="text-2xl font-bold bg-transparent border-b-2 border-purple-300 focus:border-purple-600 outline-none w-64"
-                                                placeholder="Enter display name"
-                                                autoFocus
-                                            />
-                                            <button
-                                                onClick={handleDisplayNameSave}
-                                                className="p-1.5 hover:bg-purple-50 rounded-full transition-colors"
-                                                title="Save"
-                                            >
-                                                <Save className="w-5 h-5 text-purple-600" />
-                                            </button>
-                                            <button
-                                                onClick={handleDisplayNameCancel}
-                                                className="p-1.5 hover:bg-red-50 rounded-full transition-colors"
-                                                title="Cancel"
-                                            >
-                                                <XCircle className="w-5 h-5 text-red-500" />
-                                            </button>
-                                        </div>
-                                    ) : (
-                                        <div className="flex items-center gap-2">
-                                            <h1 className="text-2xl font-bold text-gray-900">
-                                                {profile.displayName || 'My Wallet'}
-                                            </h1>
-                                            <button
-                                                onClick={() => setIsEditingDisplayName(true)}
-                                                className="p-1.5 hover:bg-purple-50 rounded-full transition-colors"
-                                                title="Edit display name"
-                                            >
-                                                <Edit3 className="w-4 h-4 text-purple-600" />
-                                            </button>
-                                        </div>
-                                    )}
-                                    <span className="px-2 py-1 rounded-full bg-green-100 text-green-700 text-xs font-medium flex items-center gap-1 animate-pulse">
-                                        <CheckCircle2 className="w-3 h-3" /> Connected
-                                    </span>
-                                </div>
-
-                                <div className="flex flex-col gap-2">
-                                    <div className="flex items-center gap-2">
-                                        <code className="text-sm text-gray-500 font-mono bg-white/50 px-2 py-1 rounded">
-                                            {shortenedAddress}
-                                        </code>
+                                <div>
+                                    <h1 className="text-2xl font-bold text-gray-900">
+                                        {user?.displayName || 'Unnamed User'}
+                                    </h1>
+                                    <div className="flex items-center space-x-2 text-sm text-gray-500">
+                                        <span>{user?.publicKey?.slice(0, 8)}...{user?.publicKey?.slice(-8)}</span>
                                         <button
                                             onClick={copyAddress}
-                                            className="p-1.5 hover:bg-white/50 rounded-full transition-colors group relative"
-                                            title="Copy address"
+                                            className="text-gray-400 hover:text-gray-600"
                                         >
-                                            <Copy className="w-4 h-4 text-gray-500 group-hover:text-purple-600 transition-colors" />
-                                            {showToast && (
-                                                <span className="absolute -top-8 left-1/2 -translate-x-1/2 px-2 py-1 bg-gray-900 text-white text-xs rounded whitespace-nowrap">
-                                                    Copied!
-                                                </span>
-                                            )}
+                                            <Copy className="h-4 w-4" />
                                         </button>
                                     </div>
                                 </div>
                             </div>
-                        </div>
-
-                        {/* Action buttons */}
-                        <div className="flex items-center gap-3">
-                            <button
-                                onClick={() => setShowSettings(true)}
-                                className="px-4 py-2 rounded-lg bg-white shadow-sm border border-gray-200 text-gray-700 hover:bg-gray-50 transition-colors flex items-center gap-2"
-                            >
-                                <Settings className="w-4 h-4" />
-                                Settings
-                            </button>
-                            <button
-                                onClick={() => setShowDisconnectModal(true)}
-                                className="px-4 py-2 rounded-lg bg-red-50 text-red-600 hover:bg-red-100 transition-colors flex items-center gap-2"
-                            >
-                                <X className="w-4 h-4" />
-                                Disconnect
-                            </button>
+                            <div className="flex items-center gap-3">
+                                <button
+                                    onClick={() => setShowSettings(true)}
+                                    className="px-4 py-2 rounded-lg bg-white shadow-sm border border-gray-200 text-gray-700 hover:bg-gray-50 transition-colors flex items-center gap-2"
+                                >
+                                    <Settings className="w-4 h-4" />
+                                    Settings
+                                </button>
+                                <button
+                                    onClick={() => setShowDisconnectModal(true)}
+                                    className="px-4 py-2 rounded-lg bg-red-50 text-red-600 hover:bg-red-100 transition-colors flex items-center gap-2"
+                                >
+                                    <X className="w-4 h-4" />
+                                    Disconnect
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -1044,6 +989,13 @@ export default function ProfilePage() {
                                 Close
                             </button>
                         </div>
+                    </div>
+                )}
+
+                {/* Toast Notification */}
+                {showToast && (
+                    <div className="fixed bottom-4 right-4 bg-gray-900 text-white px-4 py-2 rounded-lg shadow-lg animate-in fade-in slide-in-from-bottom-4 duration-200">
+                        Address copied to clipboard!
                     </div>
                 )}
             </div>

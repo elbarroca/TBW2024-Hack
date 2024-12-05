@@ -17,7 +17,6 @@ const createContentSchema = t.Object({
     t.Literal('text'),
     t.Literal('article'),
     t.Literal('ebook'),
-    t.Literal('research_paper'),
     t.Literal('file')
   ]),
   price: t.Number(),

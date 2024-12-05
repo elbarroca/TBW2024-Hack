@@ -1,4 +1,4 @@
-export type UserRole = 'student' | 'instructor' | 'admin';
+export type UserRole = 'student' | 'creator' | 'admin';
 
 export interface User {
   id: string;
@@ -10,9 +10,10 @@ export interface User {
   last_auth: string | null;
   created_at: string;
   updated_at: string;
+  token: string;
 }
 
 export interface UserProfile extends User {
-  billing_address?: any;
-  payment_method?: any;
+  billing_address?: string;
+  payment_method?: string;
 } 
