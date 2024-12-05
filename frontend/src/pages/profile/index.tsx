@@ -34,8 +34,8 @@ import {
     Settings,
 } from 'lucide-react';
 import { useAppSelector } from '@/store';
-import { useAuth } from '@/contexts/AuthProvider';
 import { WalletPicker } from '@/components/solana/WalletPicker';
+import { useAuth } from '@/contexts/AuthProvider';
 
 // Mock data for demonstration
 const mockPurchases = [
@@ -257,7 +257,8 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
 
 export default function ProfilePage() {
     const navigate = useNavigate();
-    const { user, isAuthenticated, isLoading, resetAuth } = useAuth();
+    const { logout } = useAuth();
+    const { user, isLoading } = useAppSelector((state) => state.auth);
     const [isEditingDisplayName, setIsEditingDisplayName] = useState(false);
     const [isEditingSocialLinks, setIsEditingSocialLinks] = useState(false);
     const [tempDisplayName, setTempDisplayName] = useState('');
@@ -284,7 +285,7 @@ export default function ProfilePage() {
     }
 
     // If not authenticated, show wallet connection
-    if (!isAuthenticated) {
+    if (!user) {
         return (
             <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-b from-gray-50 to-white p-4">
                 <div className="max-w-md w-full space-y-8 text-center">
@@ -305,8 +306,8 @@ export default function ProfilePage() {
     }
 
     const copyAddress = () => {
-        if (user?.publicKey) {
-            navigator.clipboard.writeText(user.publicKey);
+        if (user?.address) {
+            navigator.clipboard.writeText(user.address);
             setShowToast(true);
             setTimeout(() => setShowToast(false), 2000);
         }
@@ -347,14 +348,14 @@ export default function ProfilePage() {
                         <div className="flex items-center justify-between">
                             <div className="flex items-center space-x-4">
                                 <div className="h-16 w-16 rounded-full bg-gradient-to-r from-purple-500 to-indigo-500 flex items-center justify-center text-white text-2xl font-bold">
-                                    {user?.displayName?.charAt(0) || user?.publicKey?.slice(0, 2)}
+                                    {user?.full_name?.charAt(0) || user?.address?.slice(0, 2)}
                                 </div>
                                 <div>
                                     <h1 className="text-2xl font-bold text-gray-900">
-                                        {user?.displayName || 'Unnamed User'}
+                                        {user?.full_name || 'Unnamed User'}
                                     </h1>
                                     <div className="flex items-center space-x-2 text-sm text-gray-500">
-                                        <span>{user?.publicKey?.slice(0, 8)}...{user?.publicKey?.slice(-8)}</span>
+                                        <span>{user?.address?.slice(0, 8)}...{user?.address?.slice(-8)}</span>
                                         <button
                                             onClick={copyAddress}
                                             className="text-gray-400 hover:text-gray-600"
@@ -970,7 +971,7 @@ export default function ProfilePage() {
                     onClose={() => setShowDisconnectModal(false)}
                     onConfirm={() => {
                         setShowDisconnectModal(false);
-                        resetAuth();
+                        logout();
                     }}
                     title="Disconnect Wallet"
                     message="Are you sure you want to disconnect your wallet? You will need to reconnect it to access your profile again."
