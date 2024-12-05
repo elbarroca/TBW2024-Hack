@@ -1,6 +1,5 @@
 import { Elysia } from 'elysia';
 import { Permission } from '../types/permissions';
-import { requirePermission } from '../middleware/permissions';
 import { auth } from '../middleware/auth';
 import { 
   createCourse, 
@@ -25,9 +24,6 @@ export const courseRoutes = new Elysia()
 
       return course;
     },
-    {
-      beforeHandle: requirePermission(Permission.CREATE_COURSE)
-    }
   )
   .put(
     '/courses/:id', 
@@ -50,9 +46,6 @@ export const courseRoutes = new Elysia()
 
       return updatedCourse;
     },
-    {
-      beforeHandle: requirePermission(Permission.UPDATE_COURSE)
-    }
   )
   .delete(
     '/courses/:id', 
@@ -70,9 +63,6 @@ export const courseRoutes = new Elysia()
       const success = await deleteCourse(params.id);
       return { success };
     },
-    {
-      beforeHandle: requirePermission(Permission.DELETE_COURSE)
-    }
   )
   .post(
     '/courses/:id/publish', 
@@ -90,7 +80,4 @@ export const courseRoutes = new Elysia()
       const success = await publishCourse(params.id);
       return { success };
     },
-    {
-      beforeHandle: requirePermission(Permission.PUBLISH_COURSE)
-    }
   );

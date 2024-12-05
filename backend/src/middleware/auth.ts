@@ -1,16 +1,13 @@
 import { Elysia } from 'elysia'
 import { ApiError } from '../types/apiError'
 import { verifyToken } from '../lib/auth'
-import { UserRole } from '../types/user'
 import { getUserRole } from '../db/auth'
 import { RequestUser } from '../types/request'
 
 const auth = new Elysia()
-  .derive(({ request }) => {
+  .derive(async ({ request }) => {
     const authHeader = request.headers.get('authorization')
-    return { authHeader }
-  })
-  .derive(async ({ authHeader }) => {
+
     if (!authHeader?.startsWith('Bearer ')) {
       throw new ApiError(401, 'Missing or invalid authorization header')
     }

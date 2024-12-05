@@ -82,6 +82,21 @@ export async function getUserRole(userId: string): Promise<UserRole> {
   return data?.role || 'student';
 }
 
+export async function getUserById(userId: string): Promise<User | null> {
+  const { data, error } = await supabase
+    .from('users')
+    .select('*')
+    .eq('id', userId)
+    .single();
+
+  if (error) {
+    console.error('Error fetching user:', error);
+    return null;
+  }
+
+  return data;
+}
+
 async function getOrCreateUser(address: string): Promise<User> {
   const { data: existingUser, error: fetchError } = await supabase
     .from('users')
@@ -101,17 +116,19 @@ async function getOrCreateUser(address: string): Promise<User> {
   } else if (!existingUser) {
     // Create new user if doesn't exist
     const { data: authUser, error: authError } = await supabase.auth.admin.createUser({
-        email: `${address}@email.com`,
-        user_metadata: { address },
+      email: `${address}@email.com`,
+      user_metadata: { address },
     });
     
     if (authError) throw authError;
 
+    // For new users, we'll need to derive their PDA if they're an instructor
+    // This would be handled when they're promoted to instructor role
     let { data, error } = await supabase
-        .from('users')
-        .select('*')
-        .eq('address', address)
-        .single();
+      .from('users')
+      .select('*')
+      .eq('address', address)
+      .single();
 
     if (error) throw error;
     if (!data) throw new Error('User not found');
@@ -128,4 +145,21 @@ export async function getUser(address: string): Promise<{ user: User, accessToke
   await supabase.rpc('set_claim', { uid: user.id, claim: 'userrole', value: 'student' });
 
   return { user, accessToken };
+}
+
+export async function updateUserPdaAddress(
+  userId: string, 
+  pdaAddress: string
+): Promise<boolean> {
+  const { error } = await supabase
+    .from('users')
+    .update({ pda_address: pdaAddress })
+    .eq('id', userId);
+
+  if (error) {
+    console.error('Error updating PDA address:', error);
+    return false;
+  }
+
+  return true;
 } 

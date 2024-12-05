@@ -2,6 +2,7 @@ import { address } from "@solana/addresses";
 import { MintLayout, RawMint } from "@solana/spl-token";
 import { config } from "../../lib/config";
 import { Base64EncodedDataResponse } from "@solana/rpc-types";
+import { rpc } from "../rpc";
 
 export type DecodedMint = {
   mintAuthorityOption: number;
@@ -17,7 +18,7 @@ export async function getMints(mints: string[]): Promise<Record<string, DecodedM
   if (mints.length === 0) return {};
 
   const mintAddresses = mints.map(mint => address(mint));
-  const { value: mintsResponse } = await config.RPC.getMultipleAccounts(
+  const { value: mintsResponse } = await rpc.getMultipleAccounts(
     mintAddresses,
     { encoding: 'base64' }
   ).send();

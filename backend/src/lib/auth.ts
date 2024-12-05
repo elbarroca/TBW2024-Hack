@@ -4,6 +4,7 @@ import jwt from 'jsonwebtoken';
 import type { User } from '../types/user';
 import { config } from './config';
 import { sleep } from 'bun';
+import { rpc } from '../solana/rpc';
 
 const BLOCK_VALID_FOR_SECONDS = 60;
 const MESSAGE_PREFIX = 'Sign this message to log in to Mentora // ';
@@ -11,7 +12,7 @@ const MESSAGE_PREFIX = 'Sign this message to log in to Mentora // ';
 export async function generateNonce(maxRetries = 5, initialDelay = 100): Promise<string> {
   for (let attempt = 0; attempt < maxRetries; attempt++) {
     try {
-      const slot = await config.RPC.getSlot().send();
+      const slot = await rpc.getSlot().send();
       return slot.toString();
     } catch (error) {
       if (attempt === maxRetries - 1) continue; // Skip delay on last attempt
@@ -30,7 +31,7 @@ export async function verifySignature(payload: {
 }): Promise<boolean> {
   try {
     // Verify block time
-    const blockTime = await config.RPC.getBlockTime(BigInt(payload.nonce)).send();
+    const blockTime = await rpc.getBlockTime(BigInt(payload.nonce)).send();
     const now = Math.floor(Date.now() / 1000);
     const isRecent = blockTime && blockTime > (now - BLOCK_VALID_FOR_SECONDS);
 
@@ -70,8 +71,7 @@ export function createToken(user: User): string {
 
 export function verifyToken(token: string): { id: string; role: string } | null {
   try {
-    const decoded = jwt.verify(token, config.SUPABASE_KEY) as { id: string; role: string };
-    return decoded;
+    return jwt.verify(token, config.SUPABASE_KEY) as { id: string; role: string };
   } catch {
     return null;
   }

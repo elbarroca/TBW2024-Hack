@@ -17,6 +17,7 @@ export interface PaymentMethod {
 export interface User {
   id: string;
   address: string | null;
+  pda_address: string | null;
   avatar_url: string | null;
   full_name: string | null;
   email: string | null;

@@ -45,7 +45,8 @@ CREATE TABLE users (
     is_top_creator BOOLEAN DEFAULT false,
     total_students INTEGER DEFAULT 0,
     total_courses INTEGER DEFAULT 0,
-    creator_rating NUMERIC(2,1) DEFAULT 0
+    creator_rating NUMERIC(2,1) DEFAULT 0,
+    pda_address TEXT NULL
 );
 
 -- Create courses table
@@ -213,6 +214,7 @@ CREATE INDEX idx_courses_rating ON courses(rating);
 CREATE INDEX idx_courses_enrolled ON courses(enrolled);
 CREATE INDEX idx_course_tags ON course_tags(tag);
 CREATE INDEX idx_users_top_creator ON users(is_top_creator);
+CREATE INDEX idx_users_pda_address ON users(pda_address);
 
 -- Enable RLS
 ALTER TABLE users ENABLE ROW LEVEL SECURITY;

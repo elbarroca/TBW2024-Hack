@@ -1,5 +1,6 @@
 import { ContentType } from "./content"
 import type { BillingAddress, PaymentMethod } from './user';
+import { PaymentStatus } from './payment';
 
 export type Json =
   | string
@@ -55,6 +56,7 @@ export interface Database {
           total_students: number;
           total_courses: number;
           creator_rating: number;
+          pda_address: string | null;
         }
         Insert: {
           id: string;
@@ -78,6 +80,7 @@ export interface Database {
           total_students?: number;
           total_courses?: number;
           creator_rating?: number;
+          pda_address?: string | null;
         }
         Update: {
           id?: string;
@@ -101,6 +104,7 @@ export interface Database {
           total_students?: number;
           total_courses?: number;
           creator_rating?: number;
+          pda_address?: string | null;
         }
       }
       content: {
@@ -387,6 +391,39 @@ export interface Database {
         Update: {
           course_id?: string;
           tag?: string;
+        };
+      };
+      payments: {
+        Row: {
+          id: string;
+          user_id: string;
+          course_id: string;
+          amount: number;
+          currency: string;
+          payment_method: 'crypto';
+          status: PaymentStatus;
+          signature: string;
+          transaction_hash: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          course_id: string;
+          amount: number;
+          currency: string;
+          payment_method?: 'crypto';
+          status?: PaymentStatus;
+          signature: string;
+          transaction_hash?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          status?: PaymentStatus;
+          transaction_hash?: string;
+          updated_at?: string;
         };
       };
     }
