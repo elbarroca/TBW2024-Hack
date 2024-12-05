@@ -1,5 +1,4 @@
 import { Skeleton } from '@/components/ui/skeleton';
-import { ProtectedState } from './ProtectedState';
 import { TokenDisplay } from './TokenDisplay';
 import { useAppSelector } from '@/store';
 import { useEffect } from 'react';
@@ -8,6 +7,7 @@ import { Card, CardHeader, CardTitle, CardContent } from '../ui/CustomCard';
 
 export function TokenList({ className = '' }: { className?: string }) {
     const { balances, isLoading, error } = useAppSelector((state) => state.userData);
+    const { user } = useAppSelector((state) => state.auth);
     const { toast } = useToast();
 
     useEffect(() => {
@@ -19,7 +19,7 @@ export function TokenList({ className = '' }: { className?: string }) {
                 duration: 3000,
             });
         }
-    }, [error]);
+    }, [error, toast]);
 
     return (
         <Card className={`w-full ${className}`}>
@@ -37,7 +37,9 @@ export function TokenList({ className = '' }: { className?: string }) {
                 {isLoading ? (
                     <TokenListSkeleton />
                 ) : balances?.length === 0 ? (
-                    <ProtectedState />
+                    <div className="text-center text-muted-foreground py-8">
+                        No tokens found
+                    </div>
                 ) : (
                     <div className="space-y-3">
                         {balances?.map((token) => (

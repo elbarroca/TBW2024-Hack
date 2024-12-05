@@ -31,7 +31,7 @@ export const solanaManager = new Elysia({ prefix: '/solana' })
       
         const balances = await getTokens(userPubkey);
 
-        return { balances, status: 200 };
+        return { data: { balances }, status: 200 };
       } catch (e: any) {
         console.error(e.message);
         return { error: e.message, status: 500 };
@@ -48,7 +48,7 @@ export const solanaManager = new Elysia({ prefix: '/solana' })
       try {
         const transactions = await getTransactions(query.address);
 
-        return { transactions, status: 200 };
+        return { data: { transactions }, status: 200 };
       } catch (e: any) {
         console.error(e.message);
         return { error: e.message, status: 500 };
@@ -66,7 +66,7 @@ export const solanaManager = new Elysia({ prefix: '/solana' })
         const parsedTx = JSON.parse(body.transaction);
         const transactionToSign = await buildTransaction(parsedTx);
 
-        return { transaction: transactionToSign, status: 200 };
+        return { data: { transaction: transactionToSign }, status: 200 };
       } catch (error: any) {
         console.error("Error building transaction:", error);
         return { error: error.message, status: 500 };
@@ -95,7 +95,7 @@ export const solanaManager = new Elysia({ prefix: '/solana' })
           console.error("Validation error:", error);
         });
 
-        return { signature: txSignature, status: 200 };
+        return { data: { signature: txSignature }, status: 200 };
       } catch (error: any) {
         console.error("Error sending transaction:", error);
         return { error: error.message, status: 500 };

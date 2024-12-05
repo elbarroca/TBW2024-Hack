@@ -22,7 +22,7 @@ export const courseRoutes = new Elysia()
         updated_at: new Date().toISOString()
       });
 
-      return course;
+      return { data: { course }, status: 201 };
     },
   )
   .put(
@@ -44,7 +44,7 @@ export const courseRoutes = new Elysia()
         updated_at: new Date().toISOString()
       });
 
-      return updatedCourse;
+      return { data: { updatedCourse } };
     },
   )
   .delete(

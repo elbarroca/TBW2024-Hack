@@ -1,4 +1,5 @@
-import type { User, TokenInfo, Payment } from '@/types/api';
+import type { TokenInfo, Payment } from '@/types/api';
+import { User } from '@/types/user';
 
 export enum LoginStatus {
   IDLE = 'IDLE',

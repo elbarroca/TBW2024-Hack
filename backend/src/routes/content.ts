@@ -67,7 +67,7 @@ export const contentRoutes = new Elysia({ prefix: '/content' })
           await addContentCategories(content.id, body.categories);
         }
 
-        return { content, status: 201 };
+        return { data: { content }, status: 201 };
       } catch (error: any) {
         return { error: error.message, status: 500 };
       }
@@ -81,7 +81,7 @@ export const contentRoutes = new Elysia({ prefix: '/content' })
         if (!content) {
           return { error: "Content not found", status: 404 };
         }
-        return { content, status: 200 };
+        return { data: { content }, status: 200 };
       } catch (error: any) {
         return { error: error.message, status: 500 };
       }

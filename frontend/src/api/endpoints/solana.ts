@@ -1,8 +1,11 @@
 import { baseApi } from '../client';
-
-interface GetBalancesResponse {
-  balances: any[];
-}
+import type {
+  GetBalancesResponse,
+  GetTransactionsResponse,
+  BuildTransactionRequest,
+  SendTransactionRequest,
+  SendTransactionResponse
+} from '@/types/api';
 
 export const solanaApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
@@ -13,7 +16,24 @@ export const solanaApi = baseApi.injectEndpoints({
       }),
       providesTags: ['Token'],
     }),
-    sendTransaction: builder.mutation<{ signature: string }, { transaction: string }>({
+
+    getTransactions: builder.query<GetTransactionsResponse, string>({
+      query: (address) => ({
+        url: '/solana/getTransactions',
+        params: { address },
+      }),
+      providesTags: ['Transaction'],
+    }),
+
+    buildTransaction: builder.mutation<{ transaction: string }, BuildTransactionRequest>({
+      query: (body) => ({
+        url: '/solana/buildTransaction',
+        method: 'POST',
+        body,
+      }),
+    }),
+
+    sendTransaction: builder.mutation<SendTransactionResponse, SendTransactionRequest>({
       query: (body) => ({
         url: '/solana/sendTransaction',
         method: 'POST',
@@ -26,5 +46,8 @@ export const solanaApi = baseApi.injectEndpoints({
 
 export const {
   useGetBalancesQuery,
+  useLazyGetBalancesQuery,
+  useGetTransactionsQuery,
+  useBuildTransactionMutation,
   useSendTransactionMutation,
 } = solanaApi; 

@@ -34,7 +34,6 @@ export const isErrorResponse = <T>(
   return response.status === 'error';
 };
 
-// Response types for specific endpoints
 export interface AuthResponse {
   user: User;
   token: string;
@@ -49,13 +48,24 @@ export interface VerifyRequest {
   signature: string;
 }
 
-export interface TokenInfo {
+export type TokenInfo = {
   mint: string;
-  symbol: string;
-  balance: string;
+  address: string;
+  amount: string;
+  value: string;
   decimals: number;
-  price?: number;
-}
+  metadata: TokenMetadata;
+};
+
+export type TokenMetadata = {
+  address: string;
+  name: string;
+  symbol: string;
+  decimals: number;
+  logoURI: string;
+  tags: string[];
+  daily_volume: number;
+};
 
 export interface Payment {
   id: string;
@@ -77,4 +87,36 @@ export interface PaginatedResponse<T> {
   page: number;
   limit: number;
   totalPages: number;
+}
+
+export interface TransactionData {
+  signature: string;
+  timestamp: number;
+  slot: number;
+  status: 'confirmed' | 'finalized' | 'failed';
+  type: string;
+  amount?: string;
+  token?: string;
+}
+
+export interface GetBalancesResponse {
+  balances: TokenInfo[];
+}
+
+export interface GetTransactionsResponse {
+  transactions: TransactionData[];
+}
+
+export interface BuildTransactionRequest {
+  transaction: string;
+}
+
+export interface SendTransactionRequest {
+  transaction: string;
+  userId: string;
+  courseId: string;
+}
+
+export interface SendTransactionResponse {
+  signature: string;
 }

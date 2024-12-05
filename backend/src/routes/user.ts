@@ -10,7 +10,7 @@ export const userRoutes = new Elysia()
         if (!user) {
           return { error: "User not found", status: 404 };
         }
-        return { user, status: 200 };
+        return { data: { user }, status: 200 };
       } catch (error: any) {
         return { error: error.message, status: 500 };
       }

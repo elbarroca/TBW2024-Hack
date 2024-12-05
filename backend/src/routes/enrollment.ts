@@ -45,7 +45,7 @@ const enrollmentRoutes = new Elysia({ prefix: '/enrollments' })
       return { error: "Unauthorized", status: 403 };
     }
 
-    return { enrollment, status: 200 };
+    return { data: { enrollment }, status: 200 };
   })
 
   .get("/users/:userId/enrollments", async ({ 
@@ -61,7 +61,7 @@ const enrollmentRoutes = new Elysia({ prefix: '/enrollments' })
     }
 
     const enrollments = await getUserEnrollments(params.userId);
-    return { enrollments, status: 200 };
+    return { data: { enrollments }, status: 200 };
   })
 
   .post("/enrollments", async ({ 
@@ -83,7 +83,7 @@ const enrollmentRoutes = new Elysia({ prefix: '/enrollments' })
     if (!enrollment) {
       return { error: "Failed to create enrollment", status: 400 };
     }
-    return { enrollment, status: 201 };
+    return { data: { enrollment }, status: 201 };
   }, {
     body: enrollmentSchema
   })

@@ -7,6 +7,8 @@ import { LoginStatus, UserRole } from '@/types/auth';
 import bs58 from 'bs58';
 import { ApiResponse, AuthResponse, isErrorResponse } from '@/types/api';
 import { PublicKey } from '@solana/web3.js';
+import { useGetBalancesQuery, useLazyGetBalancesQuery } from '@/api/endpoints/solana';
+import { setBalances, setUserDataError, setUserDataLoading, resetUserData } from '@/store/user';
 
 interface AuthContextType {
   logout: () => Promise<void>;
@@ -23,6 +25,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [requestNonce] = useRequestNonceMutation();
   const [verifySignature] = useVerifySignatureMutation();
   const [logoutMutation] = useLogoutMutation();
+  const [fetchBalances] = useLazyGetBalancesQuery();
   const { loginStatus } = useAppSelector(state => state.auth);
 
   const login = useCallback(async (publicKey: PublicKey | null) => {
@@ -59,6 +62,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
 
       dispatch(setUser(authResponse.data.user));
+
+      // Fetch balances after successful login
+      try {
+        dispatch(setUserDataLoading(true));
+        const balancesResponse = await fetchBalances(publicKey.toBase58()).unwrap();
+        dispatch(setBalances(balancesResponse.balances));
+      } catch (error: any) {
+        dispatch(setUserDataError(error.message || 'Failed to fetch balances'));
+      } finally {
+        dispatch(setUserDataLoading(false));
+      }
+
     } catch (error: any) {
       console.error('Login error:', error);
       dispatch(setAuthError(error.message || 'Authentication failed'));
@@ -66,12 +81,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     } finally {
       dispatch(setAuthLoading(false));
     }
-  }, [publicKey, signMessage, dispatch, requestNonce, verifySignature, loginStatus]);
+  }, [publicKey, signMessage, dispatch, requestNonce, verifySignature, loginStatus, fetchBalances]);
 
   const logout = useCallback(async () => {
     try {
       await logoutMutation().unwrap();
       dispatch(resetAuth());
+      dispatch(resetUserData());
     } catch (error) {
       console.error('Logout error:', error);
     } finally {

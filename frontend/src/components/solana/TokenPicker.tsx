@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button';
 import { useWallet } from '@solana/wallet-adapter-react';
 import { ClipLoader } from 'react-spinners';
 import { LogOutIcon } from 'lucide-react';
-import { TokenInfo } from '@/api/types';
+import { TokenInfo } from '@/types/api';
 
 export type TokenPickerProps = {
     tokens: TokenInfo[];
@@ -50,7 +50,7 @@ export function TokenPicker({
                             <SelectTrigger className="flex-1 flex items-center justify-between rounded-md border border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
                                 <span>{selectedToken.metadata.symbol}</span>
                                 <img
-                                    src={selectedToken.metadata.image}
+                                    src={selectedToken.metadata.logoURI}
                                     alt={selectedToken.metadata.symbol}
                                     className="w-7 h-7"
                                 />
@@ -65,7 +65,7 @@ export function TokenPicker({
                                         <div className="grid grid-cols-[auto_auto_1fr] gap-4 items-center">
                                             <span>{token.metadata.symbol}</span>
                                             <img
-                                                src={token.metadata.image}
+                                                src={token.metadata.logoURI}
                                                 alt={token.metadata.symbol}
                                                 width={28}
                                                 height={28}
