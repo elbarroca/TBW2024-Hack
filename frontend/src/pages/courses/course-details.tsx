@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import { 
     Star, Clock, CheckCircle2, Users, 
     Play, Shield,
-    Github, Linkedin, Users2,
+    Users2,
     ArrowRight
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -384,7 +384,7 @@ export default function CourseDetailsPage() {
                             </Card>
                         </div>
                         {/* Prerequisites & Target Audience */}
-                        <div className="grid grid-cols-1 gap-8 mt-12">
+                        <div className="grid grid-cols-2 gap-8 mt-12">
                             {/* Prerequisites */}
                             <Card className="bg-white/50 backdrop-blur-sm border-purple-100/50 overflow-hidden p-8">
                                 <div className="border-l-4 border-blue-500 px-6 py-4 bg-blue-50/50">

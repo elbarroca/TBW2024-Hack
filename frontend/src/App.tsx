@@ -14,6 +14,7 @@ import CreateArticle from './pages/create/article';
 import CreatorProfile from './pages/creators/[slug]';
 import CourseDetailsPage from './pages/courses/course-details';
 import ContentPage from './pages/content/[slug]';
+import LearnPage from './pages/courses/learn';
 
 export default function App() {
     return (
@@ -38,7 +39,8 @@ export default function App() {
                         <Route path="article" element={<CreateArticle />} />
                     </Route>
 
-                    {/* Dynamic Routes - Order matters! Most specific first */}
+                    {/* Dynamic Routes - Order matters! \*/}
+                    <Route path="/:creatorSlug/:courseSlug/learn/:lessonId?" element={<LearnPage />} />
                     <Route path="/:creatorSlug/:contentType/:contentSlug" element={<ContentPage />} />
                     <Route path="/:creatorSlug/:courseSlug" element={<CourseDetailsPage />} />
                     <Route path="/:slug" element={<CreatorProfile />} />
