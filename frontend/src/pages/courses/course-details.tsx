@@ -25,6 +25,9 @@ import { LessonSelector } from '@/components/courses/LessonSelector';
 import { CreatorCard } from '@/components/creator/CreatorCard';
 import Footer from '@/components/layout/Footer';
 import { CourseCard } from '@/components/courses/CourseCard';
+import { CurrencySelector } from '@/components/solana/CurrencySelector';
+import { useAppSelector } from '@/store';
+import { WalletPicker } from '@/components/solana/WalletPicker';
 
 // Animation variants
 const fadeInUp = {
@@ -145,18 +148,14 @@ export default function CourseDetailsPage() {
     const { creatorSlug, courseSlug } = useParams();
     const [showCurrencySelector, setShowCurrencySelector] = useState(false);
     const [selectedCurrency, setSelectedCurrency] = useState("");
-    const [isWalletConnected, setIsWalletConnected] = useState(false);
+    const { user } = useAppSelector((state) => state.auth);
+    const [showWalletPicker, setShowWalletPicker] = useState(false);
 
     const currencies = [
         { name: "BONK", rate: 0.000001 },
         { name: "SOL", rate: 100 },
         { name: "USDC", rate: 1 },
     ];
-
-    const handleConnectWallet = async () => {
-        // Implement wallet connection logic here
-        setIsWalletConnected(true);
-    };
 
     const calculatePrice = (basePrice: number, currency: string) => {
         const selectedRate = currencies.find(c => c.name === currency)?.rate || 1;
@@ -180,6 +179,17 @@ export default function CourseDetailsPage() {
             </div>
         );
     }
+
+    const handleBuyClick = () => {
+        if (!user) {
+            setShowWalletPicker(true);
+        } else if (!selectedCurrency) {
+            setShowCurrencySelector(true);
+        } else {
+            // Implement purchase logic
+            console.log('Purchase with', selectedCurrency);
+        }
+    };
 
     return (
         <div className="min-h-screen bg-gray-50 flex flex-col">
@@ -279,13 +289,7 @@ export default function CourseDetailsPage() {
                                         <Button
                                             variant="default"
                                             className="bg-purple-500 hover:bg-purple-600 text-white font-semibold px-6"
-                                            onClick={() => {
-                                                if (!isWalletConnected) {
-                                                    handleConnectWallet();
-                                                } else {
-                                                    setShowCurrencySelector(true);
-                                                }
-                                            }}
+                                            onClick={handleBuyClick}
                                         >
                                             {course.price} USDC
                                         </Button>
@@ -558,18 +562,9 @@ export default function CourseDetailsPage() {
                             <Button
                                 size="lg"
                                 className="bg-purple-600 hover:bg-purple-700 text-white font-bold text-lg px-12 py-6"
-                                onClick={() => {
-                                    if (!isWalletConnected) {
-                                        handleConnectWallet();
-                                    } else if (!selectedCurrency) {
-                                        setShowCurrencySelector(true);
-                                    } else {
-                                        // Implement purchase logic
-                                        console.log('Purchase with', selectedCurrency);
-                                    }
-                                }}
+                                onClick={handleBuyClick}
                             >
-                                {!isWalletConnected 
+                                {!user 
                                     ? "Connect Wallet" 
                                     : !selectedCurrency 
                                         ? "Select Currency" 
@@ -579,91 +574,30 @@ export default function CourseDetailsPage() {
                     </div>
                 </div>
 
-                {/* Currency Selector Dialog */}
-                <Dialog open={showCurrencySelector} onOpenChange={setShowCurrencySelector}>
-                    <DialogContent className="sm:max-w-md bg-gradient-to-b from-gray-50 to-white">
-                        <DialogHeader className="space-y-3 pb-4">
-                            <DialogTitle className="text-2xl font-bold text-center">Select Payment Currency</DialogTitle>
-                            <p className="text-gray-500 text-center text-sm">Choose your preferred currency for payment</p>
+                {/* Add WalletPicker Dialog */}
+                <Dialog open={showWalletPicker} onOpenChange={setShowWalletPicker}>
+                    <DialogContent className="sm:max-w-md">
+                        <DialogHeader>
+                            <DialogTitle className="text-center">Connect Your Wallet</DialogTitle>
                         </DialogHeader>
-                        <div className="space-y-6 py-4">
-                            <div className="space-y-4">
-                                {currencies.map((currency) => (
-                                    <div
-                                        key={currency.name}
-                                        className={`relative p-4 rounded-lg border-2 transition-all cursor-pointer
-                                            ${selectedCurrency === currency.name 
-                                                ? 'border-purple-500 bg-purple-50' 
-                                                : 'border-gray-200 hover:border-purple-300 hover:bg-gray-50'}`}
-                                        onClick={() => setSelectedCurrency(currency.name)}
-                                    >
-                                        <div className="flex items-center justify-between">
-                                            <div className="flex items-center space-x-3">
-                                                <div className="w-10 h-10 rounded-full bg-white shadow-sm flex items-center justify-center">
-                                                    <img 
-                                                        src={`/images/currencies/${currency.name.toLowerCase()}.png`} 
-                                                        alt={currency.name}
-                                                        className="w-6 h-6"
-                                                    />
-                                                </div>
-                                                <div>
-                                                    <h3 className="font-semibold text-gray-900">{currency.name}</h3>
-                                                    <p className="text-sm text-gray-500">
-                                                        Rate: 1 USDC = {currency.rate} {currency.name}
-                                                    </p>
-                                                </div>
-                                            </div>
-                                            <div className="text-right">
-                                                <div className="text-lg font-bold text-purple-600">
-                                                    {calculatePrice(course.price, currency.name)}
-                                                </div>
-                                                <div className="text-sm text-gray-500">{currency.name}</div>
-                                            </div>
-                                        </div>
-                                        {selectedCurrency === currency.name && (
-                                            <div className="absolute top-1/2 -right-3 -translate-y-1/2">
-                                                <div className="w-6 h-6 rounded-full bg-purple-500 flex items-center justify-center">
-                                                    <CheckCircle2 className="w-4 h-4 text-white" />
-                                                </div>
-                                            </div>
-                                        )}
-                                    </div>
-                                ))}
-                            </div>
-
-                            {selectedCurrency && (
-                                <div className="bg-gradient-to-r from-purple-50 to-blue-50 p-4 rounded-lg border border-purple-100">
-                                    <div className="flex items-center justify-between">
-                                        <div>
-                                            <div className="text-sm font-medium text-gray-500">You'll Pay</div>
-                                            <div className="text-2xl font-bold text-purple-600">
-                                                {calculatePrice(course.price, selectedCurrency)} {selectedCurrency}
-                                            </div>
-                                        </div>
-                                        <div className="text-right">
-                                            <div className="text-sm font-medium text-gray-500">Original Price</div>
-                                            <div className="text-lg font-semibold text-gray-900">
-                                                {course.price} USDC
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            )}
-
-                            <Button
-                                className={`w-full py-6 text-lg font-semibold transition-all ${
-                                    selectedCurrency 
-                                        ? 'bg-purple-600 hover:bg-purple-700 text-white shadow-lg hover:shadow-xl' 
-                                        : 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                                }`}
-                                onClick={() => setShowCurrencySelector(false)}
-                                disabled={!selectedCurrency}
-                            >
-                                {selectedCurrency ? 'Confirm Selection' : 'Please Select a Currency'}
-                            </Button>
+                        <div className="flex flex-col items-center justify-center p-6">
+                            <p className="text-center text-muted-foreground mb-6">
+                                Connect your wallet to purchase this course
+                            </p>
+                            <WalletPicker />
                         </div>
                     </DialogContent>
                 </Dialog>
+
+                {/* Currency Selector Dialog */}
+                <CurrencySelector
+                    open={showCurrencySelector}
+                    onOpenChange={setShowCurrencySelector}
+                    selectedCurrency={selectedCurrency}
+                    setSelectedCurrency={setSelectedCurrency}
+                    basePrice={course.price}
+                    onConfirm={() => setShowCurrencySelector(false)}
+                />
             </div>
         </div>
     );

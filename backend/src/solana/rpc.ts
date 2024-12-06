@@ -2,10 +2,6 @@ import {
   createDefaultRpcTransport, 
   createRpc, 
   createSolanaRpcApi,
-  type Rpc,
-  type GetEpochInfoApi,
-  type GetSignatureStatusesApi,
-  type SendTransactionApi
 } from "@solana/rpc";
 
 // RPC HTTP Transport

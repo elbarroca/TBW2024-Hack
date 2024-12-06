@@ -1,19 +1,19 @@
 import { createApi, fetchBaseQuery, BaseQueryFn, FetchArgs, FetchBaseQueryError } from '@reduxjs/toolkit/query/react';
 import { config } from '@/lib/config';
 import { parseCookies } from 'nookies';
+import type { ApiResponse, ApiError } from '@/types/api';
 
-interface ApiErrorResponse {
-  statusCode: number;
-  error: string;
-  details?: any;
+// Custom error handler
+export class ApiException extends Error {
+  constructor(
+    public statusCode: number,
+    public error: string,
+    public details?: unknown
+  ) {
+    super(error);
+    this.name = 'ApiException';
+  }
 }
-
-interface ApiSuccessResponse<T> {
-  statusCode: number;
-  data: T;
-}
-
-export type ApiResponse<T> = ApiSuccessResponse<T> | ApiErrorResponse;
 
 const baseQuery: BaseQueryFn<
   string | FetchArgs,
@@ -36,10 +36,20 @@ const baseQuery: BaseQueryFn<
 
   const result = await baseQueryFn(args, api, extraOptions);
 
-  // Handle 401 Unauthorized
-  if (result.error && result.error.status === 401) {
-    // You might want to trigger a logout action here
-    // api.dispatch(logout());
+  // Handle errors
+  if (result.error) {
+    if (result.error.status === 401) {
+      // Handle unauthorized
+      // api.dispatch(logout());
+    }
+    
+    // Transform error response
+    const error = result.error.data as ApiError;
+    throw new ApiException(
+      error.statusCode,
+      error.error,
+      error.details
+    );
   }
 
   return result;
@@ -50,7 +60,7 @@ export const baseApi = createApi({
   baseQuery,
   tagTypes: [
     'Auth',
-    'User',
+    'User', 
     'Content',
     'Course',
     'Enrollment',
@@ -60,21 +70,37 @@ export const baseApi = createApi({
   endpoints: () => ({}),
 });
 
-export const handleResponse = <T>(response: ApiResponse<T>): T => {
-  if ('error' in response) {
-    throw new Error(response.error);
-  }
-  return response.data;
-};
+// Type-safe response handler
+export function handleResponse<T>(response: unknown): T {
+  const apiResponse = response as ApiResponse<T>;
+  return apiResponse.data;
+}
 
-// Helper types for endpoints
+// Helper types
 export type EndpointBuilder = typeof baseApi.endpoints;
 
 export interface QueryHooks<T> {
-  useQuery: () => { data?: T; isLoading: boolean; error?: FetchBaseQueryError };
-  useLazyQuery: () => [(trigger: void) => void, { data?: T; isLoading: boolean }];
+  useQuery: () => {
+    data?: T;
+    isLoading: boolean;
+    error?: ApiException;
+  };
+  useLazyQuery: () => [
+    (trigger: void) => void,
+    {
+      data?: T;
+      isLoading: boolean;
+      error?: ApiException;
+    }
+  ];
 }
 
 export interface MutationHooks<T, A> {
-  useMutation: () => [(arg: A) => Promise<T>, { isLoading: boolean }];
+  useMutation: () => [
+    (arg: A) => Promise<T>,
+    {
+      isLoading: boolean;
+      error?: ApiException;
+    }
+  ];
 } 

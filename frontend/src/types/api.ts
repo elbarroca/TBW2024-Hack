@@ -1,92 +1,68 @@
 import { User } from '@/types/user';
 
 // Base response interface
-export interface BaseResponse {
+export interface ApiResponse<T> {
   statusCode: number;
-}
-
-// Success response with generic data type
-export interface SuccessResponse<T> extends BaseResponse {
-  status: 'success';
   data: T;
 }
 
-// Error response
-export interface ErrorResponse extends BaseResponse {
-  status: 'error';
+// Error response type
+export interface ApiError {
+  statusCode: number;
   error: string;
-  details?: any;
+  details?: unknown;
 }
 
-// Union type for API responses
-export type ApiResponse<T> = SuccessResponse<T> | ErrorResponse;
+// Pagination types
+export interface PaginationParams {
+  page?: number;
+  limit?: number;
+}
 
-// Type guard functions
-export const isSuccessResponse = <T>(
-  response: ApiResponse<T>
-): response is SuccessResponse<T> => {
-  return response.status === 'success';
-};
+export interface PaginatedData<T> {
+  items: T[];
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+}
 
-export const isErrorResponse = <T>(
-  response: ApiResponse<T>
-): response is ErrorResponse => {
-  return response.status === 'error';
-};
+// Specific response types
+export interface NonceResponse {
+  nonce: string;
+}
 
 export interface AuthResponse {
   user: User;
   token: string;
 }
 
-export interface NonceResponse {
-  nonce: string;
-}
-
-export interface VerifyRequest {
+export interface TokenMetadata {
+  name: string;
+  symbol: string;
+  logoURI: string;
+  tags: string[];
+  daily_volume: number;
   address: string;
-  signature: string;
+  decimals: number;
+  created_at: string;
+  freeze_authority: string | null;
+  mint_authority: string | null;
+  permanent_delegate: string | null;
+  minted_at: string;
+  extensions?: {
+    coingeckoId?: string;
+  };
 }
 
-export type TokenInfo = {
+export interface TokenInfo {
   mint: string;
   address: string;
   amount: string;
   value: string;
+  price: number;
   decimals: number;
   metadata: TokenMetadata;
-};
-
-export type TokenMetadata = {
-  address: string;
-  name: string;
-  symbol: string;
-  decimals: number;
-  logoURI: string;
-  tags: string[];
-  daily_volume: number;
-};
-
-export interface Payment {
-  id: string;
-  amount: string;
-  currency: string;
-  status: 'pending' | 'completed' | 'failed';
-  created_at: string;
-  transaction_hash?: string;
-}
-
-export interface PaginationParams {
-  page?: number;
-  limit?: number;
-}
-
-export interface PaginatedResponse<T> {
-  data: T[];
-  total: number;
-  page: number;
-  limit: number;
-  totalPages: number;
 }
 
 export interface TransactionData {
@@ -99,6 +75,7 @@ export interface TransactionData {
   token?: string;
 }
 
+// Request/Response types for Solana endpoints
 export interface GetBalancesResponse {
   balances: TokenInfo[];
 }
@@ -119,4 +96,13 @@ export interface SendTransactionRequest {
 
 export interface SendTransactionResponse {
   signature: string;
+}
+
+export interface Payment {
+  id: string;
+  amount: string;
+  currency: string;
+  status: 'pending' | 'completed' | 'failed';
+  created_at: string;
+  transaction_hash?: string;
 }

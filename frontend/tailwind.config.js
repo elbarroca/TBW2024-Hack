@@ -1,11 +1,12 @@
 /** @type {import('tailwindcss').Config} */
 import typography from '@tailwindcss/typography';
 import animate from "tailwindcss-animate";
+import scrollbar from "tailwind-scrollbar";
 
 export default {
     darkMode: ['class'],
     content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}'],
-  theme: {
+  	theme: {
   	extend: {
   		borderRadius: {
   			lg: 'var(--radius)',
@@ -92,5 +93,6 @@ export default {
   plugins: [
     typography,
     animate,
+	scrollbar
   ],
 };	

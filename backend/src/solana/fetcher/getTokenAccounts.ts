@@ -22,20 +22,44 @@ export type TokenAccount = Readonly<{
 }>;
 
 export async function getTokenAccounts(ownerAddress: Address): Promise<TokenAccount[]> {
-  const response = await rpc
-    .getTokenAccountsByOwner(
-      ownerAddress,
-      { programId: 'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA' as Address },
-      { encoding: 'jsonParsed' }
-    )
-    .send();
+  try {
+    const response = await rpc
+      .getTokenAccountsByOwner(
+        ownerAddress,
+        { programId: 'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA' as Address },
+        { encoding: 'jsonParsed' }
+      )
+      .send();
 
-  if (!response?.value) {
+    if (!response) {
+      console.warn('No response from getTokenAccountsByOwner');
+      return [];
+    }
+
+    if (!response.value) {
+      console.warn('No value in getTokenAccountsByOwner response');
+      return [];
+    }
+
+    return response.value.map(account => {
+      try {
+        if (!account.account.data.parsed?.info) {
+          console.warn('Invalid account data structure:', account);
+          return null;
+        }
+
+        return {
+          pubkey: account.pubkey,
+          account: account.account.data.parsed.info
+        };
+      } catch (error) {
+        console.error('Error parsing account:', error, account);
+        return null;
+      }
+    }).filter((account): account is TokenAccount => account !== null);
+
+  } catch (error) {
+    console.error('Error in getTokenAccounts:', error);
     return [];
   }
-
-  return response.value.map(account => ({
-    pubkey: account.pubkey,
-    account: account.account.data.parsed.info
-  }));
 }

@@ -8,13 +8,12 @@ import {
   assertIsInstructionWithAccounts,
   type Signature
 } from '@solana/web3.js';
-import { config } from '../../lib/config';
 import { 
   identifyTokenInstruction, 
   TokenInstruction,
   parseTransferCheckedInstruction 
 } from '@solana-program/token';
-import { createPaymentRecord, updatePaymentStatus, getPaymentBySignature } from '../../db/payment';
+import { createPaymentRecord, getPaymentBySignature } from '../../db/payment';
 import { ValidatedPayment } from '../../types/payment';
 import { 
   deriveAppPda, 
@@ -115,7 +114,7 @@ export async function validateTransaction(
 
   // Derive expected PDAs
   const [appPda, coursePda] = await Promise.all([
-    deriveAppPda('your_app_id'),
+    deriveAppPda('mentora'),
     deriveCoursePda(courseId)
   ]);
 

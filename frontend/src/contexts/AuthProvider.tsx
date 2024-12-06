@@ -5,7 +5,7 @@ import { useRequestNonceMutation, useVerifySignatureMutation, useLogoutMutation 
 import { setUser, setPublicKey, setAuthError, setAuthLoading, resetAuth } from '@/store/auth';
 import { LoginStatus, UserRole } from '@/types/auth';
 import bs58 from 'bs58';
-import { ApiResponse, AuthResponse, isErrorResponse } from '@/types/api';
+import { ApiResponse, AuthResponse } from '@/types/api';
 import { PublicKey } from '@solana/web3.js';
 import { useGetBalancesQuery, useLazyGetBalancesQuery } from '@/api/endpoints/solana';
 import { setBalances, setUserDataError, setUserDataLoading, resetUserData } from '@/store/user';
@@ -31,52 +31,60 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const login = useCallback(async (publicKey: PublicKey | null) => {
     if (!publicKey || !signMessage || loginStatus === LoginStatus.IN) return;
     
+    // Check if wallet supports signing
+    if (typeof signMessage !== 'function') {
+      dispatch(setAuthError('Wallet does not support message signing'));
+      return;
+    }
+    
     dispatch(setPublicKey(publicKey.toBase58()));
     try {
       dispatch(setAuthLoading(true));
       
       // Request nonce
-      const nonceResponse = await requestNonce({ 
+      const { nonce } = await requestNonce({ 
         address: publicKey.toBase58() 
       }).unwrap();
       
-      if (isErrorResponse(nonceResponse)) {
-        throw new Error(nonceResponse.error);
-      }
-      
       // Create message with the same prefix as backend
-      const message = MESSAGE_PREFIX + nonceResponse.data.nonce;
+      const message = MESSAGE_PREFIX + nonce;
       const encodedMessage = new TextEncoder().encode(message);
       const signedMessage = await signMessage(encodedMessage);
       const signature = bs58.encode(signedMessage);
       
       // Verify signature
-      const authResponse = await verifySignature({ 
+      const { user } = await verifySignature({ 
         address: publicKey.toBase58(),
-        nonce: nonceResponse.data.nonce,
+        nonce,
         signature 
-      }).unwrap() as ApiResponse<AuthResponse>;
-      
-      if (isErrorResponse(authResponse)) {
-        throw new Error(authResponse.error);
-      }
+      }).unwrap();
 
-      dispatch(setUser(authResponse.data.user));
+      dispatch(setUser(user));
 
-      // Fetch balances after successful login
+      // Fetch user balances
       try {
         dispatch(setUserDataLoading(true));
-        const balancesResponse = await fetchBalances(publicKey.toBase58()).unwrap();
-        dispatch(setBalances(balancesResponse.balances));
-      } catch (error: any) {
-        dispatch(setUserDataError(error.message || 'Failed to fetch balances'));
+        const response = await fetchBalances(publicKey.toBase58()).unwrap();
+        // Ensure balances exist before dispatching
+        if (response && response.balances) {
+          dispatch(setBalances(response.balances));
+        } else {
+          dispatch(setBalances([])); // Set empty balances if none found
+        }
+      } catch (balanceError) {
+        console.error('Failed to fetch balances:', balanceError);
+        dispatch(setBalances([])); // Set empty balances on error
       } finally {
         dispatch(setUserDataLoading(false));
       }
 
-    } catch (error: any) {
+    } catch (error) {
       console.error('Login error:', error);
-      dispatch(setAuthError(error.message || 'Authentication failed'));
+      if (error instanceof Error) {
+        dispatch(setAuthError(error.message));
+      } else {
+        dispatch(setAuthError('Authentication failed'));
+      }
       await logout();
     } finally {
       dispatch(setAuthLoading(false));
@@ -134,7 +142,6 @@ export const useAuth = () => {
   if (!context) {
     throw new Error('useAuth must be used within AuthProvider');
   }
-
   return {
     ...context,
     user,
@@ -148,3 +155,4 @@ export const useAuth = () => {
     loginStatus,
   };
 };
+

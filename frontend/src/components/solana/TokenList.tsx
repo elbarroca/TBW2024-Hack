@@ -36,7 +36,7 @@ export function TokenList({ className = '' }: { className?: string }) {
             <CardContent>
                 {isLoading ? (
                     <TokenListSkeleton />
-                ) : balances?.length === 0 ? (
+                ) : balances && balances.length === 0 ? (
                     <div className="text-center text-muted-foreground py-8">
                         No tokens found
                     </div>

@@ -16,7 +16,7 @@ const userDataSlice = createSlice({
   initialState,
   reducers: {
     setBalances: (state, action: PayloadAction<TokenInfo[]>) => {
-      state.balances = action.payload;
+      state.balances = action.payload || [];
       if (!state.selectedToken && action.payload.length > 0) {
         state.selectedToken = action.payload[0];
       }
