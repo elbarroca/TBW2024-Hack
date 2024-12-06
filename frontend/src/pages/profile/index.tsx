@@ -307,15 +307,6 @@ export default function ProfilePage() {
         }
     };
 
-    const handleDisplayNameSave = () => {
-        setIsEditingDisplayName(false);
-    };
-
-    const handleDisplayNameCancel = () => {
-        setTempDisplayName('');
-        setIsEditingDisplayName(false);
-    };
-
     const handleSocialLinkEdit = (platform: keyof SocialLinks) => {
         setEditingSocialPlatform(platform);
     };
@@ -381,7 +372,7 @@ export default function ProfilePage() {
 
                 {/* Enhanced Dashboard Section */}
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                    {stats.map((stat, index) => (
+                    {stats.map((stat) => (
                         <div
                             key={stat.label}
                             className="group relative bg-white rounded-xl p-6 border border-gray-100 hover:border-purple-200 transition-all hover:shadow-lg hover:-translate-y-0.5 overflow-hidden"

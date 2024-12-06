@@ -22,13 +22,21 @@ import {
 } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { LessonSelector } from '@/components/courses/LessonSelector';
+import { CreatorCard } from '@/components/creator/CreatorCard';
 import Footer from '@/components/layout/Footer';
+import { CourseCard } from '@/components/courses/CourseCard';
+
+// Animation variants
+const fadeInUp = {
+    hidden: { opacity: 0, y: 20 },
+    visible: { opacity: 1, y: 0 }
+};
 
 // Define types for prerequisites and target audiences
 type Prerequisite = string;
 type TargetAudience = string;
 
-// Sample data (you should replace this with actual data from your course object)
+// Sample data for prerequisites and target audiences
 const prerequisites: Prerequisite[] = [
     "Basic understanding of blockchain technology and cryptography",
     "Familiarity with JavaScript/TypeScript programming",
@@ -43,9 +51,20 @@ const targetAudiences: TargetAudience[] = [
     "Blockchain developers seeking advanced protocol knowledge"
 ];
 
-const fadeInUp = {
-    hidden: { opacity: 0, y: 20 },
-    visible: { opacity: 1, y: 0 }
+// Mock data for creator
+const creatorData = {
+    id: "elena-rodriguez",
+    name: "Elena Rodriguez",
+    image: "https://images.unsplash.com/photo-1580489944761-15a19d654956?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1361&q=80",
+    expertise: "DeFi Protocol Architect",
+    rating: "4.9",
+    bio: "Experienced blockchain developer specializing in DeFi protocols. Previously led development at major DeFi projects and contributed to key protocol implementations.",
+    courses: 12,
+    students: 15000,
+    slug: "elena-rodriguez",
+    isTopCreator: true,
+    twitterHandle: "elenarod_web3",
+    tags: ["DeFi", "Solidity", "Web3", "Smart Contracts"]
 };
 
 // Mock data for course modules and lessons
@@ -301,15 +320,6 @@ export default function CourseDetailsPage() {
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
                     <div className="space-y-12">
                         {/* What You'll Learn and Course Description */}
-                        <div className="relative">
-                            <div className="absolute inset-0 flex items-center" aria-hidden="true">
-                                <div className="w-full border-t border-purple-200/30"></div>
-                            </div>
-                            <div className="relative flex justify-start">
-                                <span className="bg-white/40 pr-3 text-lg font-semibold text-purple-900">Course Overview</span>
-                            </div>
-                        </div>
-
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             {/* What You'll Learn */}
                             <Card className="p-8 bg-white shadow-lg hover:shadow-xl transition-all duration-300 border-none">
@@ -370,7 +380,7 @@ export default function CourseDetailsPage() {
                             </Card>
                         </div>
                         {/* Prerequisites & Target Audience */}
-                        <div className="grid grid-cols-2 gap-8 mt-12">
+                        <div className="grid grid-cols-1 gap-8 mt-12">
                             {/* Prerequisites */}
                             <Card className="bg-white/50 backdrop-blur-sm border-purple-100/50 overflow-hidden p-8">
                                 <div className="border-l-4 border-blue-500 px-6 py-4 bg-blue-50/50">
@@ -434,8 +444,14 @@ export default function CourseDetailsPage() {
                             />
                         </div>
 
+
                         {/* Buy Now Section with Price Logic */}
-                        <motion.div variants={fadeInUp} className="mt-12">
+                        <motion.div 
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ duration: 0.5 }}
+                            className="mt-12"
+                        >
                             <Card className="relative overflow-hidden p-8">
                                 <div className="absolute inset-0 bg-gradient-to-br from-purple-600/95 via-indigo-600/95 to-purple-800/95" />
                                 <div className="absolute inset-0 bg-[url('/patterns/grid.svg')] opacity-10" />
@@ -451,8 +467,8 @@ export default function CourseDetailsPage() {
                                                 Start Your Learning Journey Today
                                             </h2>
                                             <p className="text-purple-100 text-lg max-w-2xl mx-auto leading-relaxed">
-                                                Join thousands of students already mastering {course.title}.
-                                                Get lifetime access to all course materials and future updates.
+                                                Join thousands of students already mastering {course.title || 'this video'}.
+                                                Get lifetime access to all video materials and future updates.
                                             </p>
                                         </motion.div>
 
@@ -469,7 +485,7 @@ export default function CourseDetailsPage() {
                                                     </span>
                                                 </div>
                                                 <p className="text-purple-200 text-sm">
-                                                    One-time payment • Lifetime access • Free updates
+                                                    One-time payment   Lifetime access   Free updates
                                                 </p>
                                             </div>
                                         </motion.div>
@@ -481,23 +497,13 @@ export default function CourseDetailsPage() {
                                             className="space-y-6"
                                         >
                                             <div className="flex flex-col items-center gap-4">
-                                                {!isWalletConnected ? (
-                                                    <Button 
-                                                        size="lg"
-                                                        onClick={handleConnectWallet}
-                                                        className="group font-semibold text-lg px-12 py-6 shadow-xl hover:shadow-2xl transition-all duration-300 bg-gradient-to-r from-white to-purple-50 hover:from-purple-50 hover:to-white text-purple-700 hover:text-purple-800"
-                                                    >
-                                                        Connect Wallet
-                                                    </Button>
-                                                ) : (
-                                                    <Button 
-                                                        size="lg"
-                                                        onClick={() => setShowCurrencySelector(true)}
-                                                        className="group font-semibold text-lg px-12 py-6 shadow-xl hover:shadow-2xl transition-all duration-300 bg-gradient-to-r from-white to-purple-50 hover:from-purple-50 hover:to-white text-purple-700 hover:text-purple-800"
-                                                    >
-                                                        Buy Now
-                                                    </Button>
-                                                )}
+                                                <Button 
+                                                    size="lg"
+                                                    className="group font-semibold text-lg px-12 py-6 shadow-xl hover:shadow-2xl transition-all duration-300 bg-gradient-to-r from-white to-purple-50 hover:from-purple-50 hover:to-white text-purple-700 hover:text-purple-800"
+                                                >
+                                                    <span>Buy Now</span>
+                                                    <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
+                                                </Button>
                                             </div>
                                         </motion.div>
                                     </div>
@@ -505,232 +511,160 @@ export default function CourseDetailsPage() {
                             </Card>
                         </motion.div>
 
-                        {/* About the Creator */}
-                        <motion.div 
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: 0.5 }}
-                            className="bg-white rounded-xl shadow-sm overflow-hidden"
-                        >
-                            <div className="relative h-48">
-                                <div className="absolute inset-0 bg-gradient-to-r from-purple-600 to-blue-600">
-                                    <div 
-                                        className="absolute inset-0 bg-[url('/grid-pattern.svg')] bg-repeat opacity-10"
-                                        style={{ backgroundSize: '30px 30px' }}
-                                    />
+                        {/* Course Information Grid */}
+                        <div className="grid grid-cols-12 gap-8 mt-16">
+                            {/* Creator Section */}
+                            <div className="col-span-4">
+                                <div className="sticky top-24">
+                                    <h2 className="text-2xl font-bold text-gray-900 mb-6">
+                                        Meet Your Instructor
+                                    </h2>
+                                    <CreatorCard {...creatorData} />
                                 </div>
                             </div>
-                            <div className="relative px-8 -mt-24 pb-8">
-                                <div className="flex flex-col items-center text-center">
-                                    {/* Creator Profile */}
-                                    <div className="w-40 h-40 rounded-2xl ring-4 ring-white shadow-xl overflow-hidden bg-white">
-                                        <img 
-                                            src={course.creator.avatar} 
-                                            alt={course.creator.name}
-                                            className="w-full h-full object-cover"
-                                        />
-                                    </div>
-                                    <div className="mt-6">
-                                        <h3 className="text-2xl font-bold text-gray-900">
-                                            {course.creator.name}
-                                        </h3>
-                                        <p className="text-purple-600 font-medium text-lg mt-1">
-                                            {course.creator.title}
-                                        </p>
-                                    </div>
 
-                                    {/* Social Links */}
-                                    <div className="flex items-center gap-4 mt-6">
-                                        <Button variant="outline" size="icon" className="rounded-full w-12 h-12 bg-black hover:bg-gray-900">
-                                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" fill="white"/>
-                                            </svg>
-                                        </Button>
-                                        <Button variant="outline" size="icon" className="rounded-full w-12 h-12 bg-gray-900 hover:bg-black">
-                                            <Github className="w-5 h-5 text-white" />
-                                        </Button>
-                                        <Button variant="outline" size="icon" className="rounded-full w-12 h-12 bg-blue-600 hover:bg-blue-700">
-                                            <Linkedin className="w-5 h-5 text-white" />
-                                        </Button>
-                                    </div>
-
-                                    {/* Bio with Elevator Pitch */}
-                                    <div className="mt-10 max-w-2xl text-center space-y-4">
-                                        <div className="bg-gradient-to-r from-purple-50 to-blue-50 p-6 rounded-xl">
-                                            <p className="text-lg text-purple-900 font-medium italic">
-                                                "Empowering the next generation of DeFi developers with practical, hands-on knowledge. 
-                                                Let's build the future of finance together."
-                                            </p>
-                                        </div>
-                                        <p className="text-gray-600 leading-relaxed">
-                                            {course.creator.bio}
-                                        </p>
-                                    </div>
-
-                                    {/* Stats */}
-                                    <div className="grid grid-cols-3 gap-8 mt-10 w-full max-w-2xl">
-                                        <div className="text-center">
-                                            <div className="text-3xl font-bold text-purple-600">12+</div>
-                                            <div className="text-sm text-gray-600 mt-1">Courses Created</div>
-                                        </div>
-                                        <div className="text-center">
-                                            <div className="text-3xl font-bold text-purple-600">10k+</div>
-                                            <div className="text-sm text-gray-600 mt-1">Students</div>
-                                        </div>
-                                        <div className="text-center">
-                                            <div className="text-3xl font-bold text-purple-600">4.9</div>
-                                            <div className="text-sm text-gray-600 mt-1">Avg. Rating</div>
-                                        </div>
-                                    </div>
-
-                                    {/* Expertise */}
-                                    <div className="mt-8">
-                                        <h4 className="text-lg font-semibold text-gray-900 mb-4">Areas of Expertise</h4>
-                                        <div className="flex flex-wrap justify-center gap-2">
-                                            {course.creator.expertise.map((skill, index) => (
-                                                <Badge 
-                                                    key={index}
-                                                    variant="secondary" 
-                                                    className="bg-purple-100 text-purple-700 hover:bg-purple-200 px-4 py-1 text-sm"
-                                                >
-                                                    {skill}
-                                                </Badge>
-                                            ))}
-                                        </div>
-                                    </div>
+                            {/* Recommended Courses */}
+                            <div className="col-span-8">
+                                <h2 className="text-2xl font-bold text-gray-900 mb-6">
+                                    Similar Courses
+                                </h2>
+                                <div className="grid grid-cols-2 gap-6">
+                                    {COURSES.slice(0,2).map((course) => (
+                                        <CourseCard key={course.id} course={course} />
+                                    ))}
                                 </div>
                             </div>
-                        </motion.div>
-                    </div>
-                </div>
-            </div>
-
-            {/* Footer */}
-            <Footer />
-
-            {/* Sticky Buy Button - now positioned above footer */}
-            <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 shadow-lg p-4 z-50">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <div className="flex items-center justify-between">
-                        <div className="flex items-center space-x-4">
-                            <div className="text-2xl font-bold text-gray-900">
-                                {course.price} USDC
-                            </div>
-                            {selectedCurrency && (
-                                <div className="text-lg text-gray-600">
-                                    ≈ {calculatePrice(course.price, selectedCurrency)} {selectedCurrency}
-                                </div>
-                            )}
                         </div>
-                        <Button
-                            size="lg"
-                            className="bg-purple-600 hover:bg-purple-700 text-white font-bold text-lg px-12 py-6"
-                            onClick={() => {
-                                if (!isWalletConnected) {
-                                    handleConnectWallet();
-                                } else if (!selectedCurrency) {
-                                    setShowCurrencySelector(true);
-                                } else {
-                                    // Implement purchase logic
-                                    console.log('Purchase with', selectedCurrency);
-                                }
-                            }}
-                        >
-                            {!isWalletConnected 
-                                ? "Connect Wallet" 
-                                : !selectedCurrency 
-                                    ? "Select Currency" 
-                                    : "Buy Now"}
-                        </Button>
                     </div>
                 </div>
-            </div>
 
-            {/* Currency Selector Dialog */}
-            <Dialog open={showCurrencySelector} onOpenChange={setShowCurrencySelector}>
-                <DialogContent className="sm:max-w-md bg-gradient-to-b from-gray-50 to-white">
-                    <DialogHeader className="space-y-3 pb-4">
-                        <DialogTitle className="text-2xl font-bold text-center">Select Payment Currency</DialogTitle>
-                        <p className="text-gray-500 text-center text-sm">Choose your preferred currency for payment</p>
-                    </DialogHeader>
-                    <div className="space-y-6 py-4">
-                        <div className="space-y-4">
-                            {currencies.map((currency) => (
-                                <div
-                                    key={currency.name}
-                                    className={`relative p-4 rounded-lg border-2 transition-all cursor-pointer
-                                        ${selectedCurrency === currency.name 
-                                            ? 'border-purple-500 bg-purple-50' 
-                                            : 'border-gray-200 hover:border-purple-300 hover:bg-gray-50'}`}
-                                    onClick={() => setSelectedCurrency(currency.name)}
-                                >
-                                    <div className="flex items-center justify-between">
-                                        <div className="flex items-center space-x-3">
-                                            <div className="w-10 h-10 rounded-full bg-white shadow-sm flex items-center justify-center">
-                                                <img 
-                                                    src={`/images/currencies/${currency.name.toLowerCase()}.png`} 
-                                                    alt={currency.name}
-                                                    className="w-6 h-6"
-                                                />
+                {/* Footer */}
+                <Footer />
+
+                {/* Sticky Buy Button - now positioned above footer */}
+                <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 shadow-lg p-4 z-50">
+                    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                        <div className="flex items-center justify-between">
+                            <div className="flex items-center space-x-4">
+                                <div className="text-2xl font-bold text-gray-900">
+                                    {course.price} USDC
+                                </div>
+                                {selectedCurrency && (
+                                    <div className="text-lg text-gray-600">
+                                        ≈ {calculatePrice(course.price, selectedCurrency)} {selectedCurrency}
+                                    </div>
+                                )}
+                            </div>
+                            <Button
+                                size="lg"
+                                className="bg-purple-600 hover:bg-purple-700 text-white font-bold text-lg px-12 py-6"
+                                onClick={() => {
+                                    if (!isWalletConnected) {
+                                        handleConnectWallet();
+                                    } else if (!selectedCurrency) {
+                                        setShowCurrencySelector(true);
+                                    } else {
+                                        // Implement purchase logic
+                                        console.log('Purchase with', selectedCurrency);
+                                    }
+                                }}
+                            >
+                                {!isWalletConnected 
+                                    ? "Connect Wallet" 
+                                    : !selectedCurrency 
+                                        ? "Select Currency" 
+                                        : "Buy Now"}
+                            </Button>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Currency Selector Dialog */}
+                <Dialog open={showCurrencySelector} onOpenChange={setShowCurrencySelector}>
+                    <DialogContent className="sm:max-w-md bg-gradient-to-b from-gray-50 to-white">
+                        <DialogHeader className="space-y-3 pb-4">
+                            <DialogTitle className="text-2xl font-bold text-center">Select Payment Currency</DialogTitle>
+                            <p className="text-gray-500 text-center text-sm">Choose your preferred currency for payment</p>
+                        </DialogHeader>
+                        <div className="space-y-6 py-4">
+                            <div className="space-y-4">
+                                {currencies.map((currency) => (
+                                    <div
+                                        key={currency.name}
+                                        className={`relative p-4 rounded-lg border-2 transition-all cursor-pointer
+                                            ${selectedCurrency === currency.name 
+                                                ? 'border-purple-500 bg-purple-50' 
+                                                : 'border-gray-200 hover:border-purple-300 hover:bg-gray-50'}`}
+                                        onClick={() => setSelectedCurrency(currency.name)}
+                                    >
+                                        <div className="flex items-center justify-between">
+                                            <div className="flex items-center space-x-3">
+                                                <div className="w-10 h-10 rounded-full bg-white shadow-sm flex items-center justify-center">
+                                                    <img 
+                                                        src={`/images/currencies/${currency.name.toLowerCase()}.png`} 
+                                                        alt={currency.name}
+                                                        className="w-6 h-6"
+                                                    />
+                                                </div>
+                                                <div>
+                                                    <h3 className="font-semibold text-gray-900">{currency.name}</h3>
+                                                    <p className="text-sm text-gray-500">
+                                                        Rate: 1 USDC = {currency.rate} {currency.name}
+                                                    </p>
+                                                </div>
                                             </div>
-                                            <div>
-                                                <h3 className="font-semibold text-gray-900">{currency.name}</h3>
-                                                <p className="text-sm text-gray-500">
-                                                    Rate: 1 USDC = {currency.rate} {currency.name}
-                                                </p>
+                                            <div className="text-right">
+                                                <div className="text-lg font-bold text-purple-600">
+                                                    {calculatePrice(course.price, currency.name)}
+                                                </div>
+                                                <div className="text-sm text-gray-500">{currency.name}</div>
+                                            </div>
+                                        </div>
+                                        {selectedCurrency === currency.name && (
+                                            <div className="absolute top-1/2 -right-3 -translate-y-1/2">
+                                                <div className="w-6 h-6 rounded-full bg-purple-500 flex items-center justify-center">
+                                                    <CheckCircle2 className="w-4 h-4 text-white" />
+                                                </div>
+                                            </div>
+                                        )}
+                                    </div>
+                                ))}
+                            </div>
+
+                            {selectedCurrency && (
+                                <div className="bg-gradient-to-r from-purple-50 to-blue-50 p-4 rounded-lg border border-purple-100">
+                                    <div className="flex items-center justify-between">
+                                        <div>
+                                            <div className="text-sm font-medium text-gray-500">You'll Pay</div>
+                                            <div className="text-2xl font-bold text-purple-600">
+                                                {calculatePrice(course.price, selectedCurrency)} {selectedCurrency}
                                             </div>
                                         </div>
                                         <div className="text-right">
-                                            <div className="text-lg font-bold text-purple-600">
-                                                {calculatePrice(course.price, currency.name)}
+                                            <div className="text-sm font-medium text-gray-500">Original Price</div>
+                                            <div className="text-lg font-semibold text-gray-900">
+                                                {course.price} USDC
                                             </div>
-                                            <div className="text-sm text-gray-500">{currency.name}</div>
                                         </div>
                                     </div>
-                                    {selectedCurrency === currency.name && (
-                                        <div className="absolute top-1/2 -right-3 -translate-y-1/2">
-                                            <div className="w-6 h-6 rounded-full bg-purple-500 flex items-center justify-center">
-                                                <CheckCircle2 className="w-4 h-4 text-white" />
-                                            </div>
-                                        </div>
-                                    )}
                                 </div>
-                            ))}
+                            )}
+
+                            <Button
+                                className={`w-full py-6 text-lg font-semibold transition-all ${
+                                    selectedCurrency 
+                                        ? 'bg-purple-600 hover:bg-purple-700 text-white shadow-lg hover:shadow-xl' 
+                                        : 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                                }`}
+                                onClick={() => setShowCurrencySelector(false)}
+                                disabled={!selectedCurrency}
+                            >
+                                {selectedCurrency ? 'Confirm Selection' : 'Please Select a Currency'}
+                            </Button>
                         </div>
-
-                        {selectedCurrency && (
-                            <div className="bg-gradient-to-r from-purple-50 to-blue-50 p-4 rounded-lg border border-purple-100">
-                                <div className="flex items-center justify-between">
-                                    <div>
-                                        <div className="text-sm font-medium text-gray-500">You'll Pay</div>
-                                        <div className="text-2xl font-bold text-purple-600">
-                                            {calculatePrice(course.price, selectedCurrency)} {selectedCurrency}
-                                        </div>
-                                    </div>
-                                    <div className="text-right">
-                                        <div className="text-sm font-medium text-gray-500">Original Price</div>
-                                        <div className="text-lg font-semibold text-gray-900">
-                                            {course.price} USDC
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        )}
-
-                        <Button
-                            className={`w-full py-6 text-lg font-semibold transition-all ${
-                                selectedCurrency 
-                                    ? 'bg-purple-600 hover:bg-purple-700 text-white shadow-lg hover:shadow-xl' 
-                                    : 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                            }`}
-                            onClick={() => setShowCurrencySelector(false)}
-                            disabled={!selectedCurrency}
-                        >
-                            {selectedCurrency ? 'Confirm Selection' : 'Please Select a Currency'}
-                        </Button>
-                    </div>
-                </DialogContent>
-            </Dialog>
+                    </DialogContent>
+                </Dialog>
+            </div>
         </div>
     );
 }
