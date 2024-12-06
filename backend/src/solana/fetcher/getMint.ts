@@ -1,8 +1,9 @@
 import { address } from "@solana/addresses";
-import { MintLayout, RawMint } from "@solana/spl-token";
-import { config } from "../../lib/config";
-import { Base64EncodedDataResponse } from "@solana/rpc-types";
+import { decodeMint, type Mint } from "@solana-program/token";
 import { rpc } from "../rpc";
+import type { EncodedAccount } from "@solana/accounts";
+import { ReadonlyUint8Array } from "@solana/web3.js";
+import type { Base64EncodedDataResponse } from "@solana/rpc-types";
 
 export type DecodedMint = {
   mintAuthorityOption: number;
@@ -27,18 +28,27 @@ export async function getMints(mints: string[]): Promise<Record<string, DecodedM
     if (!mint?.data) return acc;
 
     const [base64Data] = mint.data as Base64EncodedDataResponse;
-    const decodedData = Buffer.from(base64Data, 'base64');
-    const decodedMintData = MintLayout.decode(decodedData) as RawMint;
-    const mintAddress = mintAddresses[index].toString();
+    const rawData = Buffer.from(base64Data, 'base64');
+    const mintAddress = mintAddresses[index];
+
+    const encodedAccount: EncodedAccount<string> = {
+      address: mintAddress,
+      data: new Uint8Array(rawData) as ReadonlyUint8Array,
+      executable: mint.executable,
+      lamports: mint.lamports,
+      programAddress: mint.owner,
+    };
+
+    const decodedMintData = decodeMint(encodedAccount);
     
-    acc[mintAddress] = {
-      mintAuthorityOption: decodedMintData.mintAuthorityOption,
-      mintAuthority: decodedMintData.mintAuthority.toString(),
-      supply: decodedMintData.supply.toString(),
-      decimals: decodedMintData.decimals,
-      isInitialized: decodedMintData.isInitialized,
-      freezeAuthorityOption: decodedMintData.freezeAuthorityOption,
-      freezeAuthority: decodedMintData.freezeAuthority.toString(),
+    acc[mintAddress.toString()] = {
+      mintAuthorityOption: decodedMintData.data.mintAuthority ? 1 : 0,
+      mintAuthority: decodedMintData.data.mintAuthority?.toString() || '',
+      supply: decodedMintData.data.supply.toString(),
+      decimals: decodedMintData.data.decimals,
+      isInitialized: decodedMintData.data.isInitialized,
+      freezeAuthorityOption: decodedMintData.data.freezeAuthority ? 1 : 0,
+      freezeAuthority: decodedMintData.data.freezeAuthority?.toString() || '',
     };
 
     return acc;

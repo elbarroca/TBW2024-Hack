@@ -8,7 +8,6 @@ export const config = {
 
 const requiredEnvVariables = [
   "RPC_KEY",
-  "WS_ENDPOINT",
   "SUPABASE_URL",
   "SUPABASE_KEY"
 ];

@@ -5,7 +5,7 @@ import { rpc } from '../rpc';
 import { sendAndConfirmTransactionFactory } from '@solana/web3.js';
 
 // WebSocket setup
-const wsEndpoint = process.env.WS_ENDPOINT || 'wss://mainnet.helius-rpc.com/?api-key=' + process.env.RPC_KEY!;
+const wsEndpoint = 'wss://mainnet.helius-rpc.com/?api-key=' + process.env.RPC_KEY!;
 const ws = new WebSocket(wsEndpoint);
 
 // Types for WebSocket responses
