@@ -14,7 +14,7 @@ export function TokenDisplay({ token, showBalance = true, className = '' }: Toke
         
         return new Intl.NumberFormat('en-US', {
             minimumFractionDigits: 0,
-            maximumFractionDigits: decimals,
+            maximumFractionDigits: 2,
             notation: value > 1000000 ? 'compact' : 'standard'
         }).format(value);
     };

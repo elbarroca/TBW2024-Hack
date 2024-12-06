@@ -45,7 +45,7 @@ export function CurrencySelector({
 
         const tokenAmount = basePrice / tokenPrice;
         
-        return tokenAmount.toFixed(token.decimals);
+        return Number(tokenAmount).toFixed(2);
     };
 
     const calculateUsdRate = (token: TokenInfo) => {
@@ -54,7 +54,7 @@ export function CurrencySelector({
 
         const tokenPerUsd = 1 / tokenPrice;
         
-        return tokenPerUsd.toFixed(token.decimals);
+        return Number(tokenPerUsd).toFixed(2);
     };
 
     return (
