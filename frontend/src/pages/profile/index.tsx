@@ -254,16 +254,10 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
         </div>
     );
 };
-
 export default function ProfilePage() {
     const navigate = useNavigate();
     const { logout } = useAuth();
     const { user, isLoading } = useAppSelector((state) => state.auth);
-    const [isEditingDisplayName, setIsEditingDisplayName] = useState(false);
-    const [isEditingSocialLinks, setIsEditingSocialLinks] = useState(false);
-    const [tempDisplayName, setTempDisplayName] = useState('');
-    const [tempSocialLinks, setTempSocialLinks] = useState<SocialLinks>({});
-    const [isConfirmationOpen, setIsConfirmationOpen] = useState(false);
     const [purchaseFilter, setPurchaseFilter] = useState('all');
     const [showSettings, setShowSettings] = useState(false);
     const [profile, setProfile] = useState<CreatorProfile>(initialProfile);

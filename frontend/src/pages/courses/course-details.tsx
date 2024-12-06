@@ -2,8 +2,9 @@ import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { 
     Star, Clock, CheckCircle2, Users, 
-    MessageCircle, Play,
-    Github, Linkedin
+    Play, Shield,
+    Github, Linkedin, Users2,
+    ArrowRight
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { COURSES } from '@/data/courses';
@@ -15,12 +16,111 @@ import {
     DialogHeader,
     DialogTitle,
 } from "@/components/ui/Dialog";
+import {
+    Card,
+    CardContent
+} from "@/components/ui/card";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { LessonSelector } from '@/components/courses/LessonSelector';
 import Footer from '@/components/layout/Footer';
+
+// Define types for prerequisites and target audiences
+type Prerequisite = string;
+type TargetAudience = string;
+
+// Sample data (you should replace this with actual data from your course object)
+const prerequisites: Prerequisite[] = [
+    "Basic understanding of blockchain technology and cryptography",
+    "Familiarity with JavaScript/TypeScript programming",
+    "Knowledge of Web3 fundamentals",
+    "Understanding of smart contract basics"
+];
+
+const targetAudiences: TargetAudience[] = [
+    "Web3 developers looking to specialize in DeFi",
+    "Smart contract engineers interested in protocol development",
+    "DeFi enthusiasts wanting to build decentralized applications",
+    "Blockchain developers seeking advanced protocol knowledge"
+];
 
 const fadeInUp = {
     hidden: { opacity: 0, y: 20 },
     visible: { opacity: 1, y: 0 }
 };
+
+// Mock data for course modules and lessons
+const courseModules = [
+    {
+        id: "module-1",
+        title: "Introduction to DeFi Protocols",
+        description: "Learn the fundamentals of decentralized finance and protocol development",
+        lessons: [
+            {
+                id: "lesson-1-1",
+                title: "Understanding DeFi Fundamentals",
+                description: "An overview of decentralized finance, its importance, and core concepts",
+                slug: "defi-fundamentals",
+                duration: "45 min"
+            },
+            {
+                id: "lesson-1-2",
+                title: "Protocol Architecture Deep Dive",
+                description: "Explore the architecture patterns of successful DeFi protocols",
+                slug: "protocol-architecture",
+                duration: "60 min"
+            }
+        ]
+    },
+    {
+        id: "module-2",
+        title: "Smart Contract Development",
+        description: "Master the art of writing secure and efficient smart contracts",
+        lessons: [
+            {
+                id: "lesson-2-1",
+                title: "Advanced Solidity Patterns",
+                description: "Learn advanced Solidity patterns and best practices for DeFi protocols",
+                slug: "advanced-solidity",
+                duration: "90 min"
+            },
+            {
+                id: "lesson-2-2",
+                title: "Security Considerations",
+                description: "Understanding common vulnerabilities and security best practices",
+                slug: "security-considerations",
+                duration: "75 min"
+            }
+        ]
+    },
+    {
+        id: "module-3",
+        title: "Protocol Integration & Testing",
+        description: "Learn how to integrate and thoroughly test your DeFi protocol",
+        lessons: [
+            {
+                id: "lesson-3-1",
+                title: "Frontend Integration",
+                description: "Build user interfaces that interact with your protocol",
+                slug: "frontend-integration",
+                duration: "60 min"
+            },
+            {
+                id: "lesson-3-2",
+                title: "Testing Strategies",
+                description: "Comprehensive testing approaches for DeFi protocols",
+                slug: "testing-strategies",
+                duration: "45 min"
+            },
+            {
+                id: "lesson-3-3",
+                title: "Deployment & Monitoring",
+                description: "Learn how to deploy and monitor your protocol in production",
+                slug: "deployment-monitoring",
+                duration: "60 min"
+            }
+        ]
+    }
+];
 
 export default function CourseDetailsPage() {
     const { creatorSlug, courseSlug } = useParams();
@@ -93,6 +193,12 @@ export default function CourseDetailsPage() {
                                         className="bg-white/20 hover:bg-white/30 text-white border-none"
                                     >
                                         {course.level}
+                                    </Badge>
+                                    <Badge 
+                                        variant="secondary"
+                                        className="bg-gradient-to-r from-yellow-400 to-yellow-600 text-white border-none shadow-lg"
+                                    >
+                                        Certified Course
                                     </Badge>
                                 </div>
                                 <div className="space-y-4">
@@ -194,138 +300,209 @@ export default function CourseDetailsPage() {
                 {/* Main Content */}
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
                     <div className="space-y-12">
-                        {/* What You'll Learn */}
-                        <motion.div 
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: 0.2 }}
-                            className="bg-white rounded-xl shadow-sm overflow-hidden"
-                        >
-                            <div className="border-b border-gray-100 bg-gradient-to-r from-purple-50 to-blue-50 p-8">
-                                <h3 className="text-2xl font-semibold text-gray-900">What You'll Learn</h3>
-                                <p className="mt-2 text-gray-600">Skills and knowledge you'll gain from this course</p>
+                        {/* What You'll Learn and Course Description */}
+                        <div className="relative">
+                            <div className="absolute inset-0 flex items-center" aria-hidden="true">
+                                <div className="w-full border-t border-purple-200/30"></div>
                             </div>
-                            <div className="p-8">
-                                <div className="grid md:grid-cols-2 gap-6">
-                                    {course.whatYouWillLearn.map((item, index) => (
-                                        <motion.div
-                                            key={index}
-                                            initial={{ opacity: 0, x: -20 }}
-                                            animate={{ opacity: 1, x: 0 }}
-                                            transition={{ delay: 0.1 * index }}
-                                            className="flex items-start space-x-4 p-4 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors"
-                                        >
+                            <div className="relative flex justify-start">
+                                <span className="bg-white/40 pr-3 text-lg font-semibold text-purple-900">Course Overview</span>
+                            </div>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            {/* What You'll Learn */}
+                            <Card className="p-8 bg-white shadow-lg hover:shadow-xl transition-all duration-300 border-none">
+                                <h2 className="text-2xl font-bold bg-gradient-to-r from-purple-600 to-indigo-600 bg-clip-text text-transparent mb-6">
+                                    What You'll Learn
+                                </h2>
+                                <div className="space-y-4">
+                                    {[
+                                        "Build decentralized applications (dApps) from scratch using industry best practices",
+                                        "Implement smart contracts with Solidity and deploy to multiple chains", 
+                                        "Create secure and scalable blockchain architectures",
+                                        "Master Web3.js and Ethers.js for blockchain interactions",
+                                        "Understand DeFi protocols and implement key financial primitives"
+                                    ].map((item, index) => (
+                                        <div key={index} className="flex gap-4 items-start bg-gradient-to-r from-purple-50 to-indigo-50 p-4 rounded-lg hover:shadow-md transition-all">
                                             <div className="flex-shrink-0">
-                                                <div className="w-8 h-8 rounded-full bg-purple-100 flex items-center justify-center">
-                                                    <CheckCircle2 className="h-5 w-5 text-purple-600" />
+                                                <div className="w-8 h-8 rounded-full bg-gradient-to-r from-green-500 to-green-600 flex items-center justify-center">
+                                                    <CheckCircle2 className="h-5 w-5 text-white" />
                                                 </div>
                                             </div>
-                                            <div className="flex-1 space-y-1">
-                                                <p className="font-medium text-gray-900">{item}</p>
-                                                <p className="text-sm text-gray-600">
-                                                    Master this concept through practical examples and hands-on exercises
+                                            <div className="flex-1">
+                                                <p className="text-gray-800 font-medium">{item}</p>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            </Card>
+
+                            {/* Course Description */}
+                            <Card className="p-8 bg-white shadow-lg hover:shadow-xl transition-all duration-300 border-none">
+                                <h2 className="text-2xl font-bold bg-gradient-to-r from-purple-600 to-indigo-600 bg-clip-text text-transparent mb-6">
+                                    Course Overview
+                                </h2>
+                                <div className="space-y-6">
+                                    <div className="prose prose-purple max-w-none">
+                                        <p className="text-gray-700 leading-relaxed text-lg">
+                                            Dive deep into blockchain development with this comprehensive course. You'll learn everything from basic concepts to advanced implementation techniques. Through hands-on projects and real-world examples, you'll gain practical experience in building decentralized applications that can scale.
+                                        </p>
+                                        <p className="text-gray-700 leading-relaxed text-lg mt-4">
+                                            This course combines theoretical knowledge with practical implementation, ensuring you're ready to tackle real-world blockchain development challenges. Perfect for developers looking to transition into Web3 or enhance their existing blockchain skills.
+                                        </p>
+                                        <div className="mt-8 flex justify-center">
+                                            <Button
+                                                onClick={() => {
+                                                    const buySection = document.getElementById('buy-section');
+                                                    buySection?.scrollIntoView({ behavior: 'smooth' });
+                                                }}
+                                                className="group font-semibold text-lg px-12 py-6 shadow-xl hover:shadow-2xl transition-all duration-300 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-indigo-600 hover:to-purple-600 text-white rounded-xl"
+                                            >
+                                                <span className="flex items-center">
+                                                    Buy Now
+                                                    <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
+                                                </span>
+                                            </Button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </Card>
+                        </div>
+                        {/* Prerequisites & Target Audience */}
+                        <div className="grid grid-cols-2 gap-8 mt-12">
+                            {/* Prerequisites */}
+                            <Card className="bg-white/50 backdrop-blur-sm border-purple-100/50 overflow-hidden p-8">
+                                <div className="border-l-4 border-blue-500 px-6 py-4 bg-blue-50/50">
+                                    <h2 className="text-2xl font-bold text-blue-900">Prerequisites</h2>
+                                </div>
+                                <CardContent className="p-6">
+                                    <ScrollArea className="h-[200px] pr-4">
+                                        {prerequisites.length > 0 ? (
+                                            <ul className="space-y-4">
+                                                {prerequisites.map((prerequisite, index) => (
+                                                    <motion.li 
+                                                        key={index}
+                                                        className="flex items-start gap-3 p-3 rounded-lg bg-white/70 border border-blue-100/50"
+                                                        whileHover={{ x: 4 }}
+                                                    >
+                                                        <Shield className="w-5 h-5 text-blue-500 flex-shrink-0 mt-0.5" />
+                                                        <span className="text-gray-700">{prerequisite}</span>
+                                                    </motion.li>
+                                                ))}
+                                            </ul>
+                                        ) : (
+                                            <p className="text-gray-500 text-center py-4">Add prerequisites to help students understand what they need to know before starting.</p>
+                                        )}
+                                    </ScrollArea>
+                                </CardContent>
+                            </Card>
+
+                            {/* Target Audience */}
+                            <Card className="bg-white/50 backdrop-blur-sm border-purple-100/50 overflow-hidden p-8">
+                                <div className="border-l-4 border-green-500 px-6 py-4 bg-green-50/50">
+                                    <h2 className="text-2xl font-bold text-green-900">Target Audience</h2>
+                                </div>
+                                <CardContent className="p-6">
+                                    <ScrollArea className="h-[200px] pr-4">
+                                        {targetAudiences.length > 0 ? (
+                                            <ul className="space-y-4">
+                                                {targetAudiences.map((audience, index) => (
+                                                    <motion.li 
+                                                        key={index}
+                                                        className="flex items-start gap-3 p-3 rounded-lg bg-white/70 border border-green-100/50"
+                                                        whileHover={{ x: 4 }}
+                                                    >
+                                                        <Users2 className="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5" />
+                                                        <span className="text-gray-700">{audience}</span>
+                                                    </motion.li>
+                                                ))}
+                                            </ul>
+                                        ) : (
+                                            <p className="text-gray-500 text-center py-4">Add target audiences to show who this video is designed for.</p>
+                                        )}
+                                    </ScrollArea>
+                                </CardContent>
+                            </Card>
+                        </div>
+
+                        {/* Course Curriculum */}
+                        <div className="mt-12">
+                            <LessonSelector 
+                                modules={courseModules}
+                                className="bg-white/50 backdrop-blur-sm border-purple-100/50"
+                            />
+                        </div>
+
+                        {/* Buy Now Section with Price Logic */}
+                        <motion.div variants={fadeInUp} className="mt-12">
+                            <Card className="relative overflow-hidden p-8">
+                                <div className="absolute inset-0 bg-gradient-to-br from-purple-600/95 via-indigo-600/95 to-purple-800/95" />
+                                <div className="absolute inset-0 bg-[url('/patterns/grid.svg')] opacity-10" />
+                                <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-white/10" />
+                                <CardContent className="relative z-10 p-10">
+                                    <div className="text-center space-y-8">
+                                        <motion.div
+                                            initial={{ opacity: 0, y: 20 }}
+                                            animate={{ opacity: 1, y: 0 }}
+                                            className="space-y-4"
+                                        >
+                                            <h2 className="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-white via-purple-100 to-white">
+                                                Start Your Learning Journey Today
+                                            </h2>
+                                            <p className="text-purple-100 text-lg max-w-2xl mx-auto leading-relaxed">
+                                                Join thousands of students already mastering {course.title}.
+                                                Get lifetime access to all course materials and future updates.
+                                            </p>
+                                        </motion.div>
+
+                                        <motion.div 
+                                            initial={{ opacity: 0, scale: 0.9 }}
+                                            animate={{ opacity: 1, scale: 1 }}
+                                            transition={{ delay: 0.2 }}
+                                            className="flex flex-col items-center gap-6"
+                                        >
+                                            <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/20">
+                                                <div className="flex items-baseline justify-center gap-3 mb-2">
+                                                    <span className="text-5xl font-bold text-white">
+                                                        ${course.price}
+                                                    </span>
+                                                </div>
+                                                <p className="text-purple-200 text-sm">
+                                                    One-time payment • Lifetime access • Free updates
                                                 </p>
                                             </div>
                                         </motion.div>
-                                    ))}
-                                </div>
-                            </div>
-                        </motion.div>
 
-                        {/* Course Description */}
-                        <motion.div 
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: 0.3 }}
-                            className="bg-white rounded-xl shadow-sm overflow-hidden"
-                        >
-                            <div className="border-b border-gray-100 bg-gradient-to-r from-purple-50 to-blue-50 p-8">
-                                <h3 className="text-2xl font-semibold text-gray-900">Course Description</h3>
-                                <p className="mt-2 text-gray-600">Detailed overview of course content and objectives</p>
-                            </div>
-                            <div className="p-8">
-                                <div className="prose prose-purple max-w-none">
-                                    <p className="text-gray-600 leading-relaxed">
-                                        {course.description}
-                                    </p>
-                                    
-                                    {/* Key Features */}
-                                    <div className="mt-8 grid sm:grid-cols-2 gap-6">
-                                        <div className="flex items-center space-x-4 p-4 bg-purple-50 rounded-lg">
-                                            <div className="w-12 h-12 rounded-lg bg-purple-100 flex items-center justify-center">
-                                                <Clock className="h-6 w-6 text-purple-600" />
+                                        <motion.div
+                                            initial={{ opacity: 0, y: 20 }}
+                                            animate={{ opacity: 1, y: 0 }}
+                                            transition={{ delay: 0.4 }}
+                                            className="space-y-6"
+                                        >
+                                            <div className="flex flex-col items-center gap-4">
+                                                {!isWalletConnected ? (
+                                                    <Button 
+                                                        size="lg"
+                                                        onClick={handleConnectWallet}
+                                                        className="group font-semibold text-lg px-12 py-6 shadow-xl hover:shadow-2xl transition-all duration-300 bg-gradient-to-r from-white to-purple-50 hover:from-purple-50 hover:to-white text-purple-700 hover:text-purple-800"
+                                                    >
+                                                        Connect Wallet
+                                                    </Button>
+                                                ) : (
+                                                    <Button 
+                                                        size="lg"
+                                                        onClick={() => setShowCurrencySelector(true)}
+                                                        className="group font-semibold text-lg px-12 py-6 shadow-xl hover:shadow-2xl transition-all duration-300 bg-gradient-to-r from-white to-purple-50 hover:from-purple-50 hover:to-white text-purple-700 hover:text-purple-800"
+                                                    >
+                                                        Buy Now
+                                                    </Button>
+                                                )}
                                             </div>
-                                            <div>
-                                                <h4 className="font-medium text-gray-900">Self-Paced Learning</h4>
-                                                <p className="text-sm text-gray-600">Learn at your own speed</p>
-                                            </div>
-                                        </div>
-                                        <div className="flex items-center space-x-4 p-4 bg-blue-50 rounded-lg">
-                                            <div className="w-12 h-12 rounded-lg bg-blue-100 flex items-center justify-center">
-                                                <MessageCircle className="h-6 w-6 text-blue-600" />
-                                            </div>
-                                            <div>
-                                                <h4 className="font-medium text-gray-900">Expert Support</h4>
-                                                <p className="text-sm text-gray-600">Get help when you need it</p>
-                                            </div>
-                                        </div>
+                                        </motion.div>
                                     </div>
-                                </div>
-                            </div>
-                        </motion.div>
-
-                        {/* Prerequisites */}
-                        <motion.div 
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: 0.4 }}
-                            className="bg-white rounded-xl shadow-sm overflow-hidden"
-                        >
-                            <div className="border-b border-gray-100 bg-gradient-to-r from-purple-50 to-blue-50 p-8">
-                                <h3 className="text-2xl font-semibold text-gray-900">Prerequisites</h3>
-                                <p className="mt-2 text-gray-600">Required knowledge and tools before starting</p>
-                            </div>
-                            <div className="p-8">
-                                <div className="grid gap-6">
-                                    <div className="flex items-start space-x-4 p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
-                                        <div className="flex-shrink-0">
-                                            <div className="w-10 h-10 rounded-lg bg-green-100 flex items-center justify-center">
-                                                <CheckCircle2 className="h-6 w-6 text-green-600" />
-                                            </div>
-                                        </div>
-                                        <div className="flex-1">
-                                            <h4 className="font-medium text-gray-900">Basic Blockchain Knowledge</h4>
-                                            <p className="mt-1 text-gray-600">
-                                                Understanding of blockchain fundamentals and distributed systems
-                                            </p>
-                                            <div className="mt-3">
-                                                <Button variant="link" className="h-auto p-0 text-purple-600">
-                                                    View Recommended Resources →
-                                                </Button>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    
-                                    <div className="flex items-start space-x-4 p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
-                                        <div className="flex-shrink-0">
-                                            <div className="w-10 h-10 rounded-lg bg-green-100 flex items-center justify-center">
-                                                <CheckCircle2 className="h-6 w-6 text-green-600" />
-                                            </div>
-                                        </div>
-                                        <div className="flex-1">
-                                            <h4 className="font-medium text-gray-900">JavaScript Programming</h4>
-                                            <p className="mt-1 text-gray-600">
-                                                Familiarity with JavaScript ES6+ features and async programming
-                                            </p>
-                                            <div className="mt-3">
-                                                <Button variant="link" className="h-auto p-0 text-purple-600">
-                                                    Take JavaScript Assessment →
-                                                </Button>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
+                                </CardContent>
+                            </Card>
                         </motion.div>
 
                         {/* About the Creator */}
@@ -418,71 +595,6 @@ export default function CourseDetailsPage() {
                                                 >
                                                     {skill}
                                                 </Badge>
-                                            ))}
-                                        </div>
-                                    </div>
-
-                                    {/* Other Courses Section */}
-                                    <div className="mt-16 w-full max-w-4xl">
-                                        <div className="flex items-center justify-between mb-6">
-                                            <h4 className="text-2xl font-bold text-gray-900">Other Courses by {course.creator.name}</h4>
-                                            <Button variant="link" className="text-purple-600 font-medium">
-                                                View All →
-                                            </Button>
-                                        </div>
-                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                            {COURSES.filter(c => 
-                                                c.creator.id === course.creator.id && 
-                                                c.id !== course.id
-                                            ).slice(0, 2).map((otherCourse, index) => (
-                                                <motion.div
-                                                    key={index}
-                                                    initial={{ opacity: 0, y: 20 }}
-                                                    animate={{ opacity: 1, y: 0 }}
-                                                    transition={{ delay: 0.1 * index }}
-                                                    className="group relative rounded-2xl overflow-hidden bg-white hover:shadow-xl transition-all duration-300"
-                                                >
-                                                    <div className="aspect-video relative overflow-hidden">
-                                                        <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent z-10" />
-                                                        <img 
-                                                            src={otherCourse.image} 
-                                                            alt={otherCourse.title}
-                                                            className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-300"
-                                                        />
-                                                        <div className="absolute bottom-4 left-4 right-4 z-20">
-                                                            <h5 className="text-xl font-bold text-white mb-2">
-                                                                {otherCourse.title}
-                                                            </h5>
-                                                            <div className="flex items-center space-x-4">
-                                                                <div className="flex items-center text-white/90 text-sm">
-                                                                    <Star className="w-4 h-4 text-yellow-400 mr-1" />
-                                                                    <span>{otherCourse.rating}</span>
-                                                                    <span className="mx-2">•</span>
-                                                                    <span>{otherCourse.enrolled.toLocaleString()} students</span>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                    <div className="p-6">
-                                                        <p className="text-gray-600 line-clamp-2 mb-4">
-                                                            {otherCourse.subtitle}
-                                                        </p>
-                                                        <div className="flex items-center justify-between">
-                                                            <div className="flex items-center space-x-2">
-                                                                <Badge variant="secondary" className="bg-purple-100 text-purple-700">
-                                                                    {otherCourse.level}
-                                                                </Badge>
-                                                                <Badge variant="secondary" className="bg-blue-100 text-blue-700">
-                                                                    {otherCourse.duration}
-                                                                </Badge>
-                                                            </div>
-                                                            <div className="text-lg font-bold text-purple-600">
-                                                                {otherCourse.price} USDC
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                    <div className="absolute inset-0 bg-purple-600/5 opacity-0 group-hover:opacity-100 transition-opacity" />
-                                                </motion.div>
                                             ))}
                                         </div>
                                     </div>

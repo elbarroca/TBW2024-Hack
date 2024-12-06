@@ -101,7 +101,7 @@ type FormValues = z.infer<typeof formSchema>;
 
 const defaultValues: Partial<FormValues> = {
     title: "",
-    description: "",
+    description: "", 
     detailedDescription: "",
     tags: [],
     price: 0,
@@ -114,7 +114,7 @@ const defaultValues: Partial<FormValues> = {
     language: "",
     level: "All Levels",
     certification: false
-};
+}
 
 type TargetAudience = string;
 
@@ -189,9 +189,8 @@ export default function CreateVideo() {
     const watchedPrice = watch('price');
     const price = typeof watchedPrice === 'number' ? watchedPrice : 0;
     const currency = watch('currency') as Currency;
-    const description = watch('description') || '';
     const title = watch('title');
-
+    const description = watch('description');
     const selectedCurrency = CURRENCY_OPTIONS.find((c) => c.value === currency);
     const usdValue =
         price && selectedCurrency ? (price * selectedCurrency.exchangeRate).toFixed(2) : '0.00';

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
+import { DragDropContext, Droppable, Draggable, OnDragEndResponder } from 'react-beautiful-dnd';
 import { Upload, Plus, Trash2, MoveVertical } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/Input';
@@ -215,7 +215,7 @@ export default function CreateCourse() {
                         </Button>
                     </div>
 
-                    <DragDropContext onDragEnd={handleDragEnd}>
+                    <DragDropContext onDragEnd={handleDragEnd as OnDragEndResponder}>
                         <Droppable droppableId="chapters">
                             {(provided) => (
                                 <div
@@ -336,7 +336,8 @@ export default function CreateCourse() {
 
                 {/* Publish Button */}
                 <div className="flex justify-end">
-                    <Button onClick={handlePublish} icon={Upload} size="lg">
+                    <Button onClick={handlePublish} size="lg">
+                        <Upload className="mr-2 h-4 w-4" />
                         Publish Course
                     </Button>
                 </div>
