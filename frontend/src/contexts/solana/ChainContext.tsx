@@ -12,9 +12,9 @@ export type ChainContext = Readonly<{
 }>;
 
 export const DEFAULT_CHAIN_CONFIG = Object.freeze({
-    chain: 'solana:devnet',
-    displayName: 'Devnet',
-    solanaExplorerClusterName: 'devnet',
+    chain: 'solana:mainnet-beta',
+    displayName: 'Mainnet',
+    solanaExplorerClusterName: 'mainnet-beta',
     solanaRpcSubscriptionsUrl: mainnet('wss://api.mainnet-beta.solana.com'),
     solanaRpcUrl: mainnet('https://api.mainnet-beta.solana.com'),
 });

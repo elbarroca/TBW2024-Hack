@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import { 
     Star, Clock, CheckCircle2, Users, 
     Play, Shield,
-    Github, Linkedin, Users2,
+    Users2,
     ArrowRight
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -25,8 +25,8 @@ import { LessonSelector } from '@/components/courses/LessonSelector';
 import { CreatorCard } from '@/components/creator/CreatorCard';
 import Footer from '@/components/layout/Footer';
 import { CourseCard } from '@/components/courses/CourseCard';
-import { CurrencySelector } from '@/components/solana/CurrencySelector';
 import { useAppSelector } from '@/store';
+import { CurrencySelector } from '@/components/solana/CurrencySelector';
 import { WalletPicker } from '@/components/solana/WalletPicker';
 
 // Animation variants

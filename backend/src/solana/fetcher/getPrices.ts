@@ -38,7 +38,7 @@ async function rateLimit() {
 async function fetchPricesWithRetry(
   mintIds: string[], 
   retries = 3,
-  vsToken = "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v" // USDC as default
+  vsToken = "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v"
 ): Promise<JupiterPriceV2Response> {
   try {
     await rateLimit();
@@ -56,7 +56,11 @@ async function fetchPricesWithRetry(
       },
     }).json<JupiterPriceV2Response>();
 
-    return response;
+    // Ensure we return a valid data object even if empty
+    return {
+      data: response?.data || {},
+      timeTaken: response?.timeTaken || 0
+    };
   } catch (error) {
     console.warn(`Price fetch failed for mints: ${mintIds.join(', ')}`, error);
     if (retries > 0) {
@@ -69,14 +73,13 @@ async function fetchPricesWithRetry(
 
 export async function getPrices(
   mints: string[],
-  vsToken: string = "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v" // USDC
+  vsToken: string = "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v"
 ): Promise<{ [mint: string]: number }> {
   const prices: { [mint: string]: number } = {};
 
   try {
-    if (mints.length === 0) return prices;
+    if (!mints?.length) return prices;
 
-    // Process mints in chunks to avoid rate limits
     const chunkSize = 10;
     for (let i = 0; i < mints.length; i += chunkSize) {
       const chunk = mints.slice(i, i + chunkSize);
@@ -84,6 +87,12 @@ export async function getPrices(
       try {
         const response = await fetchPricesWithRetry(chunk, 3, vsToken);
         
+        // Add null check for response.data
+        if (!response?.data) {
+          console.warn(`No data returned for chunk ${i/chunkSize + 1}`);
+          continue;
+        }
+
         Object.entries(response.data).forEach(([mint, data]) => {
           if (!data?.price) {
             console.warn(`No price data for ${mint}`);
@@ -97,23 +106,11 @@ export async function getPrices(
           }
 
           prices[mint] = price;
-          
-          // Log confidence level if available
-          if (data.extraInfo?.confidenceLevel) {
-            console.log(`Price confidence for ${mint}: ${data.extraInfo.confidenceLevel}`);
-          }
         });
       } catch (error) {
         console.warn(`Failed to fetch prices for chunk ${i/chunkSize + 1}:`, error);
       }
     }
-
-    // Log summary
-    console.log('Price fetch summary:', {
-      totalMints: mints.length,
-      pricesFound: Object.keys(prices).length,
-      missingPrices: mints.filter(mint => !prices[mint]).length
-    });
 
     return prices;
 

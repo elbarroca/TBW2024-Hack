@@ -1,6 +1,5 @@
 import { createSolanaRpc, createSolanaRpcSubscriptions } from '@solana/web3.js';
 import { ReactNode, useContext, useMemo } from 'react';
-
 import { ChainContext } from './ChainContext';
 import { RpcContext } from './RpcContext';
 

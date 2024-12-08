@@ -1,20 +1,16 @@
-import { useBuildTransactionMutation, useSendTransactionMutation } from '@/api/endpoints/solana';
-import { TokenInfo } from '@/types/api';
-import { StandardConnect } from '@wallet-standard/core';
-import { useWalletAccountTransactionSigner } from '@solana/react';
-import { UiWallet, UiWalletAccount } from '@wallet-standard/react';
-import { Address } from '@solana/addresses';
-import { useAppSelector } from '@/store';
-import { useCallback } from 'react';
-import { type TransactionMessageBytes, type SignaturesMap } from '@solana/transactions';
-import { SignatureBytes } from '@solana/keys';
+import { useBuildTransactionMutation, useSendTransactionMutation } from "@/api/endpoints/solana";
+import { TokenInfo } from "@/types/api";
+import { useSignTransaction } from "@solana/react";
+import { UiWalletAccount } from "@wallet-standard/react";
+import { useCallback } from "react";
 import bs58 from 'bs58';
-import { TransactionModifyingSigner } from '@solana/signers';
+import { Button } from "@/components/ui/button";
+import { getBase64Codec, getBase64Decoder, getBase64Encoder, getTransactionDecoder } from "@solana/web3.js";
 
-interface TransactionHandlerProps {
+interface PaymentProps {
     selectedToken: TokenInfo;
     amount: string;
-    onSuccess: () => void;
+    onSuccess: (signature: string) => void;
     onError: (error: string) => void;
 }
 
@@ -46,36 +42,20 @@ const COURSE_CREATOR_ADDRESS = "rikiFB2VznT2izUT7UffzWCn1X4gNmGutX7XEqFdpRR";
 const USER_ID = "UUID1";
 const COURSE_ID = "UUID2";
 
-export function useTransaction() {
-    const { wallet } = useAppSelector((state) => state.auth);
-    if (!wallet) {
-        throw new Error("Wallet not connected");
-    }
-
-    const { transactionSigner } = (wallet as any);
+export function PaymentButton({ account, params }: { account: UiWalletAccount, params: PaymentProps }) {
+    const signTransaction = useSignTransaction(account, 'solana:devnet');
     const [buildTransaction] = useBuildTransactionMutation();
     const [sendTransaction] = useSendTransactionMutation();
 
-    const handleTransaction = useCallback(async (params: TransactionHandlerProps) => {
-        if (!wallet || !transactionSigner) {
-            throw new Error("Wallet not connected or signer not available");
-        }
-
+    const handleTransaction = useCallback(async () => {
         const { selectedToken, amount, onSuccess, onError } = params;
-        const address = wallet.account;
-
         try {
-            if (!wallet.features.includes(StandardConnect)) {
-                throw new Error("Wallet not properly connected");
-            }
-
             const isUSDCPayment = selectedToken.mint === USDC_MINT;
-            const signerAddress = bs58.encode(Buffer.from(address));
 
             const transactionData: TransactionData = isUSDCPayment 
                 ? {
                     type: 'transfer',
-                    signer: signerAddress,
+                    signer: account.address,
                     to: COURSE_CREATOR_ADDRESS,
                     amount: Number(amount),
                     mint: USDC_MINT,
@@ -83,7 +63,7 @@ export function useTransaction() {
                 } 
                 : {
                     type: 'swap',
-                    signer: signerAddress,
+                    signer: account.address,
                     inputToken: selectedToken.mint,
                     outputToken: USDC_MINT,
                     amount: Number(amount),
@@ -97,40 +77,29 @@ export function useTransaction() {
                 transaction: JSON.stringify(transactionData)
             }).unwrap();
 
+
             if (!base64Transaction) {
                 throw new Error("Failed to create transaction");
             }
 
-            // Convert base64 to transaction bytes
-            const transactionBuffer = Buffer.from(base64Transaction, 'base64');
-            
-            // Sign transaction
-            const [signedTransaction] = await transactionSigner.modifyAndSignTransactions([
-                {
-                    // @ts-ignore
-                    messageBytes: Uint8Array.from(transactionBuffer) as unknown as TransactionMessageBytes,
-                    signatures: {} as Record<Address, SignatureBytes>
-                }
-            ]);
-
-            // Get signature
-            const [[_, signature]] = Object.entries(signedTransaction.signatures);
-            if (!signature) {
-                throw new Error('Failed to sign transaction');
-            }
+            const base64Encoder = getBase64Encoder();
+            const transactionBytes = base64Encoder.encode(base64Transaction);
+    
+            const { signedTransaction } = await signTransaction({
+                transaction: transactionBytes as unknown as Uint8Array,
+            });
 
             // Convert to base64 for sending
-            const serializedTransaction = bs58.encode(Buffer.from(signedTransaction.messageBytes));
+            const serializedTransaction = bs58.encode(Buffer.from(signedTransaction));
 
             // Send signed transaction
-            await sendTransaction({
+            const response = await sendTransaction({
                 transaction: serializedTransaction,
                 userId: USER_ID,
                 courseId: COURSE_ID
             }).unwrap();
 
-            onSuccess();
-            return serializedTransaction;
+            onSuccess(response.signature);
 
         } catch (error) {
             console.error('Transaction error:', error);
@@ -138,7 +107,23 @@ export function useTransaction() {
             onError(errorMessage);
             throw error;
         }
-    }, [wallet, transactionSigner]);
+    }, [account, params, buildTransaction, sendTransaction, signTransaction]);
 
-    return { handleTransaction };
-} 
+    return (
+        <Button
+            onClick={handleTransaction}
+            className="w-full py-6 text-lg font-semibold bg-purple-600 hover:bg-purple-700 text-white shadow-lg hover:shadow-xl transition-all"
+        >
+            Confirm Payment
+        </Button>
+    );
+}
+
+function base64ToUint8Array(base64: string): Uint8Array {
+    const binaryString = atob(base64);
+    const bytes = new Uint8Array(binaryString.length);
+    for (let i = 0; i < binaryString.length; i++) {
+        bytes[i] = binaryString.charCodeAt(i);
+    }
+    return bytes;
+}

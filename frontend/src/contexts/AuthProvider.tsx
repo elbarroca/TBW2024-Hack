@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useCallback } from 'react';
+import React, { createContext, useContext, useCallback, useMemo } from 'react';
 import { useAppSelector } from '@/store';
 import { UserRole } from '@/types/auth';
 
@@ -9,30 +9,34 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+    const { user } = useAppSelector(state => state.auth);
+
+    const rolePermissions = useMemo(() => ({
+        [UserRole.STUDENT]: ['read'],
+        [UserRole.INSTRUCTOR]: ['read', 'create', 'update'],
+        [UserRole.ADMIN]: ['read', 'create', 'update', 'delete']
+    }), []);
+
+    const roleResources = useMemo(() => ({
+        [UserRole.STUDENT]: ['courses', 'content', 'enrollments', 'progress'],
+        [UserRole.INSTRUCTOR]: ['courses', 'content', 'modules', 'lessons'],
+        [UserRole.ADMIN]: ['*']
+    }), []);
+
     const can = useCallback((operation: string, resource: string) => {
-        const { user } = useAppSelector(state => state.auth);
         if (!user) return false;
+        const permissions = rolePermissions[user.role];
+        const resources = roleResources[user.role];
+        return permissions?.includes(operation) && 
+            (resources?.includes('*') || resources?.includes(resource));
+    }, [user, rolePermissions, roleResources]);
 
-        const rolePermissions: Record<UserRole, string[]> = {
-            [UserRole.STUDENT]: ['read'],
-            [UserRole.INSTRUCTOR]: ['read', 'create', 'update'],
-            [UserRole.ADMIN]: ['read', 'create', 'update', 'delete']
-        };
-
-        const roleResources: Record<UserRole, string[]> = {
-            [UserRole.STUDENT]: ['courses', 'content', 'enrollments', 'progress'],
-            [UserRole.INSTRUCTOR]: ['courses', 'content', 'modules', 'lessons'],
-            [UserRole.ADMIN]: ['*']
-        };
-
-        return rolePermissions[user.role]?.includes(operation) && 
-            (roleResources[user.role]?.includes('*') || roleResources[user.role]?.includes(resource));
-    }, []);
+    const contextValue = useMemo(() => ({
+        can,
+    }), [can]);
 
     return (
-        <AuthContext.Provider value={{
-            can,
-        }}>
+        <AuthContext.Provider value={contextValue}>
             {children}
         </AuthContext.Provider>
     );
@@ -45,4 +49,3 @@ export const useAuth = () => {
     }
     return context;
 };
-

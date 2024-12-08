@@ -2,13 +2,11 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { LoginStatus } from './types';
 import type { AuthState } from './types';
 import { User } from '@/types/user';
-import type { MessageModifyingSigner, TransactionModifyingSigner } from '@solana/signers';
-import { Wallet } from './types';
 
 const initialState: AuthState = {
   loginStatus: LoginStatus.IDLE,
   user: null,
-  wallet: null,
+  account: null,
   isLoading: false,
   error: null,
 };
@@ -17,20 +15,8 @@ const authSlice = createSlice({
   name: 'auth',
   initialState,
   reducers: {
-    setWallet: (state, action: PayloadAction<Wallet | null>) => {
-      // Only store serializable properties of the wallet
-      if (action.payload) {
-        state.wallet = {
-          name: action.payload.name,
-          version: action.payload.version,
-          icon: action.payload.icon,
-          chain: action.payload.chain,
-          features: action.payload.features,
-          account: action.payload.account,
-        };
-      } else {
-        state.wallet = null;
-      }
+    setAccount: (state, action: PayloadAction<string | null>) => {
+      state.account = action.payload;
     },
     setUser: (state, action: PayloadAction<User | null>) => {
       state.user = action.payload;
@@ -55,7 +41,7 @@ const authSlice = createSlice({
 
 export const {
   setUser,
-  setWallet,
+  setAccount,
   setLoginStatus,
   setAuthLoading,
   setAuthError,

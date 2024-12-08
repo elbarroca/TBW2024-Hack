@@ -35,7 +35,7 @@ export async function buildTransaction(
     );
     
     const compiledMessage = compileTransaction(message);
-    return getBase64EncodedWireTransaction(compiledMessage);
+    return getBase64EncodedWireTransaction(compiledMessage).toString();
 
   } catch (error) {
     console.error("Error building transaction:", error);

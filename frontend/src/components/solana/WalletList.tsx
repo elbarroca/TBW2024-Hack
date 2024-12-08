@@ -15,7 +15,8 @@ export function WalletList() {
         
         wallets.forEach((wallet: UiWallet) => {
             if (wallet?.features?.includes(StandardConnect) && 
-                wallet?.features?.includes(StandardDisconnect)) {
+                wallet?.features?.includes(StandardDisconnect) &&
+                wallet?.features?.includes('solana:signIn')) {
                 const key = `${wallet.name}-${wallet.version}`;
                 if (!uniqueWallets.has(key)) {
                     uniqueWallets.set(key, wallet);

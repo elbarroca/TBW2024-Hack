@@ -75,12 +75,16 @@ async function simulateTransaction(
     }).send();
 
     if (simulation.value.err) {
+      console.log('Simulation error:', JSON.stringify(simulation.value.err));
       return { units: 0, error: JSON.stringify(simulation.value.err) };
     }
+
+    console.log('Simulation units:', simulation.value.unitsConsumed);
 
     const units = Number(simulation.value.unitsConsumed) || 0;
     return { units: Math.ceil(units * 1.1) };
   } catch (error) {
+    console.error('Error simulating transaction:', error);
     return { 
       units: 0, 
       error: error instanceof Error ? error.message : String(error) 
@@ -107,7 +111,7 @@ async function getPriorityFeeEstimate(
     const compiledMessage = compileTransaction(message);
     const wireTransaction = getBase64EncodedWireTransaction(compiledMessage);
 
-    const response = await fetch(`https://api.helius-rpc.com/?api-key=${process.env.RPC_KEY!}`, {
+    const response = await fetch(`https://mainnet.helius-rpc.com/?api-key=${process.env.RPC_KEY!}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -160,6 +164,9 @@ export async function prepareComputeBudget(
       lookbackSlots: 150
     })
   ]);
+
+  console.log('Simulation units:', simulation.units);
+  console.log('Priority fee:', priorityFee);
   
   const computeBudgetIx = getSetComputeUnitLimitInstruction({
     units: simulation.units || 1_400_000

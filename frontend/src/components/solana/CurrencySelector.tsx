@@ -2,12 +2,13 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Button } from '@/components/ui/button';
 import { CheckCircle2 } from 'lucide-react';
 import { useAppSelector } from '@/store';
-import { useEffect } from 'react';
+import { useContext, useEffect } from 'react';
 import { useToast } from '@/hooks/useToast';
 import { TokenDisplay } from './TokenDisplay';
 import { Skeleton } from '@/components/ui/skeleton';
 import { TokenInfo } from '@/types/api';
-import { useTransaction } from '../../hooks/useTransaction';
+import { SelectedWalletAccountContext } from '@/contexts/solana/SelectedWalletAccountContext';
+import { PaymentButton } from './PaymentButton';
 
 interface CurrencySelectorProps {
     open: boolean;
@@ -26,9 +27,9 @@ export function CurrencySelector({
     basePrice,
     onConfirm
 }: CurrencySelectorProps) {
-    const { balances, isLoading, error } = useAppSelector((state) => state.user);
+    const { balances, error } = useAppSelector((state) => state.user);
     const { toast } = useToast();
-    const { handleTransaction } = useTransaction();
+    const [selectedWalletAccount] = useContext(SelectedWalletAccountContext);
 
     useEffect(() => {
         if (error) {
@@ -59,52 +60,34 @@ export function CurrencySelector({
         return Number(tokenPerUsd).toFixed(2);
     };
 
-    const handleConfirm = async () => {
-        const selectedToken = balances?.find(t => t.metadata.symbol === selectedCurrency);
-        if (!selectedToken) {
-            toast({
-                title: "Error",
-                description: "Selected token not found",
-                variant: "destructive"
-            });
-            return;
-        }
-
-        try {
-            const signature = await handleTransaction({
-                selectedToken,
-                amount: calculateTokenPrice(selectedToken),
-                onSuccess: () => {
-                    onOpenChange(false);
-                    onConfirm();
-                },
-                onError: (errorMessage) => {
-                    toast({
-                        title: "Payment Failed",
-                        description: errorMessage,
-                        variant: "destructive"
-                    });
-                }
-            });
-
-            toast({
-                title: "Payment Successful",
-                description: (
-                    <a
-                        href={`https://solana.fm/tx/${signature}`}
-                        className="text-blue-500 hover:underline"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                    >
-                        View Transaction
-                    </a>
-                ),
-                variant: "default"
-            });
-        } catch (error) {
-            // Error is already handled by onError callback
-        }
+    const handlePaymentSuccess = (signature: string) => {
+        onOpenChange(false);
+        onConfirm();
+        toast({
+            title: "Payment Successful",
+            description: (
+                <a
+                    href={`https://solana.fm/tx/${signature}`}
+                    className="text-blue-500 hover:underline"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                >
+                    View Transaction
+                </a>
+            ),
+            variant: "default"
+        });
     };
+
+    const handlePaymentError = (errorMessage: string) => {
+        toast({
+            title: "Payment Failed",
+            description: errorMessage,
+            variant: "destructive"
+        });
+    };
+
+    const selectedToken = balances?.find(t => t.metadata.symbol === selectedCurrency);
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
@@ -118,9 +101,9 @@ export function CurrencySelector({
                     </p>
                 </DialogHeader>
                 <div className="space-y-6 py-4">
-                    {isLoading ? (
+                    {/*isLoading ? (
                         <TokenListSkeleton />
-                    ) : balances && balances.length === 0 ? (
+                    ) : */balances && balances.length === 0 ? (
                         <div className="text-center text-muted-foreground py-8">
                             No tokens found
                         </div>
@@ -159,15 +142,13 @@ export function CurrencySelector({
                         </div>
                     )}
 
-                    {selectedCurrency && balances && (
+                    {selectedCurrency && balances && selectedToken && (
                         <div className="bg-gradient-to-r from-purple-50 to-blue-50 p-4 rounded-lg border border-purple-100">
                             <div className="flex items-center justify-between">
                                 <div>
                                     <div className="text-sm font-medium text-gray-500">You'll Pay</div>
                                     <div className="text-2xl font-bold text-purple-600">
-                                        {calculateTokenPrice(
-                                            balances.find(t => t.metadata.symbol === selectedCurrency)!
-                                        )}{' '}
+                                        {calculateTokenPrice(selectedToken)}{' '}
                                         {selectedCurrency}
                                     </div>
                                 </div>
@@ -181,17 +162,26 @@ export function CurrencySelector({
                         </div>
                     )}
 
-                    <Button
-                        className={`w-full py-6 text-lg font-semibold transition-all ${
-                            selectedCurrency
-                                ? 'bg-purple-600 hover:bg-purple-700 text-white shadow-lg hover:shadow-xl'
-                                : 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                        }`}
-                        onClick={handleConfirm}
-                        disabled={!selectedCurrency}
-                    >
-                        {selectedCurrency ? 'Confirm Payment' : 'Please Select a Currency'}
-                    </Button>
+                    {selectedWalletAccount && selectedToken && (
+                        <PaymentButton
+                            account={selectedWalletAccount}
+                            params={{
+                                selectedToken,
+                                amount: calculateTokenPrice(selectedToken),
+                                onSuccess: handlePaymentSuccess,
+                                onError: handlePaymentError
+                            }}
+                        />
+                    )}
+
+                    {!selectedWalletAccount && (
+                        <Button
+                            className="w-full py-6 text-lg font-semibold bg-gray-100 text-gray-400 cursor-not-allowed"
+                            disabled
+                        >
+                            Please Connect Wallet
+                        </Button>
+                    )}
                 </div>
             </DialogContent>
         </Dialog>
@@ -217,4 +207,4 @@ function TokenListSkeleton() {
                 ))}
         </div>
     );
-} 
+}

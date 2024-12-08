@@ -6,11 +6,11 @@ import { SelectedWalletAccountContextProvider } from './SelectedWalletAccountCon
 export const SolanaProvider: FC<{ children: ReactNode }> = ({ children }) => {
     return (
         <ChainContextProvider>
-            <RpcContextProvider>
-                <SelectedWalletAccountContextProvider>
+            <SelectedWalletAccountContextProvider>
+                <RpcContextProvider>
                     {children}
-                </SelectedWalletAccountContextProvider>
-            </RpcContextProvider>
+                </RpcContextProvider>
+            </SelectedWalletAccountContextProvider>
         </ChainContextProvider>
     );
 };

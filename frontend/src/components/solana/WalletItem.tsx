@@ -1,29 +1,69 @@
-import { memo, useCallback } from 'react';
-import { UiWallet } from '@wallet-standard/react';
-import { useWalletAuth } from '@/hooks/useWalletAuth';
+import { memo, useCallback, useContext } from 'react';
+import { UiWallet, uiWalletAccountsAreSame, useConnect } from '@wallet-standard/react';
 import { useToast } from '@/hooks/useToast';
-import { StandardConnect } from '@wallet-standard/core';
+import { SelectedWalletAccountContext } from '@/contexts/solana/SelectedWalletAccountContext';
+import { useAppDispatch } from '@/store';
+import { setAccount, setAuthLoading, setLoginStatus, setUser } from '@/store/auth';
+import { useSignIn } from '@solana/react';
+import { useRequestNonceMutation, useVerifySignatureMutation } from '@/api/endpoints/auth';
+import bs58 from 'bs58';
+import { setUserDataLoading, setBalances } from '@/store/user';
+import { LoginStatus } from '@/types/auth';
+import { useLazyGetBalancesQuery } from '@/api/endpoints/solana';
 
 interface WalletItemProps {
     wallet: UiWallet;
 }
 
+const MESSAGE_PREFIX = 'Sign this message to log in to Mentora';
+
 export const WalletItem = memo(({ wallet }: WalletItemProps) => {
-    const { login } = useWalletAuth(wallet);
     const { toast } = useToast();
-    
+    const [__, connect] = useConnect(wallet);
+    const [_, setSelectedWalletAccount] = useContext(SelectedWalletAccountContext);
+    const dispatch = useAppDispatch();
+    const signIn = useSignIn(wallet);
+    const [requestNonce] = useRequestNonceMutation();
+    const [verifySignature] = useVerifySignatureMutation();
+    const [fetchBalances] = useLazyGetBalancesQuery();
+
     const handleConnect = useCallback(async () => {
         try {
-            await login();
-        } catch (error) {
-            console.error('Connection error:', error);
+            const nextAccounts = await connect();
+            if (nextAccounts[0]) {
+                dispatch(setAccount(nextAccounts[0].address));
+                dispatch(setAuthLoading(true));
+
+                const { nonce } = await requestNonce({ 
+                    address: nextAccounts[0].address
+                }).unwrap();
+                
+                const { signature } = await signIn({ 
+                    address: nextAccounts[0].address, 
+                    statement: MESSAGE_PREFIX, 
+                    nonce, 
+                });
+
+                const { user } = await verifySignature({ 
+                    address: nextAccounts[0].address,
+                    nonce,
+                    signature: bs58.encode(signature)
+                }).unwrap();
+    
+                dispatch(setUser(user));
+                dispatch(setLoginStatus(LoginStatus.IN));
+    
+                dispatch(setUserDataLoading(true));
+                const response = await fetchBalances(nextAccounts[0].address).unwrap();
+                dispatch(setBalances(response?.balances || []));
+            }
+        } catch (e) {
             toast({
-                title: 'Connection Failed',
-                description: error instanceof Error ? error.message : 'Failed to connect wallet',
-                variant: 'destructive'
+                title: "Error",
+                description: "Failed to connect wallet",
             });
         }
-    }, [wallet, login, toast]);
+    }, [connect, setSelectedWalletAccount, wallet.accounts]);
     
     return (
         <div
@@ -36,5 +76,3 @@ export const WalletItem = memo(({ wallet }: WalletItemProps) => {
         </div>
     );
 });
-
-WalletItem.displayName = 'WalletItem'; 

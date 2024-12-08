@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Menu, X, ChevronDown, Plus, BookOpen, Layout, Users, Info, LucideIcon } from 'lucide-react';
-import { WalletPicker } from '../solana/WalletPicker';
 import { useAppSelector } from '@/store';
+import { WalletPicker } from '../solana/WalletPicker';
 
 interface NavLink {
     path: string;
