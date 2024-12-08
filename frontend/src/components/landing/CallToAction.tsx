@@ -37,7 +37,8 @@ export function CallToAction() {
                         transition={{ duration: 0.6, delay: 0.2 }}
                         className="text-5xl md:text-6xl font-bold text-white mb-6 bg-gradient-to-r from-white to-purple-200 bg-clip-text text-transparent"
                     >
-                        Begin Your Web3 Journey
+                        Start Creating, Learning, and Earning Today
+
                     </motion.h2>
 
                     <motion.p 
@@ -46,8 +47,7 @@ export function CallToAction() {
                         transition={{ duration: 0.6, delay: 0.4 }}
                         className="text-xl text-purple-100 mb-12"
                     >
-                        Join thousands of students and become a part of the decentralized future.
-                        Get started with our comprehensive courses today.
+                        Take control of your Web3 journey. Upload content, monetize without limits, and start building the decentralized future with Solana-powered tools.
                     </motion.p>
 
                     <div className="flex flex-col sm:flex-row gap-6 justify-center">

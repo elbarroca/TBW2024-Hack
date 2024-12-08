@@ -14,7 +14,7 @@ export const FileUploader: React.FC<FileUploaderProps> = ({ accept, onUpload, ch
         onUpload(dataTransfer.files);
     }, [onUpload]);
 
-    const { getRootProps, getInputProps, isDragActive } = useDropzone({
+    const { getRootProps, getInputProps } = useDropzone({
         onDrop,
         accept: accept ? { [accept]: [] } : undefined,
         multiple: false

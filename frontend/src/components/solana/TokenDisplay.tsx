@@ -25,7 +25,7 @@ export function TokenDisplay({ token, showBalance = true, className = '' }: Toke
                 <AvatarImage 
                     src={token.metadata.logoURI} 
                     alt={token.metadata.symbol || 'Token'} 
-                    onError={(e) => {
+                    onError={() => {
                         console.error('Failed to load image:', token.metadata.logoURI);
                     }}
                 />

@@ -111,10 +111,10 @@ export function Hero() {
                                 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white leading-tight"
                                 variants={itemVariants}
                             >
-                                Master Web3 Development with{' '}
+                                Learn Blockchain{' '}
                                 <span className="relative">
                                     <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#14F195] via-[#00C2FF] to-[#14F195] animate-gradient">
-                                        Expert Guidance
+                                        Build the Future
                                     </span>
                                     <motion.span
                                         className="absolute -inset-1 bg-gradient-to-r from-[#14F195]/20 via-[#00C2FF]/20 to-[#14F195]/20 blur-lg"
@@ -133,9 +133,8 @@ export function Hero() {
                                 className="text-xl text-gray-100 max-w-2xl"
                                 variants={itemVariants}
                             >
-                                Join our community of innovators and build the future of the web.
-                                Learn blockchain, smart contracts, and decentralized applications
-                                from industry experts.
+                                Upload, earn, and own your creations on a decentralized platform powered by Solana’s 
+                                cutting-edge technology.
                             </motion.p>
 
                             <motion.div 
@@ -144,15 +143,23 @@ export function Hero() {
                             >
                                 <Button
                                     onClick={() => navigate('/courses')}
-                                    className="relative group bg-[#14F195] text-gray-900 hover:bg-[#00C2FF] hover:text-white transition-all duration-300"
+                                    className="relative group bg-gradient-to-r from-[#14F195] to-[#00C2FF] hover:from-[#00C2FF] hover:to-[#14F195] text-gray-900 transition-all duration-500 transform hover:scale-105 shadow-lg hover:shadow-xl"
                                     size="lg"
                                 >
-                                    <span className="relative z-10">Get Started</span>
+                                    <span className="relative z-10 font-medium">Begin Learning Now</span>
                                     <motion.span
-                                        className="absolute inset-0 bg-gradient-to-r from-[#14F195] to-[#00C2FF] rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-                                        whileHover={{ scale: 1.05 }}
+                                        className="absolute inset-0 bg-gradient-to-r from-[#14F195]/40 to-[#00C2FF]/40"
+                                        animate={{
+                                            opacity: [0, 1, 0],
+                                            scale: [0.95, 1.05, 0.95],
+                                        }}
+                                        transition={{
+                                            duration: 3,
+                                            repeat: Infinity,
+                                            ease: "easeInOut"
+                                        }}
                                     />
-                                    <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
+                                    <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-2 transition-transform duration-300" />
                                 </Button>
                                 <Button
                                     onClick={() => navigate('/about')}
@@ -287,7 +294,7 @@ export function Hero() {
                         viewport={{ once: true }}
                         transition={{ duration: 0.8, delay: 0.4 }}
                     >
-                        Join the future of Web3 education with our unique approach to learning and development
+                        Discover a decentralized platform for creators and learners to thrive together.
                     </motion.p>
                 </div>
 

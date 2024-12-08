@@ -7,7 +7,6 @@ import { Card, CardHeader, CardTitle, CardContent } from '../ui/CustomCard';
 
 export function TokenList({ className = '' }: { className?: string }) {
     const { balances, isLoading, error } = useAppSelector((state) => state.userData);
-    const { user } = useAppSelector((state) => state.auth);
     const { toast } = useToast();
 
     useEffect(() => {

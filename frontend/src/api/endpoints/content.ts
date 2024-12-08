@@ -9,12 +9,12 @@ interface CreateContentRequest {
   file: File;
   thumbnail?: File;
   categories?: string[];
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
 }
 
 export const contentApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
-    uploadContent: builder.mutation<any, CreateContentRequest>({
+    uploadContent: builder.mutation<{id: string; title: string; description: string; type: string; price: number; currency: string; categories?: string[]; metadata?: Record<string, unknown>}, CreateContentRequest>({
       query: (body) => {
         const formData = new FormData();
         Object.entries(body).forEach(([key, value]) => {
@@ -35,7 +35,7 @@ export const contentApi = baseApi.injectEndpoints({
       },
       invalidatesTags: ['Content'],
     }),
-    getContent: builder.query<any, string>({
+    getContent: builder.query<{id: string; title: string; description: string; type: string; price: number; currency: string; categories?: string[]; metadata?: Record<string, unknown>}, string>({
       query: (id) => `/content/${id}`,
       providesTags: ['Content'],
     }),

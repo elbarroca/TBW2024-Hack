@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { Course } from '../../types/course';
 
 const courseSchema = z.object({
     // Basic Information
@@ -36,7 +35,7 @@ export function CourseForm() {
         },
         {
             title: 'Course Content',
-            component: <CourseContentBuilder />,
+            component: () => <div>Course Content Builder Component</div>,
         },
         {
             title: 'Pricing & Revenue',
@@ -44,12 +43,12 @@ export function CourseForm() {
         },
         {
             title: 'Visual Branding',
-            component: <VisualBrandingUploader />,
+            component: () => <div>Visual Branding Uploader Component</div>,
         },
         // ... more steps
     ];
 
-    const onSubmit = async (data: any) => {
+    const onSubmit = async (data: z.infer<typeof courseSchema>) => {
         // Handle form submission
         console.log(data);
     };
@@ -99,7 +98,7 @@ export function CourseForm() {
                                 className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500"
                             />
                             {errors.title && (
-                                <p className="mt-1 text-sm text-red-600">{errors.title.message}</p>
+                                <p className="mt-1 text-sm text-red-600">{errors.title?.message as string}</p>
                             )}
                         </div>
                         {/* Add more fields */}

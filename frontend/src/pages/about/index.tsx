@@ -55,15 +55,15 @@ export default function AboutPage() {
                                 variants={fadeInUp}
                                 className="text-5xl md:text-6xl font-bold mb-6 bg-clip-text text-transparent bg-gradient-to-r from-white via-purple-200 to-white"
                             >
-                                Empowering Blockchain Education for Everyone
+                                The Future of Education Powered by Blockchain
                             </motion.h1>
 
                             <motion.p
                                 variants={fadeInUp}
                                 className="text-xl md:text-2xl text-purple-100 mb-8"
                             >
-                                Breaking barriers in blockchain learning with decentralized solutions
-                                for a better future.
+                                Break free from traditional barriers with Mentora. 
+                                Empowering communities with Web3 tools for education and growth.
                             </motion.p>
 
                             <motion.div className="flex gap-4 justify-center">

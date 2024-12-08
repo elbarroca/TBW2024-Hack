@@ -17,7 +17,6 @@ export function RichTextEditor({
     onChange,
     className,
     error,
-    placeholder = 'Start writing...',
 }: RichTextEditorProps) {
     const editor = useEditor({
         extensions: [StarterKit],
@@ -69,32 +68,36 @@ export function RichTextEditor({
                     onClick={() => handleFormat('bold')}
                     aria-label="Bold"
                     className={cn(editor.isActive('bold') && 'bg-gray-100')}
-                    icon={Bold}
-                />
+                >
+                    <Bold className="h-4 w-4" />
+                </Button>
                 <Button
                     variant="ghost"
                     size="sm"
                     onClick={() => handleFormat('italic')}
                     aria-label="Italic"
                     className={cn(editor.isActive('italic') && 'bg-gray-100')}
-                    icon={Italic}
-                />
+                >
+                    <Italic className="h-4 w-4" />
+                </Button>
                 <Button
                     variant="ghost"
                     size="sm"
                     onClick={() => handleFormat('bulletList')}
                     aria-label="Bullet list"
                     className={cn(editor.isActive('bulletList') && 'bg-gray-100')}
-                    icon={List}
-                />
+                >
+                    <List className="h-4 w-4" />
+                </Button>
                 <Button
                     variant="ghost"
                     size="sm"
                     onClick={() => handleFormat('orderedList')}
                     aria-label="Numbered list"
                     className={cn(editor.isActive('orderedList') && 'bg-gray-100')}
-                    icon={ListOrdered}
-                />
+                >
+                    <ListOrdered className="h-4 w-4" />
+                </Button>
             </div>
 
             <div className="p-4">

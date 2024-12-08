@@ -1,9 +1,5 @@
 import { baseApi } from '../client';
 
-interface EnrollmentProgress {
-  progress: number;
-}
-
 interface EnrollmentStatus {
   status: 'active' | 'completed' | 'cancelled';
 }
@@ -15,15 +11,15 @@ interface CreateEnrollment {
 
 export const enrollmentApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
-    getEnrollment: builder.query<any, string>({
+    getEnrollment: builder.query<{id: string; course_id: string; user_id: string; status: string; created_at: string; updated_at: string}, string>({
       query: (id) => `/enrollments/${id}`,
       providesTags: ['Enrollment'],
     }),
-    getUserEnrollments: builder.query<any[], string>({
+    getUserEnrollments: builder.query<{id: string; course_id: string; user_id: string; status: string; created_at: string; updated_at: string}[], string>({
       query: (userId) => `/users/${userId}/enrollments`,
       providesTags: ['Enrollment'],
     }),
-    createEnrollment: builder.mutation<any, CreateEnrollment>({
+    createEnrollment: builder.mutation<{id: string; course_id: string; user_id: string; status: string; created_at: string; updated_at: string}, CreateEnrollment>({
       query: (body) => ({
         url: '/enrollments',
         method: 'POST',

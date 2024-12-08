@@ -12,7 +12,7 @@ interface User {
 export function useUser() {
     const [user, setUser] = useState<User | null>(null);
     const [loading, setLoading] = useState(true);
-    const [error, setError] = useState<Error | null>(null);
+    const [error] = useState<Error | null>(null);
 
     useEffect(() => {
         // TODO: Replace with actual API call

@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { EarningsChart } from './EarningsChart';
-import { CourseStats } from './CourseStats';
 import { CourseList } from './CourseList';
 import { CourseAnalytics } from './CourseAnalytics';
 import { Button } from '../ui/CustomButton';
@@ -16,8 +15,6 @@ const DASHBOARD_STATS = {
 
 export function CreatorDashboard() {
     const [selectedTimeRange, setSelectedTimeRange] = useState('last6weeks');
-    const [selectedCourse, setSelectedCourse] = useState<string | null>(null);
-
     const handleCreateCourse = () => {
         // Navigate to course creation page
         window.location.href = '/creator/courses/new';

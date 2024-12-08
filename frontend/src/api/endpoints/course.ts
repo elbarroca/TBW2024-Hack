@@ -8,7 +8,7 @@ interface CourseData {
 
 export const courseApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
-    createCourse: builder.mutation<any, CourseData>({
+    createCourse: builder.mutation<{id: string; title: string; description: string; categories?: string[]; metadata?: Record<string, unknown>}, CourseData>({
       query: (body) => ({
         url: '/courses',
         method: 'POST',
@@ -16,7 +16,7 @@ export const courseApi = baseApi.injectEndpoints({
       }),
       invalidatesTags: ['Course'],
     }),
-    updateCourse: builder.mutation<any, { id: string; data: Partial<CourseData> }>({
+    updateCourse: builder.mutation<{id: string; title: string; description: string; categories?: string[]; metadata?: Record<string, unknown>}, { id: string; data: Partial<CourseData> }>({
       query: ({ id, data }) => ({
         url: `/courses/${id}`,
         method: 'PUT',
