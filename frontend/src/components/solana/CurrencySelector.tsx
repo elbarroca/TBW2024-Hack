@@ -7,6 +7,7 @@ import { useToast } from '@/hooks/useToast';
 import { TokenDisplay } from './TokenDisplay';
 import { Skeleton } from '@/components/ui/skeleton';
 import { TokenInfo } from '@/types/api';
+import { useTransaction } from '../../hooks/useTransaction';
 
 interface CurrencySelectorProps {
     open: boolean;
@@ -25,8 +26,9 @@ export function CurrencySelector({
     basePrice,
     onConfirm
 }: CurrencySelectorProps) {
-    const { balances, isLoading, error } = useAppSelector((state) => state.userData);
+    const { balances, isLoading, error } = useAppSelector((state) => state.user);
     const { toast } = useToast();
+    const { handleTransaction } = useTransaction();
 
     useEffect(() => {
         if (error) {
@@ -55,6 +57,53 @@ export function CurrencySelector({
         const tokenPerUsd = 1 / tokenPrice;
         
         return Number(tokenPerUsd).toFixed(2);
+    };
+
+    const handleConfirm = async () => {
+        const selectedToken = balances?.find(t => t.metadata.symbol === selectedCurrency);
+        if (!selectedToken) {
+            toast({
+                title: "Error",
+                description: "Selected token not found",
+                variant: "destructive"
+            });
+            return;
+        }
+
+        try {
+            const signature = await handleTransaction({
+                selectedToken,
+                amount: calculateTokenPrice(selectedToken),
+                onSuccess: () => {
+                    onOpenChange(false);
+                    onConfirm();
+                },
+                onError: (errorMessage) => {
+                    toast({
+                        title: "Payment Failed",
+                        description: errorMessage,
+                        variant: "destructive"
+                    });
+                }
+            });
+
+            toast({
+                title: "Payment Successful",
+                description: (
+                    <a
+                        href={`https://solana.fm/tx/${signature}`}
+                        className="text-blue-500 hover:underline"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                    >
+                        View Transaction
+                    </a>
+                ),
+                variant: "default"
+            });
+        } catch (error) {
+            // Error is already handled by onError callback
+        }
     };
 
     return (
@@ -138,10 +187,10 @@ export function CurrencySelector({
                                 ? 'bg-purple-600 hover:bg-purple-700 text-white shadow-lg hover:shadow-xl'
                                 : 'bg-gray-100 text-gray-400 cursor-not-allowed'
                         }`}
-                        onClick={onConfirm}
+                        onClick={handleConfirm}
                         disabled={!selectedCurrency}
                     >
-                        {selectedCurrency ? 'Confirm Selection' : 'Please Select a Currency'}
+                        {selectedCurrency ? 'Confirm Payment' : 'Please Select a Currency'}
                     </Button>
                 </div>
             </DialogContent>
