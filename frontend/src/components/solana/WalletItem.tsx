@@ -9,14 +9,11 @@ interface WalletItemProps {
 }
 
 export const WalletItem = memo(({ wallet }: WalletItemProps) => {
-    const { login } = useWalletAuth();
+    const { login } = useWalletAuth(wallet);
     const { toast } = useToast();
     
     const handleConnect = useCallback(async () => {
         try {
-            if (wallet.features?.includes(StandardConnect)) {
-                await wallet.connect();
-            }
             await login();
         } catch (error) {
             console.error('Connection error:', error);

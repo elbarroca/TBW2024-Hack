@@ -7,13 +7,15 @@ import { useWalletConnection } from './useWalletConnection';
 import { useLazyGetBalancesQuery } from '@/api/endpoints/solana';
 import { setBalances, setUserDataLoading, resetUserData } from '@/store/user';
 import bs58 from 'bs58';
+import { useSelectedWalletAccount } from './useSelectedWalletAccount';
+import { UiWallet } from '@wallet-standard/react';
 
 const MESSAGE_PREFIX = 'Sign this message to log in to Mentora // ';
 
-export function useWalletAuth() {
+export function useWalletAuth(wallet: UiWallet) {
     const dispatch = useAppDispatch();
     const { loginStatus } = useAppSelector(state => state.auth);
-    const { selectedAccount, messageSigner } = useWalletConnection();
+    const { selectedAccount } = useSelectedWalletAccount();
     
     const [requestNonce] = useRequestNonceMutation();
     const [verifySignature] = useVerifySignatureMutation();
