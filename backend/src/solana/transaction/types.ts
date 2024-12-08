@@ -19,6 +19,7 @@ export type SwapData = BaseTransactionData & {
   outputToken: string;
   amount: number;
   slippageBps: number;
+  decimals: number;
 };
 
 export type TransactionData = TransferData | SwapData;

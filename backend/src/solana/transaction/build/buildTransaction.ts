@@ -8,7 +8,7 @@ import {
   appendTransactionMessageInstructions,
   compileTransaction,
 } from '@solana/web3.js';
-import { prepareComputeBudget } from '../prepare';
+import { prepareComputeBudget } from './prepare';
 import { TransactionData } from '../types';
 import { getTransactionInstructions } from './instructions';
 import { rpc } from '../../rpc';

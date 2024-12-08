@@ -2,17 +2,30 @@ import { type IInstruction } from '@solana/instructions';
 import { JupiterSwapInstructions } from '../types';
 import { deserializeInstruction } from './instructions';
 
-async function getJupiterQuote(inputToken: string, outputToken: string, amount: number, slippageBps: number) {
-  const response = await fetch(`https://quote-api.jup.ag/v6/quote`, {
-    method: 'GET',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      inputMint: inputToken,
-      outputMint: outputToken,
-      amount: amount.toString(),
-      slippageBps: slippageBps
-    })
+async function getJupiterQuote(inputToken: string, outputToken: string, amount: number, slippageBps: number, decimals: number = 6) {
+  const rawAmount = Math.floor(amount * Math.pow(10, decimals));
+
+  const params = new URLSearchParams({
+    inputMint: inputToken,
+    outputMint: outputToken,
+    amount: rawAmount.toString(),
+    slippageBps: slippageBps.toString()
   });
+
+  console.log('Jupiter quote params:', {
+    inputMint: inputToken,
+    outputMint: outputToken,
+    amount: rawAmount,
+    slippageBps
+  });
+
+  const response = await fetch(
+    `https://quote-api.jup.ag/v6/quote?${params.toString()}`,
+    {
+      method: 'GET',
+      headers: { 'Content-Type': 'application/json' }
+    }
+  );
 
   const quote = await response.json();
   if (quote.error) {
@@ -47,13 +60,15 @@ export async function buildJupiterInstructions(
   outputToken: string,
   amount: number,
   slippageBps: number,
-  userPublicKey: string
+  userPublicKey: string,
+  decimals: number = 6
 ): Promise<IInstruction<string>[]> {
   const quote = await getJupiterQuote(
     inputToken,
     outputToken,
     amount,
-    slippageBps
+    slippageBps,
+    decimals
   );
 
   const swapInstructions = await getJupiterInstructions(

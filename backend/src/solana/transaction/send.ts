@@ -13,7 +13,6 @@ export async function sendTransaction(transaction: string): Promise<string> {
     const base64Encoder = getBase64Encoder();
     const transactionBytes = base64Encoder.encode(transaction);
 
-    // Then decode bytes to transaction
     const transactionDecoder = getTransactionDecoder();
     const decodedTx = transactionDecoder.decode(transactionBytes) as FullySignedTransaction & TransactionWithBlockhashLifetime;
 

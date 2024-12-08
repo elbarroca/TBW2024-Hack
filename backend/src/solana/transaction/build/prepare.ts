@@ -13,22 +13,40 @@ import {
   getSetComputeUnitLimitInstruction,
   getSetComputeUnitPriceInstruction 
 } from '@solana-program/compute-budget';
-import { SimulationResult } from './types';
-import { rpc } from '../rpc';
+import { SimulationResult } from '../types';
+import { rpc } from '../../rpc';
 
 export const PRIORITY_LEVELS = {
+  MIN: "MIN",
   LOW: "LOW",
   MEDIUM: "MEDIUM",
   HIGH: "HIGH",
   VERY_HIGH: "VERY_HIGH",
+  UNSAFE_MAX: "UNSAFE_MAX"
 } as const;
 
 export type PriorityLevel = keyof typeof PRIORITY_LEVELS;
+
+interface PriorityFeeOptions {
+  priorityLevel?: PriorityLevel;
+  includeAllPriorityFeeLevels?: boolean;
+  lookbackSlots?: number;
+  includeVote?: boolean;
+  recommended?: boolean;
+}
 
 interface PriorityFeeResponse {
   jsonrpc: string;
   result: {
     priorityFeeEstimate: number;
+    priorityFeeLevels?: {
+      min: number;
+      low: number;
+      medium: number;
+      high: number;
+      veryHigh: number;
+      unsafeMax: number;
+    };
   };
   id: string;
 }
@@ -73,7 +91,7 @@ async function simulateTransaction(
 async function getPriorityFeeEstimate(
   instructions: IInstruction<string>[],
   payerAddress: string,
-  priorityLevel: PriorityLevel = "MEDIUM"
+  options: PriorityFeeOptions = {}
 ): Promise<number> {
   try {
     const payer = address(payerAddress);
@@ -89,7 +107,7 @@ async function getPriorityFeeEstimate(
     const compiledMessage = compileTransaction(message);
     const wireTransaction = getBase64EncodedWireTransaction(compiledMessage);
 
-    const response = await fetch(`https://mainnet.helius-rpc.com/?api-key=${process.env.RPC_KEY!}`, {
+    const response = await fetch(`https://api.helius-rpc.com/?api-key=${process.env.RPC_KEY!}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -98,17 +116,34 @@ async function getPriorityFeeEstimate(
         method: 'getPriorityFeeEstimate',
         params: [{
           transaction: wireTransaction,
-          options: { priorityLevel: PRIORITY_LEVELS[priorityLevel] }
+          options: {
+            priorityLevel: options.priorityLevel ? PRIORITY_LEVELS[options.priorityLevel] : PRIORITY_LEVELS.MEDIUM,
+            includeAllPriorityFeeLevels: options.includeAllPriorityFeeLevels,
+            lookbackSlots: options.lookbackSlots,
+            includeVote: options.includeVote,
+            recommended: options.recommended ?? true,
+            transactionEncoding: 'base64'
+          }
         }]
       })
     });
 
+    // to-do: another service to handle this
+    if (!response.ok) {
+      return 10000;
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
     const data = await response.json() as PriorityFeeResponse;
-    return data.result.priorityFeeEstimate;
+    
+    if (!data.result?.priorityFeeEstimate) {
+      throw new Error('Invalid priority fee response');
+    }
+
+    return Math.max(data.result.priorityFeeEstimate, 10000);
   } catch (error) {
     console.error('Error getting priority fee estimate:', error);
-    // Default to 5000 microlamports
-    return 5000;
+    return 10000; // Default to minimum recommended fee (10,000 microlamports)
   }
 }
 
@@ -119,7 +154,11 @@ export async function prepareComputeBudget(
 ): Promise<IInstruction<string>[]> {
   const [simulation, priorityFee] = await Promise.all([
     simulateTransaction(instructions, payerAddress),
-    getPriorityFeeEstimate(instructions, payerAddress, priorityLevel)
+    getPriorityFeeEstimate(instructions, payerAddress, {
+      priorityLevel,
+      recommended: true,
+      lookbackSlots: 150
+    })
   ]);
   
   const computeBudgetIx = getSetComputeUnitLimitInstruction({

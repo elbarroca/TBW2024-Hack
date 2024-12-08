@@ -4,6 +4,7 @@ export const config = {
   CORS_ORIGIN: process.env.CORS_ORIGIN?.split(",") || ["http://localhost:5173"],
   SUPABASE_URL: process.env.SUPABASE_URL!,
   SUPABASE_KEY: process.env.SUPABASE_KEY!,
+  RPC_KEY: process.env.RPC_KEY || 'your-fallback-key',
 };
 
 const requiredEnvVariables = [

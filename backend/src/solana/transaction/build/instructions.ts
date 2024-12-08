@@ -5,7 +5,6 @@ import { createNoopSigner } from '@solana/signers';
 import { TransactionData, RawInstruction } from '../types';
 import { buildJupiterInstructions } from './jupiter';
 
-// TODO: if something fails is this assertion
 export function deserializeInstruction(instructionData: string): IInstruction<string> {
   const instruction = JSON.parse(instructionData) as RawInstruction;
   return {

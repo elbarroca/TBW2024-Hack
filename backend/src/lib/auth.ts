@@ -1,5 +1,6 @@
 import nacl from 'tweetnacl';
 import bs58 from 'bs58';
+// to-do: jwt with elysia
 import jwt from 'jsonwebtoken';
 import type { User } from '../types/user';
 import { config } from './config';
