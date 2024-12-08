@@ -1,61 +1,105 @@
-# **🚀 Mentora**  
-**Empowering Education Through Decentralization**  
+# 🚀 **Mentora: Empowering Education Through Decentralization**
 
-Mentora was created during the **Taipei Blockchain Week Hackathon** by a passionate team driven to revolutionize online education. Built entirely on **Solana**, our platform eliminates intermediaries, provides true content ownership, and makes learning fun and rewarding.  
-
----
-
-## **👩‍💻 About Us**  
-We’re **Ricardo Castelló** and **Ricardo Barroca**, a duo of blockchain enthusiasts on a mission to enhance decentralization in education.  
-
-- **Ricardo Castelo**: A blockchain developer with 3 years of experience at 2Degrees, specializing in creating decentralized systems.  
-- **Ricardo Barroca**: An entrepreneur with 3 years of blockchain experience, passionate about building impactful, user-centric solutions.  
-
-Over the past year, we’ve been building exclusively on **Solana**, captivated by its scalability, speed, and low fees.  
+Mentora is an innovative platform created during the **Taipei Blockchain Week Hackathon** to revolutionize online education. Built on the **Solana blockchain**, Mentora eliminates intermediaries, provides true content ownership, and makes learning interactive, fun, and rewarding.
 
 ---
 
-## **🌟 Why Mentora?**  
+## 🌟 **Why Mentora?**
 
-Education platforms today are burdened by centralization, high fees, and lack of user control. **Mentora** changes the game by leveraging decentralization:  
+Education platforms today are burdened by centralization, high fees, and limited user control. Mentora changes the game by leveraging decentralization to empower creators and learners alike.
 
 - **💸 Buy Courses Without Third Parties**  
-  Say goodbye to intermediaries! Learners and creators connect directly, reducing costs and ensuring creators are fairly rewarded.  
+  Connect directly with creators, cutting out intermediaries. This reduces costs for learners and ensures fair rewards for creators.  
 
 - **🏅 Earn Certified NFTs**  
-  Receive blockchain-verified NFT certificates for completing courses. Your credentials are truly **yours**—immutable and portable.  
+  Receive blockchain-verified certificates as NFTs upon completing courses. Your credentials are immutable, portable, and truly yours.  
 
-- **🎮 Gamified and Fun**  
-  Interactive features, badges, and rewards make learning engaging and exciting, encouraging you to progress and achieve more.  
+- **🎮 Gamified Learning**  
+  Interactive features, badges, and rewards make education engaging, encouraging progress and achievement.  
 
 - **🐕 Tip Creators with BONK**  
-  Support your favorite educators instantly using Solana's native **BONK** token. Empower creators with direct, decentralized rewards.  
+  Support your favorite creators instantly using Solana's native BONK token, fostering a decentralized and supportive ecosystem.
 
 ---
 
-## **✨ Key Features**  
+## ✨ **Key Features**
 
-- **Decentralized Learning**: No middlemen. Peer-to-peer interactions for affordable, transparent education.  
-- **True Content Ownership**: Creators maintain full control of their work on the blockchain.  
-- **Blockchain Credentials**: Immutable NFT certifications ensure your achievements are verifiable and secure.  
-- **Gamification Rewards**: Progress through courses, unlock badges, and earn incentives for learning.  
-- **Tipping System**: Easily reward creators with BONK, fostering a supportive ecosystem.  
+1. **Decentralized Learning**  
+   Peer-to-peer interactions eliminate middlemen for affordable and transparent education.  
 
----
+2. **True Content Ownership**  
+   Creators retain full control of their work, stored securely on the blockchain.  
 
-## **🌍 Our Vision**  
+3. **Blockchain Credentials**  
+   Immutable NFT certifications validate your achievements and skills.  
 
-At Mentora, we’re building a future where education is:  
+4. **Gamification Rewards**  
+   Earn badges and incentives as you progress, making learning enjoyable and motivating.  
 
-1. **Decentralized**: Empowering creators and learners with direct connections.  
-2. **Affordable**: Removing platform fees and reducing costs for everyone.  
-3. **Verifiable**: Providing NFT certificates that are transparent and immutable.  
-4. **Engaging**: Creating a platform that’s fun, interactive, and rewarding.  
+5. **Tipping System**  
+   Seamlessly tip creators with BONK, supporting educators directly without centralized fees.
 
 ---
 
-## **🎓 Join Us**  
+## 🌍 **Our Vision**
 
-Whether you're a creator or a learner, **Mentora** is here to redefine education in the Web3 world. Together, let’s shape the decentralized future of learning.  
+We’re building a future where education is:  
+- **Decentralized**: Direct connections empower creators and learners.  
+- **Affordable**: Eliminating platform fees reduces costs for everyone.  
+- **Verifiable**: NFT certificates ensure transparency and security.  
+- **Engaging**: Gamified features create a fun, interactive learning environment.  
 
-👉 **Start Your Journey Today!**  
+---
+
+## 👩‍💻 **About the Founders**
+
+- **Ricardo Castelló – Co-Founder & Tech Lead**  
+  A blockchain developer with 3+ years of experience at 2Degrees, specializing in creating decentralized systems. An expert in Solana’s scalability and low fees.  
+
+- **Ricardo Barroca – Co-Founder & Growth Lead**  
+  A passionate entrepreneur with 3+ years of blockchain experience. Skilled in building impactful, user-centric solutions that deliver real value.
+
+---
+
+## 📚 **How It Works**
+
+1. **Connect Your Wallet**  
+   No logins or accounts—just your wallet to access the platform.  
+
+2. **Upload and Share Content**  
+   As a creator, publish courses or educational material seamlessly.  
+
+3. **Learn and Earn**  
+   Access high-quality content, earn certified NFTs, and support creators through tips.  
+
+4. **Track Progress**  
+   Gamified rewards and certifications keep learning engaging and rewarding.  
+
+---
+
+## 🔧 **Tech Stack**
+
+Mentora is built on a modern, efficient tech stack to deliver a seamless decentralized education experience.
+
+**Frontend:**  
+- **Framework:** Vite + React  
+- **Language:** TypeScript  
+
+**Backend:**  
+- **Primary Backend:** Supabase  
+- **Logic and Processing:** Rust  
+- **APIs and Services:** TypeScript  
+
+**Blockchain Integration:**  
+- **Blockchain:** Solana  
+---
+
+## 🚀 **Getting Started**
+
+Follow these steps to set up and explore Mentora:
+
+### Prerequisites
+Ensure you have the following installed:  
+- Node.js (v16 or above)  
+- npm or yarn  
+- A Solana wallet  
