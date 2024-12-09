@@ -7,32 +7,35 @@ import {
   setTransactionMessageLifetimeUsingBlockhash,
   compileTransaction, 
   getBase64EncodedWireTransaction,
-  type IInstruction
+  type IInstruction,
+  Base64EncodedWireTransaction,
+  AddressesByLookupTableAddress,
+  compressTransactionMessageUsingAddressLookupTables
 } from '@solana/web3.js';
 import { 
   getSetComputeUnitLimitInstruction,
   getSetComputeUnitPriceInstruction 
 } from '@solana-program/compute-budget';
-import { SimulationResult } from '../types';
 import { rpc } from '../../rpc';
+import ky from 'ky';
 
 export const PRIORITY_LEVELS = {
-  MIN: "MIN",
-  LOW: "LOW",
-  MEDIUM: "MEDIUM",
-  HIGH: "HIGH",
-  VERY_HIGH: "VERY_HIGH",
-  UNSAFE_MAX: "UNSAFE_MAX"
+  MIN: "Min",
+  LOW: "Low",
+  MEDIUM: "Medium",
+  HIGH: "High",
+  VERY_HIGH: "VeryHigh",
+  UNSAFE_MAX: "UnsafeMax"
 } as const;
 
 export type PriorityLevel = keyof typeof PRIORITY_LEVELS;
 
 interface PriorityFeeOptions {
   priorityLevel?: PriorityLevel;
-  includeAllPriorityFeeLevels?: boolean;
   lookbackSlots?: number;
   includeVote?: boolean;
   recommended?: boolean;
+  evaluateEmptySlotAsZero?: boolean;
 }
 
 interface PriorityFeeResponse {
@@ -51,52 +54,69 @@ interface PriorityFeeResponse {
   id: string;
 }
 
-async function simulateTransaction(
-  instructions: IInstruction<string>[],
-  payerAddress: string
-): Promise<SimulationResult> {
-  try {
-    const payer = address(payerAddress);
-    const { value: latestBlockhash } = await rpc.getLatestBlockhash().send();
-    
-    const message = pipe(
-      createTransactionMessage({ version: 0 }),
-      tx => setTransactionMessageFeePayer(payer, tx),
-      tx => setTransactionMessageLifetimeUsingBlockhash(latestBlockhash, tx),
-      tx => appendTransactionMessageInstructions(instructions, tx)
-    );
+const DEFAULT_COMPUTE_UNITS = 1_400_000;
+const DEFAULT_PRIORITY_FEE = 10000;
 
-    const compiledMessage = compileTransaction(message);
-    const wireTransaction = getBase64EncodedWireTransaction(compiledMessage);
+async function getComputeUnits(wireTransaction: Base64EncodedWireTransaction): Promise<number> {
+  try {
     const simulation = await rpc.simulateTransaction(wireTransaction, {
       replaceRecentBlockhash: true,
       sigVerify: false,
       encoding: 'base64'
     }).send();
 
+    console.log(simulation.value.logs)
     if (simulation.value.err) {
       console.log('Simulation error:', JSON.stringify(simulation.value.err));
-      return { units: 0, error: JSON.stringify(simulation.value.err) };
+      return DEFAULT_COMPUTE_UNITS;
     }
 
-    console.log('Simulation units:', simulation.value.unitsConsumed);
-
-    const units = Number(simulation.value.unitsConsumed) || 0;
-    return { units: Math.ceil(units * 1.1) };
+    const computeUnits = Number(simulation.value.unitsConsumed) || DEFAULT_COMPUTE_UNITS;
+    console.log('Simulation units:', computeUnits);
+    return computeUnits;
   } catch (error) {
     console.error('Error simulating transaction:', error);
-    return { 
-      units: 0, 
-      error: error instanceof Error ? error.message : String(error) 
-    };
+    return DEFAULT_COMPUTE_UNITS;
   }
 }
 
 async function getPriorityFeeEstimate(
-  instructions: IInstruction<string>[],
-  payerAddress: string,
+  wireTransaction: string,
   options: PriorityFeeOptions = {}
 ): Promise<number> {
+  try {
+    const data = await ky.post(`https://mainnet.helius-rpc.com/?api-key=${process.env.RPC_KEY!}`, {
+      json: {
+        jsonrpc: '2.0',
+        id: '1',
+        method: 'getPriorityFeeEstimate',
+        params: [{          
+          transaction: wireTransaction,
+          options: {
+            recommended: true,
+            transactionEncoding: 'base64'
+          }}]
+      }
+    }).json<PriorityFeeResponse>();
+    
+    if (!data.result?.priorityFeeEstimate) {
+      console.error('Invalid priority fee response');
+      return DEFAULT_PRIORITY_FEE;
+    }
+
+    return Math.max(data.result.priorityFeeEstimate, DEFAULT_PRIORITY_FEE);
+  } catch (error) {
+    console.error('Error getting priority fee estimate:', error);
+    return DEFAULT_PRIORITY_FEE;
+  }
+}
+
+export async function prepareComputeBudget(
+  instructions: IInstruction<string>[],
+  payerAddress: string,
+  lookupTableAccounts: AddressesByLookupTableAddress,
+  priorityLevel?: PriorityLevel
+): Promise<IInstruction<string>[]> {
   try {
     const payer = address(payerAddress);
     const { value: latestBlockhash } = await rpc.getLatestBlockhash().send();
@@ -108,73 +128,40 @@ async function getPriorityFeeEstimate(
       tx => appendTransactionMessageInstructions(instructions, tx)
     );
 
-    const compiledMessage = compileTransaction(message);
+    const messageWithLookupTables = compressTransactionMessageUsingAddressLookupTables(message, lookupTableAccounts);
+    const compiledMessage = compileTransaction(messageWithLookupTables);
     const wireTransaction = getBase64EncodedWireTransaction(compiledMessage);
 
-    const response = await fetch(`https://mainnet.helius-rpc.com/?api-key=${process.env.RPC_KEY!}`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        jsonrpc: '2.0',
-        id: '1',
-        method: 'getPriorityFeeEstimate',
-        params: [{
-          transaction: wireTransaction,
-          options: {
-            priorityLevel: options.priorityLevel ? PRIORITY_LEVELS[options.priorityLevel] : PRIORITY_LEVELS.MEDIUM,
-            includeAllPriorityFeeLevels: options.includeAllPriorityFeeLevels,
-            lookbackSlots: options.lookbackSlots,
-            includeVote: options.includeVote,
-            recommended: options.recommended ?? true,
-            transactionEncoding: 'base64'
-          }
-        }]
+    // Get compute units and priority fee in parallel
+    const [computeUnits, priorityFee] = await Promise.all([
+      getComputeUnits(wireTransaction),
+      getPriorityFeeEstimate(wireTransaction, {
+        priorityLevel,
+        lookbackSlots: 150,
+        includeVote: false,
+        evaluateEmptySlotAsZero: true
       })
+    ]);
+
+    console.log('Priority fee:', priorityFee);
+    
+    // Create compute budget instructions
+    const computeBudgetIx = getSetComputeUnitLimitInstruction({
+      units: computeUnits * 1.1
     });
 
-    // to-do: another service to handle this
-    if (!response.ok) {
-      return 10000;
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
+    const priorityFeeIx = getSetComputeUnitPriceInstruction({
+      microLamports: priorityFee
+    });
 
-    const data = await response.json() as PriorityFeeResponse;
-    
-    if (!data.result?.priorityFeeEstimate) {
-      throw new Error('Invalid priority fee response');
-    }
-
-    return Math.max(data.result.priorityFeeEstimate, 10000);
+    return [computeBudgetIx, priorityFeeIx, ...instructions];
   } catch (error) {
-    console.error('Error getting priority fee estimate:', error);
-    return 10000; // Default to minimum recommended fee (10,000 microlamports)
+    console.error('Error in prepareComputeBudget:', error);
+    // Return default compute budget instructions if something goes wrong
+    return [
+      getSetComputeUnitLimitInstruction({ units: DEFAULT_COMPUTE_UNITS }),
+      getSetComputeUnitPriceInstruction({ microLamports: DEFAULT_PRIORITY_FEE }),
+      ...instructions
+    ];
   }
-}
-
-export async function prepareComputeBudget(
-  instructions: IInstruction<string>[],
-  payerAddress: string,
-  priorityLevel?: PriorityLevel
-): Promise<IInstruction<string>[]> {
-  const [simulation, priorityFee] = await Promise.all([
-    simulateTransaction(instructions, payerAddress),
-    getPriorityFeeEstimate(instructions, payerAddress, {
-      priorityLevel,
-      recommended: true,
-      lookbackSlots: 150
-    })
-  ]);
-
-  console.log('Simulation units:', simulation.units);
-  console.log('Priority fee:', priorityFee);
-  
-  const computeBudgetIx = getSetComputeUnitLimitInstruction({
-    units: simulation.units || 1_400_000
-  });
-
-  const priorityFeeIx = getSetComputeUnitPriceInstruction({
-    microLamports: priorityFee
-  });
-
-  return [computeBudgetIx, priorityFeeIx, ...instructions];
 } 

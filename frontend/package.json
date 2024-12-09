@@ -44,6 +44,7 @@
     "@types/react-beautiful-dnd": "^13.1.8",
     "@wallet-standard/core": "^1.1.0",
     "@wallet-standard/react": "^1.0.0",
+    "bignumber.js": "^9.1.2",
     "bs58": "^6.0.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",

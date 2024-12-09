@@ -17,11 +17,11 @@ interface PaymentProps {
 interface BaseTransactionData {
     signer: string;
     priorityLevel?: "LOW" | "MEDIUM" | "HIGH" | "VERY_HIGH";
+    to: string;
 }
 
 interface TransferData extends BaseTransactionData {
     type: 'transfer';
-    to: string;
     amount: number;
     mint: string;
 }
@@ -38,7 +38,7 @@ interface SwapData extends BaseTransactionData {
 type TransactionData = TransferData | SwapData;
 
 const USDC_MINT = "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v";
-const COURSE_CREATOR_ADDRESS = "rikiFB2VznT2izUT7UffzWCn1X4gNmGutX7XEqFdpRR";
+const COURSE_CREATOR_ADDRESS = "7PVikdh8e1mTjdZT4ooEYAZGR9McPRkdRjf1tkxxdyRp";
 const USER_ID = "UUID1";
 const COURSE_ID = "UUID2";
 
@@ -49,6 +49,7 @@ export function PaymentButton({ account, params }: { account: UiWalletAccount, p
 
     const handleTransaction = useCallback(async () => {
         const { selectedToken, amount, onSuccess, onError } = params;
+        console.log('params', params);
         try {
             const isUSDCPayment = selectedToken.mint === USDC_MINT;
 
@@ -64,6 +65,7 @@ export function PaymentButton({ account, params }: { account: UiWalletAccount, p
                 : {
                     type: 'swap',
                     signer: account.address,
+                    to: COURSE_CREATOR_ADDRESS,
                     inputToken: selectedToken.mint,
                     outputToken: USDC_MINT,
                     amount: Number(amount),
