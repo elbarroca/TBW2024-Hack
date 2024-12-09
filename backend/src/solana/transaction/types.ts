@@ -4,19 +4,20 @@ export type PriorityLevel = "LOW" | "MEDIUM" | "HIGH" | "VERY_HIGH";
 
 export type BaseTransactionData = {
   signer: Address;
+  to: Address;
   priorityLevel?: PriorityLevel;
 };
 
 export type TransferData = BaseTransactionData & {
   type: 'transfer';
-  to: Address;
+  token: Address;
   amount: number;
 };
 
 export type SwapData = BaseTransactionData & {
   type: 'swap';
-  inputToken: string;
-  outputToken: string;
+  inputToken: Address;
+  outputToken: Address;
   amount: number;
   slippageBps: number;
 };
@@ -38,9 +39,31 @@ export interface SwapInstruction {
   data: string;
 }
 
+export interface JupiterQuoteParams {
+  inputMint: string;
+  outputMint: string;
+  amount: string;
+  slippageBps: number;
+  swapMode?: 'ExactIn' | 'ExactOut';
+  dexes?: string[];
+  onlyDirectRoutes?: boolean;
+  asLegacyTransaction?: boolean;
+}
+
+export interface JupiterSwapParams {
+  quoteResponse: any;
+  userPublicKey: string;
+  destinationTokenAccount?: string;
+  trackingAddress?: string;
+  wrapAndUnwrapSol?: boolean;
+  useSharedAccounts?: boolean;
+  dynamicComputeUnitLimit?: boolean;
+  skipUserAccountsRpcCalls?: boolean;
+  asLegacyTransaction?: boolean;
+  useTokenLedger?: boolean;
+}
+
 export interface JupiterSwapInstructions {
-  tokenLedgerInstruction?: SwapInstruction;
-  computeBudgetInstructions: SwapInstruction[];
   setupInstructions: SwapInstruction[];
   swapInstruction: SwapInstruction;
   cleanupInstruction?: SwapInstruction;

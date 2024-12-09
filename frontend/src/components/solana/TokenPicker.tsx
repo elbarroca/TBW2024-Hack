@@ -50,7 +50,7 @@ export function TokenPicker({
                             <SelectTrigger className="flex-1 flex items-center justify-between rounded-md border border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
                                 <span>{selectedToken.metadata.symbol}</span>
                                 <img
-                                    src={selectedToken.metadata.logoURI}
+                                    src={selectedToken.metadata.image}
                                     alt={selectedToken.metadata.symbol}
                                     className="w-7 h-7"
                                 />
@@ -65,7 +65,7 @@ export function TokenPicker({
                                         <div className="grid grid-cols-[auto_auto_1fr] gap-4 items-center">
                                             <span>{token.metadata.symbol}</span>
                                             <img
-                                                src={token.metadata.logoURI}
+                                                src={token.metadata.image}
                                                 alt={token.metadata.symbol}
                                                 width={28}
                                                 height={28}

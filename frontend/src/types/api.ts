@@ -40,7 +40,7 @@ export interface AuthResponse {
 export interface TokenMetadata {
   name: string;
   symbol: string;
-  logoURI: string;
+  image: string;
   tags: string[];
   daily_volume: number;
   address: string;
@@ -59,6 +59,7 @@ export interface TokenInfo {
   mint: string;
   address: string;
   amount: string;
+  uiAmountString: string;
   value: string;
   price: number;
   decimals: number;

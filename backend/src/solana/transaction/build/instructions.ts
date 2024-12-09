@@ -1,11 +1,13 @@
 import { address } from '@solana/addresses';
 import { type IInstruction, type IAccountMeta, type Address, AccountRole } from '@solana/web3.js';
-import { getTransferSolInstruction } from '@solana-program/system';
 import { createNoopSigner } from '@solana/signers';
 import { TransactionData, RawInstruction } from '../types';
 import { buildJupiterInstructions } from './jupiter';
+import { buildTransferInstruction } from './transfer';
+import { getMints } from '../../fetcher/getMint';
+import BigNumber from 'bignumber.js';
+import { fetchMarketData, fetchTokensData } from '../../fetcher/birdeye';
 
-// TODO: if something fails is this assertion
 export function deserializeInstruction(instructionData: string): IInstruction<string> {
   const instruction = JSON.parse(instructionData) as RawInstruction;
   return {
@@ -20,25 +22,72 @@ export function deserializeInstruction(instructionData: string): IInstruction<st
   };
 }
 
-export async function getTransactionInstructions(data: TransactionData): Promise<IInstruction<string>[]> {
+async function calculateTokenAmount(tokenMint: string, usdcAmount: number, decimals: number): Promise<string> {
+  const marketData = await fetchMarketData([tokenMint]);
+  const tokenPrice = marketData[tokenMint]?.price;
+  
+  if (!tokenPrice || tokenPrice === 0) {
+    throw new Error(`Could not get price for token ${tokenMint}`);
+  }
+
+  const tokenAmount = new BigNumber(usdcAmount).dividedBy(tokenPrice);
+  
+  const rawAmount = tokenAmount.multipliedBy(new BigNumber(10).pow(decimals));
+  
+  return rawAmount.integerValue(BigNumber.ROUND_DOWN).toString();
+}
+
+export async function getTransactionInstructions(data: TransactionData): Promise<{ instructions: IInstruction<string>[], lookupTableAddresses: string[] }> {
   const signer = createNoopSigner(address(data.signer));
 
   switch (data.type) {
     case 'transfer': {
-      return [getTransferSolInstruction({
-        amount: BigInt(Math.floor(data.amount * 1e9)),
-        destination: data.to,
-        source: signer
-      })];
+      const mints = await getMints([data.token]);
+      const decimals = mints[data.token]?.decimals ?? 9;
+      
+      // Calculate raw amount based on USDC value
+      const rawAmount = await calculateTokenAmount(data.token, data.amount, decimals);
+
+      return {
+        instructions: await buildTransferInstruction(
+          signer,
+          data.to,
+          Number(rawAmount),
+          data.token as Address,
+          decimals
+        ),
+        lookupTableAddresses: []
+      };
     }
     case 'swap': {
-      return buildJupiterInstructions(
+      const mints = await getMints([data.inputToken, data.outputToken]);
+      const inputDecimals = mints[data.inputToken]?.decimals ?? 9;
+      const outputDecimals = mints[data.outputToken]?.decimals ?? 9;
+      const inputAmount = await calculateTokenAmount(data.inputToken, data.amount, inputDecimals);
+      const outputAmount = new BigNumber(data.amount)
+        .multipliedBy(new BigNumber(10).pow(outputDecimals))
+        .integerValue(BigNumber.ROUND_DOWN)
+        .toString();
+        
+      const { instructions, lookupTableAddresses } = await buildJupiterInstructions(
         data.inputToken,
         data.outputToken,
-        data.amount,
+        Number(outputAmount),
         data.slippageBps,
         data.signer
       );
+
+      const transferInstruction = await buildTransferInstruction(
+        signer,
+        data.to,
+        Number(outputAmount),
+        data.outputToken as Address,
+        outputDecimals
+      );
+
+      instructions.push(...transferInstruction);
+
+      return { instructions, lookupTableAddresses };
     }
     default:
       throw new Error('Unsupported transaction type');

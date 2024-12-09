@@ -25,8 +25,8 @@ import { LessonSelector } from '@/components/courses/LessonSelector';
 import { CreatorCard } from '@/components/creator/CreatorCard';
 import Footer from '@/components/layout/Footer';
 import { CourseCard } from '@/components/courses/CourseCard';
-import { CurrencySelector } from '@/components/solana/CurrencySelector';
 import { useAppSelector } from '@/store';
+import { CurrencySelector } from '@/components/solana/CurrencySelector';
 import { WalletPicker } from '@/components/solana/WalletPicker';
 
 // Animation variants

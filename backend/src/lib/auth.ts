@@ -1,5 +1,6 @@
 import nacl from 'tweetnacl';
 import bs58 from 'bs58';
+// to-do: jwt with elysia
 import jwt from 'jsonwebtoken';
 import type { User } from '../types/user';
 import { config } from './config';
@@ -7,7 +8,7 @@ import { sleep } from 'bun';
 import { rpc } from '../solana/rpc';
 
 const BLOCK_VALID_FOR_SECONDS = 60;
-const MESSAGE_PREFIX = 'Sign this message to log in to Mentora // ';
+const MESSAGE_PREFIX = 'localhost:5173 wants you to sign in with your Solana account:\n';
 
 export async function generateNonce(maxRetries = 5, initialDelay = 100): Promise<string> {
   for (let attempt = 0; attempt < maxRetries; attempt++) {
@@ -37,7 +38,7 @@ export async function verifySignature(payload: {
 
     if (!isRecent) return false;
 
-    const messageStr = MESSAGE_PREFIX + payload.nonce;
+    const messageStr = MESSAGE_PREFIX + payload.address + '\n\nSign this message to log in to Mentora\n\nNonce: '+ payload.nonce;
     const messageBytes = new TextEncoder().encode(messageStr);
     const signatureBytes = bs58.decode(payload.signature);
     const publicKeyBytes = bs58.decode(payload.address);

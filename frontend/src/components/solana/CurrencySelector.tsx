@@ -2,11 +2,14 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Button } from '@/components/ui/button';
 import { CheckCircle2 } from 'lucide-react';
 import { useAppSelector } from '@/store';
-import { useEffect } from 'react';
+import { useContext, useEffect } from 'react';
 import { useToast } from '@/hooks/useToast';
 import { TokenDisplay } from './TokenDisplay';
 import { Skeleton } from '@/components/ui/skeleton';
 import { TokenInfo } from '@/types/api';
+import { SelectedWalletAccountContext } from '@/contexts/solana/SelectedWalletAccountContext';
+import { PaymentButton } from './PaymentButton';
+import BigNumber from 'bignumber.js';
 
 interface CurrencySelectorProps {
     open: boolean;
@@ -25,8 +28,9 @@ export function CurrencySelector({
     basePrice,
     onConfirm
 }: CurrencySelectorProps) {
-    const { balances, isLoading, error } = useAppSelector((state) => state.userData);
+    const { balances, error, isLoading } = useAppSelector((state) => state.user);
     const { toast } = useToast();
+    const [selectedWalletAccount] = useContext(SelectedWalletAccountContext);
 
     useEffect(() => {
         if (error) {
@@ -40,22 +44,73 @@ export function CurrencySelector({
     }, [error, toast]);
 
     const calculateTokenPrice = (token: TokenInfo) => {
-        const tokenPrice = Number(token.value) / Number(token.amount);
-        if (!tokenPrice || isNaN(tokenPrice)) return '0';
+        const tokenPrice = new BigNumber(token.value).dividedBy(new BigNumber(token.uiAmountString));
+        if (tokenPrice.isNaN() || tokenPrice.isZero()) return '0';
 
-        const tokenAmount = basePrice / tokenPrice;
+        const tokenAmount = new BigNumber(basePrice).dividedBy(tokenPrice);
         
-        return tokenAmount.toFixed(token.decimals);
+        return tokenAmount.toFixed(2);
     };
 
     const calculateUsdRate = (token: TokenInfo) => {
-        const tokenPrice = Number(token.value) / Number(token.amount);
-        if (!tokenPrice || isNaN(tokenPrice)) return '0';
+        const tokenPrice = new BigNumber(token.value).dividedBy(new BigNumber(token.uiAmountString));
+        if (tokenPrice.isNaN() || tokenPrice.isZero()) return '0';
 
-        const tokenPerUsd = 1 / tokenPrice;
+        const tokenPerUsd = new BigNumber(1).dividedBy(tokenPrice);
         
-        return tokenPerUsd.toFixed(token.decimals);
+        return tokenPerUsd.toFixed(2);
     };
+
+    const handlePaymentSuccess = (signature: string) => {
+        onOpenChange(false);
+        onConfirm();
+        toast({
+            title: "Payment Successful",
+            description: (
+                <a
+                    href={`https://solana.fm/tx/${signature}`}
+                    className="text-blue-500 hover:underline"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                >
+                    View Transaction
+                </a>
+            ),
+            variant: "default"
+        });
+    };
+
+    const handlePaymentError = (errorMessage: string) => {
+        toast({
+            title: "Payment Failed",
+            description: errorMessage,
+            variant: "destructive"
+        });
+    };
+
+    const isTokenSufficient = (token: TokenInfo) => {
+        const tokenPrice = new BigNumber(token.value).dividedBy(new BigNumber(token.uiAmountString));
+        if (tokenPrice.isNaN() || tokenPrice.isZero()) return false;
+        
+        const requiredTokenAmount = new BigNumber(basePrice).dividedBy(tokenPrice);
+        return new BigNumber(token.uiAmountString).gte(requiredTokenAmount);
+    };
+
+    const sortTokens = (tokens: TokenInfo[]) => {
+        return [...tokens].sort((a, b) => {
+            const aIsSufficient = isTokenSufficient(a);
+            const bIsSufficient = isTokenSufficient(b);
+            
+            if (aIsSufficient === bIsSufficient) {
+                // If both tokens have same sufficiency status, sort by value
+                return Number(b.value) - Number(a.value);
+            }
+            // Put sufficient tokens first
+            return aIsSufficient ? -1 : 1;
+        });
+    };
+
+    const selectedToken = balances?.find(t => t.metadata.symbol === selectedCurrency);
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
@@ -69,56 +124,66 @@ export function CurrencySelector({
                     </p>
                 </DialogHeader>
                 <div className="space-y-6 py-4">
-                    {isLoading ? (
-                        <TokenListSkeleton />
-                    ) : balances && balances.length === 0 ? (
-                        <div className="text-center text-muted-foreground py-8">
-                            No tokens found
-                        </div>
-                    ) : (
-                        <div className="space-y-4 max-h-[400px] overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-purple-200 scrollbar-track-transparent">
-                            {balances?.map((token) => (
-                                <div
-                                    key={token.mint}
-                                    className={`relative p-4 rounded-lg border-2 transition-all cursor-pointer
-                                        ${selectedCurrency === token.metadata.symbol
-                                            ? 'border-purple-500 bg-purple-50'
-                                            : 'border-gray-200 hover:border-purple-300 hover:bg-gray-50'
-                                        }`}
-                                    onClick={() => setSelectedCurrency(token.metadata.symbol)}
-                                >
-                                    <div className="flex items-center justify-between">
-                                        <TokenDisplay token={token} showBalance={true} />
-                                        <div className="text-right">
-                                            <div className="text-lg font-bold text-purple-600">
-                                                {calculateTokenPrice(token)} {token.metadata.symbol}
+                    {/*isLoading ? <TokenListSkeleton /> : (*/
+                        balances && balances.length === 0 ? (
+                            <div className="text-center text-muted-foreground py-8">
+                                No tokens found
+                            </div>
+                        ) : (
+                            <div className="rounded-xl border border-gray-200 bg-white shadow-sm p-3">
+                                <div className="space-y-4 max-h-[400px] overflow-y-auto scrollbar-thin scrollbar-thumb-purple-200 scrollbar-track-transparent w-full px-2">
+                                {sortTokens(balances || []).map((token) => {
+                                    const sufficient = isTokenSufficient(token);
+                                    return (
+                                        <div
+                                            key={token.mint}
+                                            className={`relative p-3 rounded-lg border-2 transition-all overflow-visible mx-auto max-w-[95%]
+                                                ${!sufficient ? 'opacity-60 cursor-not-allowed' : 'cursor-pointer'}
+                                                ${selectedCurrency === token.metadata.symbol && sufficient
+                                                    ? 'border-purple-500 bg-purple-50'
+                                                    : sufficient
+                                                        ? 'border-gray-200 hover:border-purple-300 hover:bg-gray-50'
+                                                        : 'border-gray-200 bg-gray-50'
+                                                }`}
+                                            onClick={() => sufficient && setSelectedCurrency(token.metadata.symbol)}
+                                        >
+                                            <div className="flex items-center justify-between gap-3">
+                                                <TokenDisplay token={token} showBalance={true} />
+                                                <div className="text-right flex-shrink-0">
+                                                    <div className={`text-lg font-bold ${sufficient ? 'text-purple-600' : 'text-gray-400'}`}>
+                                                        {calculateTokenPrice(token)} {token.metadata.symbol}
+                                                    </div>
+                                                    <div className="text-[10px] text-gray-500">
+                                                        Rate: 1 USD = {calculateUsdRate(token)} {token.metadata.symbol}
+                                                    </div>
+                                                    {!sufficient && (
+                                                        <div className="text-[10px] text-red-500 mt-1">
+                                                            Insufficient balance
+                                                        </div>
+                                                    )}
+                                                </div>
                                             </div>
-                                            <div className="text-[10px] text-gray-500">
-                                                Rate: 1 USD = {calculateUsdRate(token)} {token.metadata.symbol}
-                                            </div>
+                                            {selectedCurrency === token.metadata.symbol && sufficient && (
+                                                <div className="absolute top-1/2 -right-4 -translate-y-1/2 z-10">
+                                                    <div className="w-7 h-7 rounded-full bg-purple-500 flex items-center justify-center shadow-md">
+                                                        <CheckCircle2 className="w-5 h-5 text-white" />
+                                                    </div>
+                                                </div>
+                                            )}
                                         </div>
-                                    </div>
-                                    {selectedCurrency === token.metadata.symbol && (
-                                        <div className="absolute top-1/2 -right-3 -translate-y-1/2">
-                                            <div className="w-6 h-6 rounded-full bg-purple-500 flex items-center justify-center">
-                                                <CheckCircle2 className="w-4 h-4 text-white" />
-                                            </div>
-                                        </div>
-                                    )}
-                                </div>
-                            ))}
+                                    );
+                                })}
+                            </div>
                         </div>
                     )}
 
-                    {selectedCurrency && balances && (
+                    {selectedCurrency && balances && selectedToken && (
                         <div className="bg-gradient-to-r from-purple-50 to-blue-50 p-4 rounded-lg border border-purple-100">
                             <div className="flex items-center justify-between">
                                 <div>
                                     <div className="text-sm font-medium text-gray-500">You'll Pay</div>
                                     <div className="text-2xl font-bold text-purple-600">
-                                        {calculateTokenPrice(
-                                            balances.find(t => t.metadata.symbol === selectedCurrency)!
-                                        )}{' '}
+                                        {calculateTokenPrice(selectedToken)}{' '}
                                         {selectedCurrency}
                                     </div>
                                 </div>
@@ -132,17 +197,26 @@ export function CurrencySelector({
                         </div>
                     )}
 
-                    <Button
-                        className={`w-full py-6 text-lg font-semibold transition-all ${
-                            selectedCurrency
-                                ? 'bg-purple-600 hover:bg-purple-700 text-white shadow-lg hover:shadow-xl'
-                                : 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                        }`}
-                        onClick={onConfirm}
-                        disabled={!selectedCurrency}
-                    >
-                        {selectedCurrency ? 'Confirm Selection' : 'Please Select a Currency'}
-                    </Button>
+                    {selectedWalletAccount && selectedToken && (
+                        <PaymentButton
+                            account={selectedWalletAccount}
+                            params={{
+                                selectedToken,
+                                amount: basePrice.toString(), // amount in USDC
+                                onSuccess: handlePaymentSuccess,
+                                onError: handlePaymentError
+                            }}
+                        />
+                    )}
+
+                    {!selectedWalletAccount && (
+                        <Button
+                            className="w-full py-6 text-lg font-semibold bg-gray-100 text-gray-400 cursor-not-allowed"
+                            disabled
+                        >
+                            Please Connect Wallet
+                        </Button>
+                    )}
                 </div>
             </DialogContent>
         </Dialog>
@@ -168,4 +242,4 @@ function TokenListSkeleton() {
                 ))}
         </div>
     );
-} 
+}

@@ -14,7 +14,7 @@ export function TokenDisplay({ token, showBalance = true, className = '' }: Toke
         
         return new Intl.NumberFormat('en-US', {
             minimumFractionDigits: 0,
-            maximumFractionDigits: decimals,
+            maximumFractionDigits: 2,
             notation: value > 1000000 ? 'compact' : 'standard'
         }).format(value);
     };
@@ -23,10 +23,10 @@ export function TokenDisplay({ token, showBalance = true, className = '' }: Toke
         <div className={`flex items-center gap-3 ${className}`}>
             <Avatar className="h-7 w-7">
                 <AvatarImage 
-                    src={token.metadata.logoURI} 
+                    src={token.metadata.image} 
                     alt={token.metadata.symbol || 'Token'} 
-                    onError={() => {
-                        console.error('Failed to load image:', token.metadata.logoURI);
+                    onError={(e) => {
+                        console.error('Failed to load image:', token.metadata.image);
                     }}
                 />
                 <AvatarFallback>

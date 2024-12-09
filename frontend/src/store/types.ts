@@ -11,7 +11,7 @@ export enum LoginStatus {
 export interface AuthState {
   user: User | null;
   loginStatus: LoginStatus;
-  address: string;
+  account: string | null;
   error: string | null;
   isLoading: boolean;
 }
