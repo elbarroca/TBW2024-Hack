@@ -15,6 +15,7 @@ import CreatorProfile from './pages/creators/[slug]';
 import CourseDetailsPage from './pages/courses/course-details';
 import ContentPage from './pages/content/[slug]';
 import LearnPage from './pages/courses/learn';
+import CoursePreview from './pages/create/course/preview';
 
 export default function App() {
     return (
@@ -44,6 +45,9 @@ export default function App() {
                     <Route path="/:creatorSlug/:contentType/:contentSlug" element={<ContentPage />} />
                     <Route path="/:creatorSlug/:courseSlug" element={<CourseDetailsPage />} />
                     <Route path="/:slug" element={<CreatorProfile />} />
+
+                    {/* Preview Routes */}
+                    <Route path="/create/course/preview" element={<CoursePreview />} />
                 </Routes>
             </div>
         </Router>

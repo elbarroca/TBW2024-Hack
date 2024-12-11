@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import { 
     CheckCircle2, Lock,
     ThumbsUp, Share2, ChevronLeft, Wallet, Coins, Sparkles, X, MessageSquarePlus
@@ -39,7 +39,7 @@ interface Lesson {
     id: string;
     title: string;
     description: string;
-    videoUrl: string;
+    videoUrl?: string;
     duration: string;
     completed: boolean;
     locked: boolean;
@@ -53,24 +53,28 @@ interface Module {
     lessons: Lesson[];
 }
 
-interface Course {
+interface Creator {
+    name: string;
+    avatar: string;
+    slug: string;
+}
+
+interface CourseData {
     id: string;
     slug: string;
     title: string;
-    creator: {
-        name: string;
-        avatar: string;
-        slug: string;
-    };
+    description: string;
     modules: Module[];
+    creator: Creator;
     progress: number;
 }
 
 // Mock data
-const mockCourseData: Course = {
+const mockCourseData: CourseData = {
     id: '1',
     slug: 'defi-protocol-development',
     title: 'DeFi Protocol Development',
+    description: 'Learn how to build decentralized finance protocols from scratch',
     creator: {
         name: 'Elena Rodriguez',
         avatar: '/avatars/elena.jpg',
@@ -133,7 +137,7 @@ const mockCourseData: Course = {
             ]
         }
     ],
-    progress: 30
+    progress: 0
 };
 
 // Add handleTip function
@@ -146,34 +150,69 @@ const handleTip = async (amount: number) => {
     }
 };
 
-export default function LearnPage() {
+// Add these props to the component
+interface LearnPageProps {
+    previewMode?: boolean;
+    previewData?: CourseData | null;
+}
+
+export default function LearnPage({ previewMode = false, previewData = null }: LearnPageProps) {
     const { creatorSlug, courseSlug, lessonId } = useParams<{
         creatorSlug: string;
         courseSlug: string;
         lessonId?: string;
     }>();
+    const [searchParams, setSearchParams] = useSearchParams();
     const navigate = useNavigate();
     const [isLoading, setIsLoading] = useState(true);
     const [isWritingComment, setIsWritingComment] = useState(false);
 
-    // Find current course and lesson
-    const currentCourse = mockCourseData.creator.slug === creatorSlug && 
-                         mockCourseData.slug === courseSlug ? mockCourseData : null;
+    // Get lessonId from URL params or query params
+    const currentLessonId = previewMode ? searchParams.get('lesson') : lessonId;
+
+    // Use preview data if in preview mode
+    const currentCourse = previewMode ? previewData : (
+        mockCourseData.creator.slug === creatorSlug && 
+        mockCourseData.slug === courseSlug ? mockCourseData : null
+    );
     
     const currentLesson = currentCourse?.modules
-        .flatMap(m => m.lessons)
-        .find(l => l.id === lessonId) || currentCourse?.modules[0].lessons[0];
+        .flatMap((m: Module) => m.lessons)
+        .find((l: Lesson) => l.id === currentLessonId) || currentCourse?.modules[0].lessons[0];
 
     useEffect(() => {
-        if (currentCourse && !lessonId) {
-            // Redirect to first lesson if no lesson specified
-            navigate(`/${creatorSlug}/${courseSlug}/learn/${currentCourse.modules[0].lessons[0].id}`, { replace: true });
+        if (currentCourse && !currentLessonId) {
+            if (previewMode) {
+                // Get the first lesson ID
+                const firstLessonId = currentCourse.modules[0]?.lessons[0]?.id;
+                if (firstLessonId) {
+                    setSearchParams({ lesson: firstLessonId });
+                }
+            } else {
+                navigate(`/${creatorSlug}/${courseSlug}/learn/${currentCourse.modules[0].lessons[0].id}`, { replace: true });
+            }
         }
         setIsLoading(false);
-    }, [creatorSlug, courseSlug, lessonId, navigate, currentCourse]);
+    }, [creatorSlug, courseSlug, currentLessonId, navigate, currentCourse, previewMode, setSearchParams]);
 
     const navigateToLesson = (moduleId: string, lessonId: string) => {
-        navigate(`/${creatorSlug}/${courseSlug}/learn/${lessonId}`);
+        if (previewMode) {
+            // Use search params for preview mode
+            setSearchParams({ lesson: lessonId }, { replace: true });
+        } else {
+            navigate(`/${creatorSlug}/${courseSlug}/learn/${lessonId}`);
+        }
+    };
+
+    // Update the back button navigation
+    const handleBackNavigation = () => {
+        if (previewMode) {
+            navigate('/create/course');
+        } else if (currentCourse) {
+            navigate(`/${currentCourse.creator.slug}/${currentCourse.slug}`);
+        } else {
+            navigate('/courses');
+        }
     };
 
     if (isLoading) {
@@ -198,6 +237,34 @@ export default function LearnPage() {
 
     return (
         <div className="min-h-screen flex flex-col bg-gradient-to-b from-gray-50 to-gray-100">
+            {previewMode && (
+                <div className="fixed top-0 left-0 right-0 bg-purple-600 text-white py-2 px-4 text-center z-[100]">
+                    <div className="flex items-center justify-between max-w-7xl mx-auto">
+                        <span className="font-medium">Preview Mode</span>
+                        <div className="space-x-4">
+                            <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => navigate('/create/course')}
+                                className="text-white border-white hover:bg-white/20"
+                            >
+                                Back to Edit
+                            </Button>
+                            <Button
+                                size="sm"
+                                onClick={() => {
+                                    // Handle publish action
+                                    navigate('/create/course');
+                                }}
+                                className="bg-white text-purple-600 hover:bg-white/90"
+                            >
+                                Publish Course
+                            </Button>
+                        </div>
+                    </div>
+                </div>
+            )}
+            
             <Header />
             
             {/* Main Content */}
@@ -212,11 +279,11 @@ export default function LearnPage() {
                         <div className="flex items-center gap-4">
                             <Button 
                                 variant="ghost" 
-                                onClick={() => navigate(`/${currentCourse.creator.slug}/${currentCourse.slug}`)}
+                                onClick={handleBackNavigation}
                                 className="text-gray-600 hover:text-gray-900 flex items-center gap-2 transition-colors"
                             >
                                 <ChevronLeft className="h-4 w-4" />
-                                Back to Course
+                                {previewMode ? 'Back to Edit' : 'Back to Course'}
                             </Button>
                             <Separator orientation="vertical" className="h-6" />
                             <div>
@@ -226,7 +293,10 @@ export default function LearnPage() {
                         </div>
                         <div className="flex items-center gap-3">
                             <Badge variant="outline" className="py-1.5 px-3 border-purple-200 text-purple-800">
-                                Lesson {currentCourse.modules.flatMap(m => m.lessons).findIndex(l => l.id === currentLesson.id) + 1} of {currentCourse.modules.reduce((acc, m) => acc + m.lessons.length, 0)}
+                                Lesson {currentCourse.modules.flatMap((m: Module) => m.lessons)
+                                    .findIndex((l: Lesson) => l.id === currentLesson.id) + 1} of {
+                                    currentCourse.modules.reduce((acc: number, m: Module) => acc + m.lessons.length, 0)
+                                }
                             </Badge>
                             <Badge variant="secondary" className="py-1.5 px-3 bg-purple-100 text-purple-800">
                                 {currentLesson.duration}
@@ -254,7 +324,13 @@ export default function LearnPage() {
                                 animate={{ opacity: 1 }}
                                 className="relative w-full aspect-video shadow-2xl rounded-2xl overflow-hidden border border-purple-200/20"
                             >
-                                <VideoPlayer url={currentLesson.videoUrl} />
+                                {currentLesson.videoUrl ? (
+                                    <VideoPlayer url={currentLesson.videoUrl} />
+                                ) : (
+                                    <div className="w-full h-full flex items-center justify-center bg-gray-100">
+                                        <p className="text-gray-500">No video available</p>
+                                    </div>
+                                )}
                             </motion.section>
                         </div>
 
@@ -394,7 +470,7 @@ export default function LearnPage() {
 
                                     {/* Comments List */}
                                     <div className="space-y-4">
-                                        {currentLesson.comments?.map((comment) => (
+                                        {currentLesson.comments?.map((comment: Comment) => (
                                             <motion.div 
                                                 key={comment.id}
                                                 initial={{ opacity: 0, y: 10 }}
@@ -511,16 +587,16 @@ export default function LearnPage() {
                                     </h2>
                                     <ScrollArea className="h-[calc(100vh-400px)]">
                                         <div className="space-y-6">
-                                            {currentCourse.modules.map((module) => (
+                                            {currentCourse.modules.map((module: Module) => (
                                                 <div key={module.id} className="space-y-2">
                                                     <h4 className="font-medium text-gray-900">{module.title}</h4>
                                                     <div className="space-y-2">
-                                                        {module.lessons.map((lesson) => (
+                                                        {module.lessons.map((lesson: Lesson) => (
                                                             <motion.button
                                                                 key={lesson.id}
                                                                 onClick={() => navigateToLesson(module.id, lesson.id)}
                                                                 className={`w-full flex items-center justify-between p-3 rounded-lg text-left transition-all ${
-                                                                    lesson.id === currentLesson.id
+                                                                    lesson.id === currentLessonId
                                                                         ? 'bg-purple-50 text-purple-900 border border-purple-200'
                                                                         : lesson.locked
                                                                         ? 'bg-gray-50 text-gray-400 cursor-not-allowed'

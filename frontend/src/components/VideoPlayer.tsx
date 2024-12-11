@@ -6,25 +6,23 @@ interface VideoPlayerProps {
 }
 
 export default function VideoPlayer({ url }: VideoPlayerProps) {
-    const playerRef = useRef<ReactPlayer>(null);
-
     return (
-        <div className="relative aspect-video w-full">
-            <ReactPlayer
-                ref={playerRef}
-                url={url}
-                width="100%"
-                height="100%"
-                controls={true}
-                config={{
-                    playerVars: {
-                        modestbranding: 1,
-                        origin: window.location.origin,
-                        rel: 0 // Prevents showing related videos
-                    }
-                }}
-                style={{ position: 'absolute', top: 0, left: 0 }}
-            />
+        <div className="relative w-full h-full">
+            {url ? (
+                <video
+                    className="w-full h-full"
+                    controls
+                    controlsList="nodownload"
+                    playsInline
+                >
+                    <source src={url} type="video/mp4" />
+                    Your browser does not support the video tag.
+                </video>
+            ) : (
+                <div className="w-full h-full flex items-center justify-center bg-gray-100">
+                    <p className="text-gray-500">No video available</p>
+                </div>
+            )}
         </div>
     );
 } 

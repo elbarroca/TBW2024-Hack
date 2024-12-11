@@ -27,7 +27,7 @@ import { ContentCard } from "@/components/content/ContentCard";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { CONTENT } from "@/data/content-details";
 import { creators } from "@/data/creators";
-import { Content as ContentType } from '@/types/content';
+import { ContentType } from '@/types/content';
 import { Creator } from '@/types/creator';
 
 // Types for our content
@@ -46,6 +46,8 @@ type Author = {
   twitterHandle?: string;
   tags: string[];
   slug: string;
+  type: ContentType;
+  content: string;
 };
 
 interface ContentMetrics {
@@ -267,7 +269,6 @@ export const ContentPage = () => {
                   <p className="text-purple-200 text-sm mb-6">
                     One-time payment • Lifetime access
                   </p>
-                  
                   {/* Enhanced Action Buttons */}
                   <div className="flex flex-wrap gap-4">
                     <Button 
@@ -277,7 +278,7 @@ export const ContentPage = () => {
                       <span>{getActionButton(content.type, content.price)}</span>
                       <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
                     </Button>
-                    {content.type === 'video' && (
+                    {content?.type === 'video' && (
                       <Button 
                         size="lg" 
                         variant="outline" 
@@ -469,9 +470,9 @@ export const ContentPage = () => {
                       >
                         <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/20">
                           <div className="flex items-baseline justify-center gap-3 mb-2">
-                            <span className="text-5xl font-bold text-white">{content.price} SOL</span>
+                            <span className="text-5xl font-bold text-white">${content.price}</span>
                             {content.originalPrice && (
-                              <span className="text-xl text-purple-200 line-through">{content.originalPrice} SOL</span>
+                              <span className="text-xl text-purple-200 line-through">${content.originalPrice}</span>
                             )}
                           </div>
                           <p className="text-purple-200 text-sm">

@@ -30,6 +30,7 @@ import { motion } from 'framer-motion';
 import { Image as ImageIcon } from 'lucide-react';
 import { LessonSelector } from '@/components/courses/LessonSelector';
 import { cn } from '@/lib/utils';
+import { useNavigate } from 'react-router-dom';
 
 const MAX_FILE_SIZE = 500 * 1024 * 1024; // 500MB
 const ACCEPTED_VIDEO_TYPES = ['video/mp4', 'video/avi', 'video/quicktime'];
@@ -228,6 +229,7 @@ export default function CreateVideo() {
     );
     const [modules, setModules] = useState<Module[]>([]);
     const [certificationImage, setCertificationImage] = useState<string>('');
+    const navigate = useNavigate();
 
     const {
         register,
@@ -467,20 +469,24 @@ export default function CreateVideo() {
             }))
         }));
     };
-
     // Update the video upload handler to not use lessonVideoFile
     const onUpload = async (files: FileList, moduleIndex: number, lessonIndex: number) => {
         const file = files[0];
         if (file) {
             const duration = await getVideoDuration(file);
             const videoUrl = URL.createObjectURL(file);
+            
             const newModules = [...modules];
             newModules[moduleIndex].lessons[lessonIndex] = {
                 ...newModules[moduleIndex].lessons[lessonIndex],
                 duration,
-                videoUrl
+                videoUrl,
+                id: newModules[moduleIndex].lessons[lessonIndex].id || crypto.randomUUID()
             };
             setModules(newModules);
+            
+            // Show preview button by updating state
+            setValue('modules', newModules);
         }
     };
 
@@ -1101,6 +1107,7 @@ export default function CreateVideo() {
                                                             title: '',
                                                             description: '',
                                                             duration: '',
+                                                            videoUrl: ''
                                                         });
                                                         setModules(newModules);
                                                     }}
@@ -1306,6 +1313,45 @@ export default function CreateVideo() {
                                 Publish Course
                             </Button>
                         </div>
+
+                        {modules.some(module => module.lessons.some(lesson => lesson.videoUrl)) && (
+                            <div className="mt-6 pt-6 border-t border-gray-200">
+                                <Button
+                                    type="button"
+                                    size="lg"
+                                    className="w-full bg-purple-50 text-purple-600 hover:bg-purple-100 border border-purple-200"
+                                    onClick={() => {
+                                        const previewData = {
+                                            id: crypto.randomUUID(),
+                                            slug: 'preview',
+                                            title: watch('title'),
+                                            description: watch('description'),
+                                            modules: modules.map(module => ({
+                                                ...module,
+                                                lessons: module.lessons.map(lesson => ({
+                                                    ...lesson,
+                                                    videoUrl: lesson.videoUrl || '',
+                                                    completed: false,
+                                                    locked: false
+                                                }))
+                                            })),
+                                            creator: {
+                                                name: user?.name || 'Anonymous',
+                                                avatar: user?.avatar || '/avatars/default.png',
+                                                slug: 'preview'
+                                            },
+                                            progress: 0
+                                        };
+                                        
+                                        // Store the preview data in localStorage
+                                        localStorage.setItem('coursePreviewData', JSON.stringify(previewData));
+                                        navigate('/create/course/preview');
+                                    }}
+                                >
+                                    Preview Course
+                                </Button>
+                            </div>
+                        )}
                     </div>
 
                     {/* Right Column - Live Preview */}
