@@ -1,12 +1,10 @@
 import { StandardConnect, StandardDisconnect } from '@wallet-standard/core';
-import { UiWallet, useWallets } from '@wallet-standard/react';
+import { UiWallet } from '@wallet-standard/react';
 import { ErrorBoundary } from 'react-error-boundary';
 import { WalletItem } from './WalletItem';
 import { useMemo } from 'react';
 
-export function WalletList() {
-    const wallets = useWallets();
-
+export function WalletList( { wallets }: { wallets: UiWallet[] }) {
     const connectableWallets = useMemo(() => {
         if (!wallets) return [];
         

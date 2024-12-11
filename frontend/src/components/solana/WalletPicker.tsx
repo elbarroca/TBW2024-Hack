@@ -1,16 +1,19 @@
-import { useWallets } from '@wallet-standard/react';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Button } from '@/components/ui/button';
 import { Wallet } from 'lucide-react';
 import { useAppSelector } from '@/store';
 import { WalletList } from './WalletList';
 import { ConnectedWallet } from './ConnectedWallet';
+import { UiWallet, useWallets } from '@wallet-standard/react';
+import { useMemo } from 'react';
 
 export function WalletPicker() {
-    const { user } = useAppSelector((state) => state.auth);
+    const { user, account } = useAppSelector((state) => state.auth);
+    const wallets = useWallets() as UiWallet[];
+    const connectedWallet = useMemo(() => wallets.find((x) => account && x.accounts.length > 0 && x.accounts[0].address === account), [wallets, account]);
 
-    if (user) {
-        return <ConnectedWallet />;
+    if (user && connectedWallet) {
+        return <ConnectedWallet connectedWallet={connectedWallet}/>;
     }
 
     return (
@@ -22,7 +25,7 @@ export function WalletPicker() {
             </PopoverTrigger>
             <PopoverContent className="w-80">
                 <div className="flex flex-col gap-8">
-                    <WalletList />
+                    <WalletList wallets={wallets} />
                 </div>
             </PopoverContent>
         </Popover>
