@@ -1,19 +1,44 @@
-export type ContentType = 'video' | 'article' | 'ebook' | 'course' | 'file';
+export type ContentType = 'video' | 'article' | 'ebook' | 'file';
+
+export interface Author {
+  name: string;
+  role: string;
+}
+
+export interface Metrics {
+  views: number;
+  rating: number;
+  completions: number;
+  totalDuration: string;
+  language: string;
+}
+
+export interface Details {
+  mainCategory: string;
+  tags: string[];
+  description: string;
+  lastUpdated: string;
+}
+
+export interface LearningObjective {
+  id: string;
+  title: string;
+}
 
 export interface Content {
   id: string;
   title: string;
-  description: string;
-  creator_id: string;
-  type: ContentType;
-  file_url: string;
-  thumbnail_url?: string;
+  creator: Author;
+  author: Author;
   price: number;
-  currency: string;
-  published: boolean;
-  created_at: string;
-  updated_at: string;
-  categories?: string[];
+  type: ContentType;
+  thumbnail: string;
+  metrics: Metrics;
+  details: Details;
+  learningObjectives: LearningObjective[];
+  prerequisites: string[];
+  duration: string;
+  level: string;
 }
 
 export interface CreateContentInput {

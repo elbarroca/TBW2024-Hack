@@ -6,120 +6,12 @@ import { Avatar, AvatarImage, AvatarFallback } from '../ui/avatar';
 import { Badge } from '../ui/Badge';
 import { Separator } from '../ui/separator';
 import { motion } from 'framer-motion';
-
-interface Creator {
-    id: string;
-    name: string;
-    slug: string;
-    role: string;
-    avatar: string;
-    rating: number;
-    students: number;
-    courses: number;
-    duration: string;
-    level: string;
-    bio: string;
-    expertise: string[];
-    socialLinks: {
-        twitter?: string;
-        github?: string;
-        linkedin?: string;
-    };
-    achievements: {
-        title: string;
-        description: string;
-    }[];
-    earnings?: number;
-    tips?: number;
-}
-
-const creators: Creator[] = [
-    {
-        id: '1',
-        name: 'Alex Rivera',
-        slug: 'alex-rivera',
-        role: 'Senior Blockchain Developer',
-        avatar: 'https://randomuser.me/api/portraits/men/1.jpg',
-        rating: 4.8,
-        students: 1234,
-        courses: 5,
-        duration: '8 weeks',
-        level: 'Intermediate',
-        bio: 'Blockchain expert with 8+ years of experience in DeFi and Smart Contract development',
-        expertise: ['Smart Contracts', 'DeFi', 'Solana Development', 'Web3'],
-        socialLinks: {
-            twitter: 'https://twitter.com/alexrivera',
-            github: 'https://github.com/alexrivera',
-            linkedin: 'https://linkedin.com/in/alexrivera'
-        },
-        achievements: [
-            {
-                title: 'Top Instructor 2023',
-                description: 'Recognized for outstanding course content and student satisfaction'
-            },
-            {
-                title: 'DeFi Innovation Award',
-                description: 'For contributions to decentralized finance education'
-            }
-        ],
-        earnings: 125000,
-        tips: 15000
-    },
-    {
-        id: '2',
-        name: 'Sarah Chen',
-        slug: 'sarah-chen',
-        role: 'NFT & Gaming Expert',
-        avatar: 'https://randomuser.me/api/portraits/women/2.jpg',
-        rating: 4.9,
-        students: 2156,
-        courses: 7,
-        duration: '6 weeks',
-        level: 'All Levels',
-        bio: 'Pioneer in NFT gaming and metaverse development with successful launches on Solana',
-        expertise: ['NFT Trading', 'GameFi', 'Play-to-Earn', 'Metaverse'],
-        socialLinks: {
-            twitter: 'https://twitter.com/sarahchen',
-            github: 'https://github.com/sarahchen'
-        },
-        achievements: [
-            {
-                title: 'GameFi Innovator 2023',
-                description: 'Leading voice in blockchain gaming education'
-            }
-        ],
-        earnings: 198000,
-        tips: 22000
-    },
-    {
-        id: '3',
-        name: 'Marcus Johnson',
-        slug: 'marcus-johnson',
-        role: 'DeFi Strategy Advisor',
-        avatar: 'https://randomuser.me/api/portraits/men/3.jpg',
-        rating: 4.7,
-        students: 1876,
-        courses: 4,
-        duration: '10 weeks',
-        level: 'Advanced',
-        bio: 'Former Wall Street trader turned DeFi expert, specializing in yield optimization',
-        expertise: ['Yield Farming', 'DeFi Strategy', 'Yield Optimization', 'AMM'],
-        socialLinks: {
-            twitter: 'https://twitter.com/marcusjohnson',
-            linkedin: 'https://linkedin.com/in/marcusjohnson'
-        },
-        achievements: [
-            {
-                title: 'DeFi Strategist of the Year',
-                description: 'Awarded for innovative DeFi trading strategies'
-            }
-        ],
-        earnings: 215000,
-        tips: 18500
-    }
-];
+import { creators } from '@/data/creators';
 
 const FeaturedCreators = () => {
+    // Take only the first 3 creators for the featured section
+    const featuredCreators = creators.slice(0, 3);
+
     return (
         <section className="py-20 bg-gradient-to-b from-white via-purple-50 to-gray-50">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -142,12 +34,12 @@ const FeaturedCreators = () => {
                 </motion.div>
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                    {creators.map((creator, index) => (
+                    {featuredCreators.map((creator, index) => (
                         <motion.div
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ duration: 0.6, delay: index * 0.1 }}
-                            key={creator.id}
+                            key={creator.slug}
                         >
                             <Link to={`/${creator.slug}`}>
                                 <Card className="group hover:shadow-2xl transition-all duration-300 overflow-hidden border-2 hover:border-purple-400">

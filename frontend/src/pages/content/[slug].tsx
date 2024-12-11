@@ -1,4 +1,4 @@
-import { useParams } from "react-router-dom";
+import { useParams, Navigate } from "react-router-dom";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -25,11 +25,13 @@ import { motion } from "framer-motion";
 import Footer from "@/components/layout/Footer";
 import { ContentCard } from "@/components/content/ContentCard";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { CONTENT } from "@/data/content-details";
+import { creators } from "@/data/creators";
+import { Content as ContentType } from '@/types/content';
+import { Creator } from '@/types/creator';
 
 // Types for our content
-type ContentType = "ebook" | "video" | "file" | "article";
-
-interface Author {
+type Author = {
   id: string;
   name: string;
   avatar: string;
@@ -44,7 +46,7 @@ interface Author {
   twitterHandle?: string;
   tags: string[];
   slug: string;
-}
+};
 
 interface ContentMetrics {
   views: number;
@@ -69,9 +71,10 @@ interface Content {
   title: string;
   type: ContentType;
   description: string;
+  detailedDescription: string;
   author: Author;
   metrics: ContentMetrics;
-  coverImage: string;
+  thumbnail: string;
   createdAt: string;
   details: {
     [key: string]: string | number;
@@ -84,140 +87,39 @@ interface Content {
   originalPrice?: number;
 }
 
-// Mock data mapping for different content
-const mockContents: { [key: string]: Content } = {
-  "the-complete-guide-to-defi-trading": {
-    id: "1",
-    slug: "the-complete-guide-to-defi-trading",
-    title: "The Complete Guide to DeFi Trading",
-    type: "ebook",
-    description: "A comprehensive guide to decentralized finance trading. Learn everything from basic DeFi concepts to advanced trading strategies. This course covers DEXs, Yield Farming, and Liquidity Provision.",
-    price: 49.99,
-    author: {
-      id: "alex-thompson",
-      name: "Alex Thompson",
-      slug: "alex-thompson",
-      avatar: "https://avatar.vercel.sh/alex-thompson",
-      bio: "DeFi Expert & Blockchain Educator with 6+ years of experience. Previously at Aave and Uniswap.",
-      followers: 15000,
-      totalViews: 150000,
-      expertise: "DeFi & Blockchain Development",
-      rating: "4.8",
-      courses: 8,
-      students: 25000,
-      isTopCreator: true,
-      twitterHandle: "alexthompsondefi",
-      tags: ["DeFi", "Trading", "Blockchain", "Cryptocurrency"]
-    },
-    metrics: {
-      views: 12000,
-      likes: 850,
-      rating: 4.8,
-      completions: 2800,
-      totalDuration: "15 hours",
-      lastUpdated: "2024-02-15",
-      language: "English",
-      subtitles: ["English", "Spanish", "Chinese"]
-    },
-    coverImage: "/covers/defi-trading-guide.jpg",
-    createdAt: "2024-01-15",
-    details: {
-      chapters: 12,
-      exercises: 35,
-      quizzes: 10,
-      resources: 25,
-      level: "Intermediate to Advanced",
-      format: "PDF/ePub"
-    },
-    learningObjectives: [
-      {
-        id: "1",
-        title: "DeFi Fundamentals",
-        description: "Master the core concepts of decentralized finance and trading"
-      },
-      {
-        id: "2",
-        title: "DEX Trading Strategies",
-        description: "Learn advanced trading strategies on decentralized exchanges"
-      },
-      {
-        id: "3",
-        title: "Yield Optimization",
-        description: "Optimize your yields through farming and liquidity provision"
-      },
-      {
-        id: "4",
-        title: "Risk Management",
-        description: "Implement effective risk management strategies in DeFi"
-      }
-    ],
-    prerequisites: [
-      "Basic understanding of cryptocurrency",
-      "Familiarity with blockchain concepts",
-      "Experience with digital wallets"
-    ],
-    targetAudience: [
-      "Crypto traders looking to enter DeFi",
-      "DeFi enthusiasts",
-      "Yield farmers",
-      "Liquidity providers"
-    ],
-    certification: true
-  }
-};
+export const ContentPage = () => {
+  const { creatorSlug, contentType, contentSlug } = useParams();
+  
+  console.log("Route params:", { creatorSlug, contentType, contentSlug });
 
-const ContentPage = () => {
-  const { creatorSlug, contentType, contentSlug } = useParams<{ 
-    creatorSlug: string; 
-    contentType: string; 
-    contentSlug: string;
-  }>();
-
-  console.log('Route params:', { creatorSlug, contentType, contentSlug });
-
-  // Early return if any required parameter is missing
   if (!creatorSlug || !contentType || !contentSlug) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <h2 className="text-2xl font-bold mb-2">Invalid URL</h2>
-          <p className="text-gray-600">Missing required parameters</p>
-          <p className="text-sm text-gray-500 mt-1">
-            Params: {JSON.stringify({ creatorSlug, contentType, contentSlug })}
-          </p>
-        </div>
-      </div>
-    );
+    return <Navigate to="/404" replace />;
   }
 
-  // Find the content based on the slug
-  const content = mockContents[contentSlug];
+  // Find the content based on the slug from CONTENT
+  const content = CONTENT.find(item => 
+    item.type === contentType && 
+    item.author.slug === creatorSlug
+  );
+
+  // Find the creator data from CREATORS
+  const creator = creators.find((c: Creator) => c.slug === creatorSlug);
+
+  if (!content || !creator) {
+    return <Navigate to="/404" replace />;
+  }
 
   // Now we know contentType is defined, we can safely use it
   const normalizedType = contentType.replace(/s$/, '');
-
-  // Verify that the content exists and matches the route parameters
-  if (!content || content.author.slug !== creatorSlug || content.type !== normalizedType) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <h2 className="text-2xl font-bold mb-2">Content Not Found</h2>
-          <p className="text-gray-600">The requested content could not be found.</p>
-          <p className="text-sm text-gray-500 mt-1">
-            Params: {JSON.stringify({ creatorSlug, contentType: normalizedType, contentSlug })}
-          </p>
-        </div>
-      </div>
-    );
-  }
-
-  const getContentTypeIcon = (type: ContentType) => {
+  const getContentTypeIcon = (type: string) => {
     switch (type) {
       case "ebook":
         return <BookOpen className="h-4 w-4" />;
       case "video":
         return <Video className="h-4 w-4" />;
       case "article":
+        return <FileText className="h-4 w-4" />;
+      case "file":
         return <FileText className="h-4 w-4" />;
       default:
         return <FileText className="h-4 w-4" />;
@@ -357,9 +259,9 @@ const ContentPage = () => {
                 {/* Enhanced Price Display */}
                 <div className="bg-black/20 backdrop-blur-md rounded-xl p-6 border border-white/10">
                   <div className="flex items-baseline gap-2 mb-2">
-                    <span className="text-4xl font-bold text-white">${content.price}</span>
+                    <span className="text-4xl font-bold text-white">{content.price} SOL</span>
                     {content.originalPrice && (
-                      <span className="text-purple-200 line-through">${content.originalPrice}</span>
+                      <span className="text-purple-200 line-through">{content.originalPrice} SOL</span>
                     )}
                   </div>
                   <p className="text-purple-200 text-sm mb-6">
@@ -404,7 +306,7 @@ const ContentPage = () => {
                 <div className="w-full h-full">
                   <video
                     className="absolute inset-0 w-full h-full object-cover"
-                    poster={content.coverImage}
+                    poster={content.thumbnail}
                     controls={false}
                   >
                     <source src="/videos/preview.mp4" type="video/mp4" />
@@ -422,7 +324,7 @@ const ContentPage = () => {
               ) : (
                 <>
                   <img
-                    src={content.coverImage}
+                    src={content.thumbnail}
                     alt={content.title}
                     className="absolute inset-0 w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-700"
                   />
@@ -451,21 +353,13 @@ const ContentPage = () => {
             {/* About This Course */}
             <Card className="bg-white/50 backdrop-blur-sm border-purple-100/50 overflow-hidden">
               <div className="border-l-4 border-purple-500 px-6 py-4 bg-purple-50/50">
-                <h2 className="text-2xl font-bold text-purple-900">About This Course</h2>
+                <h2 className="text-2xl font-bold text-purple-900">About This {normalizedType}</h2>
               </div>
               <CardContent className="p-6 space-y-4 text-gray-700 leading-relaxed">
-                <p>
-                  Master the world of decentralized finance with our comprehensive DeFi trading course. 
-                  Whether you're a traditional trader looking to transition into DeFi or a crypto enthusiast 
-                  wanting to maximize your yields, this course provides you with battle-tested strategies 
-                  and deep insights into the DeFi ecosystem.
-                </p>
-                <p>
-                  Through practical examples and hands-on exercises, you'll learn how to navigate various 
-                  DeFi protocols, understand yield farming opportunities, and implement effective risk 
-                  management strategies. Our course goes beyond theory, showing you exactly how to execute 
-                  trades, provide liquidity, and optimize your returns in the dynamic world of DeFi.
-                </p>
+                <p>{content.description}</p>
+                {content.detailedDescription && (
+                  <p>{content.detailedDescription}</p>
+                )}
               </CardContent>
             </Card>
 
@@ -476,7 +370,7 @@ const ContentPage = () => {
               </div>
               <CardContent className="p-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {content.learningObjectives.map((objective) => (
+                  {content.learningObjectives.map((objective: LearningObjective) => (
                     <motion.div 
                       key={objective.id}
                       className="flex gap-4 p-4 rounded-lg bg-white/70 border border-indigo-100/50 hover:shadow-md transition-all duration-300"
@@ -503,7 +397,7 @@ const ContentPage = () => {
                 <CardContent className="p-6">
                   <ScrollArea className="h-[200px] pr-4">
                     <ul className="space-y-4">
-                      {content.prerequisites.map((prerequisite, index) => (
+                      {content.prerequisites.map((prerequisite: string, index: number) => (
                         <motion.li 
                           key={index}
                           className="flex items-start gap-3 p-3 rounded-lg bg-white/70 border border-blue-100/50"
@@ -526,7 +420,7 @@ const ContentPage = () => {
                 <CardContent className="p-6">
                   <ScrollArea className="h-[200px] pr-4">
                     <ul className="space-y-4">
-                      {content.targetAudience.map((audience, index) => (
+                      {content.targetAudience.map((audience: string, index: number) => (
                         <motion.li 
                           key={index}
                           className="flex items-start gap-3 p-3 rounded-lg bg-white/70 border border-green-100/50"
@@ -575,9 +469,9 @@ const ContentPage = () => {
                       >
                         <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/20">
                           <div className="flex items-baseline justify-center gap-3 mb-2">
-                            <span className="text-5xl font-bold text-white">${content.price}</span>
+                            <span className="text-5xl font-bold text-white">{content.price} SOL</span>
                             {content.originalPrice && (
-                              <span className="text-xl text-purple-200 line-through">${content.originalPrice}</span>
+                              <span className="text-xl text-purple-200 line-through">{content.originalPrice} SOL</span>
                             )}
                           </div>
                           <p className="text-purple-200 text-sm">
@@ -630,18 +524,17 @@ const ContentPage = () => {
             {/* Creator Card */}
             <motion.div variants={itemVariants} aria-label="Creator Information">
               <CreatorCard
-                id={content.author.id}
-                name={content.author.name}
-                image={content.author.avatar}
-                expertise={content.author.expertise}
-                rating={content.author.rating}
-                bio={content.author.bio}
-                courses={content.author.courses}
-                students={content.author.students}
-                slug={content.author.slug}
-                isTopCreator={content.author.isTopCreator}
-                twitterHandle={content.author.twitterHandle}
-                tags={content.author.tags}
+                name={creator.name}
+                avatar={creator.avatar}
+                role={creator.role}
+                rating={creator.rating}
+                bio={creator.bio}
+                courses={creator.courses}
+                students={creator.students}
+                slug={creator.slug}
+                isTopCreator={creator.isTopCreator}
+                socialLinks={creator.socialLinks}
+                expertise={creator.expertise}
               />
             </motion.div>
 
@@ -653,7 +546,7 @@ const ContentPage = () => {
                     Recommended Content for You
                   </h2>
                   <div className="grid grid-cols-2 gap-4">
-                    {recommendedContent.map((item) => (
+                    {CONTENT.filter(item => item.thumbnail).map((item) => (
                       <motion.div 
                         key={item.id}
                         variants={itemVariants}

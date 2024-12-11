@@ -1,6 +1,5 @@
 import { useParams, Navigate } from 'react-router-dom';
 import { creators } from '@/data/creators';
-import { Creator } from '@/types/creator';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
@@ -20,14 +19,14 @@ import {
   FileVideo,
   Book,
   Quote,
-  Pencil,
   GraduationCap,
   ChevronLeft,
   Trophy,
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import Footer from '@/components/layout/Footer';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { LucideIcon } from 'lucide-react';
 
 // Define types for content items
 interface BaseContentItem {
@@ -59,10 +58,10 @@ interface FileItem extends BaseContentItem {
 type ContentItem = ArticleItem | EbookItem | VideoItem | FileItem;
 
 interface ContentType {
-  type: 'articles' | 'ebooks' | 'videos' | 'files';
+  type: 'articles' | 'ebooks' | 'videos';
   title: string;
   description: string;
-  icon: React.ComponentType<{ size?: number; color?: string; className?: string }>;
+  icon: LucideIcon;
   count: number;
   color: string;
   items: ContentItem[];
@@ -79,12 +78,83 @@ const getImageWithFallback = (path: string) => {
   }
 };
 
+// First, let's define the content types at the top of the file
+const contentTypes: ContentType[] = [
+  {
+    type: 'articles',
+    title: 'Articles',
+    description: 'In-depth articles and tutorials',
+    icon: FileText,
+    count: 0,
+    color: 'blue',
+    items: []
+  },
+  {
+    type: 'ebooks',
+    title: 'eBooks',
+    description: 'Comprehensive learning materials',
+    icon: Book,
+    count: 0,
+    color: 'purple',
+    items: []
+  },
+  {
+    type: 'videos',
+    title: 'Videos',
+    description: 'Video tutorials and courses',
+    icon: FileVideo,
+    count: 0,
+    color: 'green',
+    items: []
+  }
+];
+
+// Update the Creator type to match the data structure
+interface Creator {
+  id: string;
+  name: string;
+  slug: string;
+  role: string;
+  avatar: string;
+  rating: number;
+  students: number;
+  courses: number;
+  bio: string;
+  expertise?: string[];
+  category?: string;
+  twitterHandle?: string;
+  contents?: {
+    articles: ArticleItem[];
+    ebooks: EbookItem[];
+    videos: VideoItem[];
+  };
+}
+
 export default function CreatorProfile() {
   const { slug } = useParams();
-  const creator = creators.find((c: Creator) => c.slug === slug);
   const [selectedContentType, setSelectedContentType] = useState<ContentType['type'] | null>(null);
   const [currentPage, setCurrentPage] = useState(0);
+  const [loadedContentTypes, setLoadedContentTypes] = useState<ContentType[]>(contentTypes);
   const ITEMS_PER_PAGE = 3;
+
+  // Find the creator based on slug
+  const creator = creators.find((c) => c.slug === slug) as Creator | undefined;
+
+  // Update content types when creator loads
+  useEffect(() => {
+    if (creator && creator.contents) {
+      const updatedContentTypes = contentTypes.map(contentType => {
+        // Type assertion to handle the index signature
+        const items = creator.contents?.[contentType.type as keyof typeof creator.contents] || [];
+        return {
+          ...contentType,
+          count: items.length,
+          items: items
+        };
+      });
+      setLoadedContentTypes(updatedContentTypes);
+    }
+  }, [creator]);
 
   // Check if this is a reserved route
   const reservedRoutes = ['courses', 'content', 'creators', 'about', 'profile', 'create'];
@@ -92,132 +162,10 @@ export default function CreatorProfile() {
     return <Navigate to="/" replace />;
   }
 
-  const contentTypes: ContentType[] = [
-    {
-      type: 'articles',
-      title: 'Articles', 
-      description: 'In-depth technical articles and tutorials',
-      icon: (props) => <Pencil {...props} />,
-      count: 8,
-      color: 'purple',
-      items: [
-        {
-          title: 'Understanding Smart Contracts',
-          description: 'A comprehensive guide to smart contract development',
-          date: '2024-02-15',
-          readTime: '15 min read',
-          image: '/content/articles/smart-contracts.jpg'
-        },
-        {
-          title: 'Web3 Security Best Practices',
-          description: 'Essential security practices for blockchain development',
-          date: '2024-02-10',
-          readTime: '12 min read',
-          image: '/content/articles/web3-security.jpg'
-        },
-        {
-          title: 'DeFi Protocol Architecture',
-          description: 'Deep dive into DeFi protocol design patterns',
-          date: '2024-02-05',
-          readTime: '20 min read',
-          image: '/content/articles/defi-architecture.jpg'
-        }
-      ] as ArticleItem[]
-    },
-    {
-      type: 'ebooks',
-      title: 'eBooks', 
-      description: 'Comprehensive digital books',
-      icon: (props) => <Book {...props} />,
-      count: 5,
-      color: 'blue',
-      items: [
-        {
-          title: 'Mastering Ethereum Development',
-          description: 'Complete guide to building on Ethereum',
-          pages: 250,
-          price: '$29.99',
-          image: '/content/ebooks/ethereum-dev.jpg'
-        },
-        {
-          title: 'Smart Contract Security',
-          description: 'Security patterns and best practices',
-          pages: 180,
-          price: '$24.99',
-          image: '/content/ebooks/security.jpg'
-        },
-        {
-          title: 'Web3 Architecture Patterns',
-          description: 'Building scalable decentralized applications',
-          pages: 200,
-          price: '$27.99',
-          image: '/content/ebooks/web3-patterns.jpg'
-        }
-      ] as EbookItem[]
-    },
-    {
-      type: 'videos',
-      title: 'Video Tutorials',
-      description: 'Step-by-step video guides',
-      icon: (props) => <FileVideo {...props} />,
-      count: 12,
-      color: 'green',
-      items: [
-        {
-          title: 'Smart Contract Development',
-          description: 'Build your first smart contract',
-          duration: '45 mins',
-          level: 'Beginner',
-          image: '/content/videos/smart-contract.jpg'
-        },
-        {
-          title: 'DeFi Protocol Implementation',
-          description: 'Create a decentralized exchange',
-          duration: '60 mins',
-          level: 'Advanced',
-          image: '/content/videos/defi-protocol.jpg'
-        },
-        {
-          title: 'Web3 Security Auditing',
-          description: 'Learn security auditing techniques',
-          duration: '50 mins',
-          level: 'Intermediate',
-          image: '/content/videos/security-audit.jpg'
-        }
-      ] as VideoItem[]
-    },
-    {
-      type: 'files',
-      title: 'Files',
-      description: 'Templates and resources',
-      icon: (props) => <FileText {...props} />,
-      count: 15,
-      color: 'orange',
-      items: [
-        {
-          title: 'Smart Contract Template',
-          description: 'Boilerplate for ERC20 tokens',
-          format: 'Solidity',
-          size: '156 KB',
-          image: '/content/files/template.jpg'
-        },
-        {
-          title: 'Security Checklist',
-          description: 'Comprehensive security verification list',
-          format: 'PDF',
-          size: '2.3 MB',
-          image: '/content/files/checklist.jpg'
-        },
-        {
-          title: 'Architecture Diagram',
-          description: 'DeFi protocol architecture template',
-          format: 'Draw.io',
-          size: '1.8 MB',
-          image: '/content/files/diagram.jpg'
-        }
-      ] as FileItem[]
-    }
-  ];
+  // If creator not found, redirect to home
+  if (!creator) {
+    return <Navigate to="/" replace />;
+  }
 
   const renderPaginationDots = (totalItems: number) => {
     const totalPages = Math.ceil(totalItems / ITEMS_PER_PAGE);
@@ -279,7 +227,7 @@ export default function CreatorProfile() {
     if (!selectedContentType) {
       return (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {contentTypes.map((content, index) => (
+          {loadedContentTypes.map((content, index) => (
             <motion.div
               key={index}
               initial={{ opacity: 0, y: 20 }}
@@ -287,7 +235,7 @@ export default function CreatorProfile() {
               transition={{ duration: 0.3, delay: index * 0.1 }}
               onClick={() => {
                 setSelectedContentType(content.type);
-                setCurrentPage(0); // Reset page when switching content type
+                setCurrentPage(0);
               }}
             >
               <Card className="group cursor-pointer overflow-hidden hover:shadow-xl transition-all duration-300">
@@ -328,8 +276,8 @@ export default function CreatorProfile() {
       );
     }
 
-    const selectedContent = contentTypes.find(c => c.type === selectedContentType);
-    if (!selectedContent) return null;
+    const selectedContent = loadedContentTypes.find(c => c.type === selectedContentType);
+    if (!selectedContent || !selectedContent.items) return null;
 
     const startIndex = currentPage * ITEMS_PER_PAGE;
     const visibleItems = selectedContent.items.slice(startIndex, startIndex + ITEMS_PER_PAGE);
@@ -365,7 +313,7 @@ export default function CreatorProfile() {
             transition={{ duration: 0.3 }}
             className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
           >
-            {visibleItems.map((item, index) => (
+            {visibleItems.map((item: ContentItem, index: number) => (
               <motion.div
                 key={startIndex + index}
                 initial={{ opacity: 0, y: 20 }}
@@ -397,7 +345,7 @@ export default function CreatorProfile() {
                     </div>
                     <Button className="w-full bg-gradient-to-r from-purple-600 to-blue-600 text-white hover:from-purple-700 hover:to-blue-700 transition-all duration-300 group">
                       <span className="flex items-center justify-center">
-                        View {selectedContent.type === 'files' ? 'File' : selectedContent.type.slice(0, -1)}
+                        View {selectedContent.type.slice(0, -1)}
                         <ChevronRight className="h-4 w-4 ml-2 group-hover:translate-x-1 transition-transform" />
                       </span>
                     </Button>
@@ -443,12 +391,10 @@ export default function CreatorProfile() {
           </>
         );
       }
-      case 'files': {
-        const fileItem = item as FileItem;
+      default: {
         return (
           <>
-            <span>{fileItem.format}</span>
-            <span>{fileItem.size}</span>
+            <span>Unknown type</span>
           </>
         );
       }
@@ -490,14 +436,14 @@ export default function CreatorProfile() {
           >
             <Avatar className="mx-auto w-32 h-32 border-4 border-white shadow-xl">
               <AvatarImage 
-                src={getImageWithFallback(creator.image)} 
+                src={creator.avatar} // Use avatar instead of image
                 alt={creator.name}
                 onError={(e) => {
                   const target = e.target as HTMLImageElement;
                   target.src = 'https://via.placeholder.com/128';
                 }}
               />
-              <AvatarFallback>{creator.name.split(' ').map((n: string) => n[0]).join('')}</AvatarFallback>
+              <AvatarFallback>{creator.name.split(' ').map(n => n[0]).join('')}</AvatarFallback>
             </Avatar>
             <h1 className="mt-6 text-4xl font-bold text-gray-900">{creator.name}</h1>
             <p className="mt-2 text-xl text-gray-600">{creator.bio}</p>
@@ -581,7 +527,7 @@ export default function CreatorProfile() {
                 </CardHeader>
                 <CardContent>
                   <div className="flex flex-wrap gap-2">
-                    {creator.expertise.map((skill: string, index: number) => (
+                    {creator.expertise?.map((skill: string, index: number) => (
                       <Badge
                         key={index}
                         variant="secondary"

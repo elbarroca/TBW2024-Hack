@@ -8,6 +8,7 @@ import {
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { COURSES } from '@/data/courses';
+import { findCourseDetailsByUrl } from '@/data/course-details';
 import { useParams } from 'react-router-dom';
 import { Badge } from '@/components/ui/Badge';
 import {
@@ -35,115 +36,6 @@ const fadeInUp = {
     visible: { opacity: 1, y: 0 }
 };
 
-// Define types for prerequisites and target audiences
-type Prerequisite = string;
-type TargetAudience = string;
-
-// Sample data for prerequisites and target audiences
-const prerequisites: Prerequisite[] = [
-    "Basic understanding of blockchain technology and cryptography",
-    "Familiarity with JavaScript/TypeScript programming",
-    "Knowledge of Web3 fundamentals",
-    "Understanding of smart contract basics"
-];
-
-const targetAudiences: TargetAudience[] = [
-    "Web3 developers looking to specialize in DeFi",
-    "Smart contract engineers interested in protocol development",
-    "DeFi enthusiasts wanting to build decentralized applications",
-    "Blockchain developers seeking advanced protocol knowledge"
-];
-
-// Mock data for creator
-const creatorData = {
-    id: "elena-rodriguez",
-    name: "Elena Rodriguez",
-    image: "https://images.unsplash.com/photo-1580489944761-15a19d654956?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1361&q=80",
-    expertise: "DeFi Protocol Architect",
-    rating: "4.9",
-    bio: "Experienced blockchain developer specializing in DeFi protocols. Previously led development at major DeFi projects and contributed to key protocol implementations.",
-    courses: 12,
-    students: 15000,
-    slug: "elena-rodriguez",
-    isTopCreator: true,
-    twitterHandle: "elenarod_web3",
-    tags: ["DeFi", "Solidity", "Web3", "Smart Contracts"]
-};
-
-// Mock data for course modules and lessons
-const courseModules = [
-    {
-        id: "module-1",
-        title: "Introduction to DeFi Protocols",
-        description: "Learn the fundamentals of decentralized finance and protocol development",
-        lessons: [
-            {
-                id: "lesson-1-1",
-                title: "Understanding DeFi Fundamentals",
-                description: "An overview of decentralized finance, its importance, and core concepts",
-                slug: "defi-fundamentals",
-                duration: "45 min"
-            },
-            {
-                id: "lesson-1-2",
-                title: "Protocol Architecture Deep Dive",
-                description: "Explore the architecture patterns of successful DeFi protocols",
-                slug: "protocol-architecture",
-                duration: "60 min"
-            }
-        ]
-    },
-    {
-        id: "module-2",
-        title: "Smart Contract Development",
-        description: "Master the art of writing secure and efficient smart contracts",
-        lessons: [
-            {
-                id: "lesson-2-1",
-                title: "Advanced Solidity Patterns",
-                description: "Learn advanced Solidity patterns and best practices for DeFi protocols",
-                slug: "advanced-solidity",
-                duration: "90 min"
-            },
-            {
-                id: "lesson-2-2",
-                title: "Security Considerations",
-                description: "Understanding common vulnerabilities and security best practices",
-                slug: "security-considerations",
-                duration: "75 min"
-            }
-        ]
-    },
-    {
-        id: "module-3",
-        title: "Protocol Integration & Testing",
-        description: "Learn how to integrate and thoroughly test your DeFi protocol",
-        lessons: [
-            {
-                id: "lesson-3-1",
-                title: "Frontend Integration",
-                description: "Build user interfaces that interact with your protocol",
-                slug: "frontend-integration",
-                duration: "60 min"
-            },
-            {
-                id: "lesson-3-2",
-                title: "Testing Strategies",
-                description: "Comprehensive testing approaches for DeFi protocols",
-                slug: "testing-strategies",
-                duration: "45 min"
-            },
-            {
-                id: "lesson-3-3",
-                title: "Deployment & Monitoring",
-                description: "Learn how to deploy and monitor your protocol in production",
-                slug: "deployment-monitoring",
-                duration: "60 min"
-            }
-        ]
-    }
-];
-
 export default function CourseDetailsPage() {
     const { creatorSlug, courseSlug } = useParams();
     const [showCurrencySelector, setShowCurrencySelector] = useState(false);
@@ -162,19 +54,17 @@ export default function CourseDetailsPage() {
         return (basePrice / selectedRate).toFixed(2);
     };
 
-    // Find the course by matching creator ID and course ID
-    const course = COURSES.find(
-        (c) => 
-            c.creator.id === creatorSlug &&
-            c.id === courseSlug
-    );
+    // Find the course by URL
+    const courseUrl = `/${creatorSlug}/${courseSlug}`;
+    const courseDetails = findCourseDetailsByUrl(courseUrl);
+    const course = COURSES.find(c => c.url === courseUrl);
 
-    if (!course) {
+    if (!course || !courseDetails) {
         return (
             <div className="flex items-center justify-center min-h-screen">
                 <div className="text-center">
                     <h2 className="text-2xl font-bold mb-2">Course not found</h2>
-                    <p className="text-gray-600">Looking for: {creatorSlug}/{courseSlug}</p>
+                    <p className="text-gray-600">Looking for: {courseUrl}</p>
                 </div>
             </div>
         );
@@ -190,6 +80,11 @@ export default function CourseDetailsPage() {
             console.log('Purchase with', selectedCurrency);
         }
     };
+
+    // Get related courses (same category, excluding current course)
+    const relatedCourses = COURSES.filter(c => 
+        c.category === course.category && c.id !== course.id
+    ).slice(0, 2);
 
     return (
         <div className="min-h-screen bg-gray-50 flex flex-col">
@@ -223,12 +118,14 @@ export default function CourseDetailsPage() {
                                     >
                                         {course.level}
                                     </Badge>
-                                    <Badge 
-                                        variant="secondary"
-                                        className="bg-gradient-to-r from-yellow-400 to-yellow-600 text-white border-none shadow-lg"
-                                    >
-                                        Certified Course
-                                    </Badge>
+                                    {courseDetails.certificate && (
+                                        <Badge 
+                                            variant="secondary"
+                                            className="bg-gradient-to-r from-yellow-400 to-yellow-600 text-white border-none shadow-lg"
+                                        >
+                                            Certified Course
+                                        </Badge>
+                                    )}
                                 </div>
                                 <div className="space-y-4">
                                     <h1 className="text-4xl lg:text-6xl font-bold leading-tight">
@@ -291,7 +188,7 @@ export default function CourseDetailsPage() {
                                             className="bg-purple-500 hover:bg-purple-600 text-white font-semibold px-6"
                                             onClick={handleBuyClick}
                                         >
-                                            {course.price} USDC
+                                            {course.price} SOL
                                         </Button>
                                     </div>
                                 </div>
@@ -331,13 +228,7 @@ export default function CourseDetailsPage() {
                                     What You'll Learn
                                 </h2>
                                 <div className="space-y-4">
-                                    {[
-                                        "Build decentralized applications (dApps) from scratch using industry best practices",
-                                        "Implement smart contracts with Solidity and deploy to multiple chains", 
-                                        "Create secure and scalable blockchain architectures",
-                                        "Master Web3.js and Ethers.js for blockchain interactions",
-                                        "Understand DeFi protocols and implement key financial primitives"
-                                    ].map((item, index) => (
+                                    {courseDetails.objectives?.map((objective, index) => (
                                         <div key={index} className="flex gap-4 items-start bg-gradient-to-r from-purple-50 to-indigo-50 p-4 rounded-lg hover:shadow-md transition-all">
                                             <div className="flex-shrink-0">
                                                 <div className="w-8 h-8 rounded-full bg-gradient-to-r from-green-500 to-green-600 flex items-center justify-center">
@@ -345,7 +236,7 @@ export default function CourseDetailsPage() {
                                                 </div>
                                             </div>
                                             <div className="flex-1">
-                                                <p className="text-gray-800 font-medium">{item}</p>
+                                                <p className="text-gray-800 font-medium">{objective}</p>
                                             </div>
                                         </div>
                                     ))}
@@ -360,10 +251,7 @@ export default function CourseDetailsPage() {
                                 <div className="space-y-6">
                                     <div className="prose prose-purple max-w-none">
                                         <p className="text-gray-700 leading-relaxed text-lg">
-                                            Dive deep into blockchain development with this comprehensive course. You'll learn everything from basic concepts to advanced implementation techniques. Through hands-on projects and real-world examples, you'll gain practical experience in building decentralized applications that can scale.
-                                        </p>
-                                        <p className="text-gray-700 leading-relaxed text-lg mt-4">
-                                            This course combines theoretical knowledge with practical implementation, ensuring you're ready to tackle real-world blockchain development challenges. Perfect for developers looking to transition into Web3 or enhance their existing blockchain skills.
+                                            {course.description}
                                         </p>
                                         <div className="mt-8 flex justify-center">
                                             <Button
@@ -383,6 +271,7 @@ export default function CourseDetailsPage() {
                                 </div>
                             </Card>
                         </div>
+
                         {/* Prerequisites & Target Audience */}
                         <div className="grid grid-cols-2 gap-8 mt-12">
                             {/* Prerequisites */}
@@ -392,9 +281,9 @@ export default function CourseDetailsPage() {
                                 </div>
                                 <CardContent className="p-6">
                                     <ScrollArea className="h-[200px] pr-4">
-                                        {prerequisites.length > 0 ? (
+                                        {courseDetails.prerequisites && courseDetails.prerequisites.length > 0 ? (
                                             <ul className="space-y-4">
-                                                {prerequisites.map((prerequisite, index) => (
+                                                {courseDetails.prerequisites.map((prerequisite, index) => (
                                                     <motion.li 
                                                         key={index}
                                                         className="flex items-start gap-3 p-3 rounded-lg bg-white/70 border border-blue-100/50"
@@ -406,7 +295,7 @@ export default function CourseDetailsPage() {
                                                 ))}
                                             </ul>
                                         ) : (
-                                            <p className="text-gray-500 text-center py-4">Add prerequisites to help students understand what they need to know before starting.</p>
+                                            <p className="text-gray-500 text-center py-4">No prerequisites specified for this course.</p>
                                         )}
                                     </ScrollArea>
                                 </CardContent>
@@ -419,9 +308,9 @@ export default function CourseDetailsPage() {
                                 </div>
                                 <CardContent className="p-6">
                                     <ScrollArea className="h-[200px] pr-4">
-                                        {targetAudiences.length > 0 ? (
+                                        {courseDetails.targetAudience && courseDetails.targetAudience.length > 0 ? (
                                             <ul className="space-y-4">
-                                                {targetAudiences.map((audience, index) => (
+                                                {courseDetails.targetAudience.map((audience, index) => (
                                                     <motion.li 
                                                         key={index}
                                                         className="flex items-start gap-3 p-3 rounded-lg bg-white/70 border border-green-100/50"
@@ -433,28 +322,69 @@ export default function CourseDetailsPage() {
                                                 ))}
                                             </ul>
                                         ) : (
-                                            <p className="text-gray-500 text-center py-4">Add target audiences to show who this video is designed for.</p>
+                                            <p className="text-gray-500 text-center py-4">No target audience specified for this course.</p>
                                         )}
                                     </ScrollArea>
                                 </CardContent>
                             </Card>
                         </div>
-
                         {/* Course Curriculum */}
                         <div className="mt-12">
                             <LessonSelector 
-                                modules={courseModules}
+                                modules={courseDetails.modules.map(module => ({
+                                    ...module,
+                                    lessons: module.lessons.map(lesson => ({
+                                        ...lesson,
+                                        slug: lesson.id,
+                                        description: lesson.description || '' // Ensure description is always a string
+                                    }))
+                                }))}
                                 className="bg-white/50 backdrop-blur-sm border-purple-100/50"
                             />
                         </div>
 
+                        {/* Course Information Grid */}
+                        <div className="grid grid-cols-12 gap-8 mt-16">
+                            {/* Creator Section */}
+                            <div className="col-span-4">
+                                <div className="sticky top-24">
+                                    <h2 className="text-2xl font-bold text-gray-900 mb-6">
+                                        Meet Your Instructor
+                                    </h2>
+                                    <CreatorCard 
+                                        name={course.creator.name}
+                                        avatar={course.creator.avatar}
+                                        expertise={course.creator.title ? [course.creator.title] : undefined} // Convert to array
+                                        bio={course.creator.bio}
+                                        rating={course.rating ? parseFloat(course.rating.toString()) : undefined}
+                                        courses={courseDetails.modules.length}
+                                        students={course.enrolled}
+                                        slug={course.creator.id}
+                                        isTopCreator={true}
+                                    />
+                                </div>
+                            </div>
 
-                        {/* Buy Now Section with Price Logic */}
+                            {/* Recommended Courses */}
+                            <div className="col-span-8">
+                                <h2 className="text-2xl font-bold text-gray-900 mb-6">
+                                    Similar Courses
+                                </h2>
+                                <div className="grid grid-cols-2 gap-6">
+                                    {relatedCourses.map((course) => (
+                                        <CourseCard key={course.id} course={course} />
+                                    ))}
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Buy Now Section */}
                         <motion.div 
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ duration: 0.5 }}
                             className="mt-12"
+                            id="buy-section"
                         >
                             <Card className="relative overflow-hidden p-8">
                                 <div className="absolute inset-0 bg-gradient-to-br from-purple-600/95 via-indigo-600/95 to-purple-800/95" />
@@ -471,8 +401,8 @@ export default function CourseDetailsPage() {
                                                 Start Your Learning Journey Today
                                             </h2>
                                             <p className="text-purple-100 text-lg max-w-2xl mx-auto leading-relaxed">
-                                                Join thousands of students already mastering {course.title || 'this video'}.
-                                                Get lifetime access to all video materials and future updates.
+                                                Join {course.enrolled}+ students already mastering {course.title}.
+                                                Get lifetime access to all course materials and future updates.
                                             </p>
                                         </motion.div>
 
@@ -487,9 +417,14 @@ export default function CourseDetailsPage() {
                                                     <span className="text-5xl font-bold text-white">
                                                         ${course.price}
                                                     </span>
+                                                    {course.originalPrice && (
+                                                        <span className="text-2xl text-purple-200 line-through">
+                                                            ${course.originalPrice}
+                                                        </span>
+                                                    )}
                                                 </div>
                                                 <p className="text-purple-200 text-sm">
-                                                    One-time payment   Lifetime access   Free updates
+                                                    One-time payment • Lifetime access • Free updates
                                                 </p>
                                             </div>
                                         </motion.div>
@@ -504,6 +439,7 @@ export default function CourseDetailsPage() {
                                                 <Button 
                                                     size="lg"
                                                     className="group font-semibold text-lg px-12 py-6 shadow-xl hover:shadow-2xl transition-all duration-300 bg-gradient-to-r from-white to-purple-50 hover:from-purple-50 hover:to-white text-purple-700 hover:text-purple-800"
+                                                    onClick={handleBuyClick}
                                                 >
                                                     <span>Buy Now</span>
                                                     <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
@@ -514,44 +450,19 @@ export default function CourseDetailsPage() {
                                 </CardContent>
                             </Card>
                         </motion.div>
-
-                        {/* Course Information Grid */}
-                        <div className="grid grid-cols-12 gap-8 mt-16">
-                            {/* Creator Section */}
-                            <div className="col-span-4">
-                                <div className="sticky top-24">
-                                    <h2 className="text-2xl font-bold text-gray-900 mb-6">
-                                        Meet Your Instructor
-                                    </h2>
-                                    <CreatorCard {...creatorData} />
-                                </div>
-                            </div>
-
-                            {/* Recommended Courses */}
-                            <div className="col-span-8">
-                                <h2 className="text-2xl font-bold text-gray-900 mb-6">
-                                    Similar Courses
-                                </h2>
-                                <div className="grid grid-cols-2 gap-6">
-                                    {COURSES.slice(0,2).map((course) => (
-                                        <CourseCard key={course.id} course={course} />
-                                    ))}
-                                </div>
-                            </div>
-                        </div>
                     </div>
                 </div>
 
                 {/* Footer */}
                 <Footer />
 
-                {/* Sticky Buy Button - now positioned above footer */}
+                {/* Sticky Buy Button */}
                 <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 shadow-lg p-4 z-50">
                     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                         <div className="flex items-center justify-between">
                             <div className="flex items-center space-x-4">
                                 <div className="text-2xl font-bold text-gray-900">
-                                    {course.price} USDC
+                                    {course.price} SOL
                                 </div>
                                 {selectedCurrency && (
                                     <div className="text-lg text-gray-600">
@@ -574,7 +485,7 @@ export default function CourseDetailsPage() {
                     </div>
                 </div>
 
-                {/* Add WalletPicker Dialog */}
+                {/* Dialogs */}
                 <Dialog open={showWalletPicker} onOpenChange={setShowWalletPicker}>
                     <DialogContent className="sm:max-w-md">
                         <DialogHeader>
@@ -589,7 +500,6 @@ export default function CourseDetailsPage() {
                     </DialogContent>
                 </Dialog>
 
-                {/* Currency Selector Dialog */}
                 <CurrencySelector
                     open={showCurrencySelector}
                     onOpenChange={setShowCurrencySelector}

@@ -51,13 +51,22 @@ export function CourseCard({ course, className = '' }: CourseCardProps) {
 
     const handleClick = () => {
         try {
+            // If course has a predefined URL, use it
+            if (course.url) {
+                navigate(course.url);
+                return;
+            }
+
+            // Otherwise, construct URL from creator name and course title
             if (!course?.title || !course?.creator?.name) {
                 throw new Error('Course title or Creator name is missing');
             }
             
-            const creatorSlug = course.creator.name.toLowerCase().replace(/\s+/g, '-');
-            const courseSlug = course.title.toLowerCase().replace(/\s+/g, '-');
-            navigate(`/${creatorSlug}/${courseSlug}`);
+            const creatorSlug = course.creator.name.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+            const courseSlug = course.title.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+            const constructedUrl = `/${creatorSlug}/${courseSlug}`;
+            
+            navigate(constructedUrl);
         } catch (error) {
             console.error('Navigation error:', error);
         }
@@ -70,7 +79,7 @@ export function CourseCard({ course, className = '' }: CourseCardProps) {
                 role="button"
                 tabIndex={0}
                 onKeyDown={(e) => e.key === 'Enter' && handleClick()}
-                className={`group overflow-hidden hover:shadow-xl transition-all duration-300 ${className}`}
+                className={`group overflow-hidden hover:shadow-xl transition-all duration-300 cursor-pointer ${className}`}
             >
                 <div className="relative">
                     {course.image ? (
@@ -96,15 +105,25 @@ export function CourseCard({ course, className = '' }: CourseCardProps) {
                             <AvatarImage src={course.creator?.avatar} alt={course.creator?.name} />
                             <AvatarFallback>{course.creator?.name?.charAt(0)}</AvatarFallback>
                         </Avatar>
-                        <span className="text-sm text-gray-600">{course.creator?.name}</span>
+                        <div className="flex flex-col">
+                            <span className="text-sm font-medium text-gray-900">{course.creator?.name}</span>
+                            {course.creator?.title && (
+                                <span className="text-xs text-gray-500">{course.creator.title}</span>
+                            )}
+                        </div>
                     </div>
                     <h3 className="text-xl font-semibold text-gray-900 line-clamp-2 leading-tight">
                         {course.title}
                     </h3>
+                    {course.subtitle && (
+                        <p className="text-sm text-gray-600">{course.subtitle}</p>
+                    )}
                 </CardHeader>
 
                 <CardContent className="space-y-4">
-                    <p className="text-sm text-gray-600 line-clamp-2">{course.description}</p>
+                    {course.description && (
+                        <p className="text-sm text-gray-600 line-clamp-2">{course.description}</p>
+                    )}
 
                     <div className="flex items-center gap-4 text-sm">
                         {course.rating !== undefined && (

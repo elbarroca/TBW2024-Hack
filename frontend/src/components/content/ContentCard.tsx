@@ -12,13 +12,14 @@ import {
     TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
+import { ContentType } from '@/types/content-details';
 
 interface ContentCardProps {
     id: string;
     title: string;
     creator: string;
     price: number;
-    type: string;
+    type: ContentType;
     thumbnail: string;
     downloads: number;
     rating: number;
@@ -50,6 +51,24 @@ export function ContentCard({
         onBuyClick(id);
     };
 
+    // Format the thumbnail URL
+    const formattedThumbnail = thumbnail.startsWith('http') 
+        ? thumbnail 
+        : `${import.meta.env.VITE_APP_BASE_URL || ''}${thumbnail}`;
+
+    // Format price display
+    const formatPrice = (price: number) => {
+        if (price === 0) return 'Free';
+        return price < 1 ? `$${price.toFixed(2)}` : `$${Math.floor(price)}.${(price % 1).toFixed(2).slice(2)}`;
+    };
+
+    // Calculate SOL price with proper formatting for small numbers
+    const solPrice = price * 0.08;
+    const formatSolPrice = (price: number) => {
+        if (price === 0) return '0 SOL';
+        return price < 0.01 ? '<0.01 SOL' : `${price.toFixed(2)} SOL`;
+    };
+
     return (
         <Card 
             onClick={handleCardClick}
@@ -57,9 +76,13 @@ export function ContentCard({
         >
             <div className="relative pb-[56.25%] bg-gradient-to-br from-purple-50/80 to-gray-50/80 overflow-hidden">
                 <img
-                    src={thumbnail}
+                    src={formattedThumbnail}
                     alt={`${title} thumbnail`}
                     className="absolute inset-0 w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-700 ease-out"
+                    onError={(e) => {
+                        const target = e.target as HTMLImageElement;
+                        target.src = '/fallback-image.jpg'; // Add a fallback image
+                    }}
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-black/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                 <div className="absolute top-3 right-3 flex gap-2">
@@ -144,10 +167,10 @@ export function ContentCard({
                         <span className="text-xs text-gray-500 font-medium">Price</span>
                         <div className="flex items-center space-x-1.5">
                             <span className="font-bold text-base bg-gradient-to-r from-purple-600 to-indigo-600 bg-clip-text text-transparent">
-                                {price === 0 ? 'Free' : `$${price.toFixed(2)}`}
+                                {price} SOL
                             </span>
                             <span className="text-xs text-gray-500 font-medium">
-                                ({(price * 0.08).toFixed(2)} SOL)
+                                (${(price * 40).toFixed(2)})
                             </span>
                         </div>
                     </div>

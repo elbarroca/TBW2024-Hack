@@ -3,34 +3,24 @@ import { Star, Users, BookOpen, Award, ExternalLink, Twitter } from 'lucide-reac
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/button";
+import { Creator } from '@/types/creator';
 
-interface CreatorCardProps {
-  id: string;
-  name: string;
-  image: string;
-  expertise: string;
-  rating: string;
-  bio: string;
-  courses: number;
-  students: number;
-  slug: string;
+interface CreatorCardProps extends Partial<Creator> {
   isTopCreator?: boolean;
-  twitterHandle?: string;
-  tags?: string[];
 }
 
 export const CreatorCard = ({
   name,
-  image,
-  expertise,
+  avatar,
+  role,
   rating,
   bio,
   courses,
   students,
   slug,
   isTopCreator,
-  twitterHandle,
-  tags = []
+  socialLinks,
+  expertise
 }: CreatorCardProps) => {
   return (
     <Card className="group relative overflow-hidden hover:shadow-lg transition-all duration-500 border-gray-200 hover:border-gray-300 bg-white sm:hover:scale-105">
@@ -40,7 +30,7 @@ export const CreatorCard = ({
         <div className="relative overflow-hidden rounded-xl">
           <div className="absolute inset-0 bg-black/5 z-10 group-hover:opacity-40 transition-opacity duration-500" />
           <img
-            src={image}
+            src={avatar}
             alt={name}
             className="w-full h-48 object-cover transform group-hover:scale-105 transition-transform duration-700 ease-in-out"
           />
@@ -60,9 +50,9 @@ export const CreatorCard = ({
             <CardTitle className="text-xl font-bold text-gray-900">
               {name}
             </CardTitle>
-            {twitterHandle && (
+            {socialLinks?.twitter && (
               <a 
-                href={`https://twitter.com/${twitterHandle}`} 
+                href={socialLinks.twitter} 
                 target="_blank" 
                 rel="noopener noreferrer"
                 className="text-gray-600 hover:text-blue-500 transition-colors duration-300"
@@ -72,16 +62,16 @@ export const CreatorCard = ({
             )}
           </div>
           <CardDescription className="text-gray-600 font-medium">
-            {expertise}
+            {role}
           </CardDescription>
           <div className="flex flex-wrap gap-2 mt-2">
-            {tags.map((tag, index) => (
+            {expertise?.map((skill, index) => (
               <Badge 
                 key={index}
                 variant="outline" 
                 className="bg-gray-50 text-gray-700 border-gray-200"
               >
-                {tag}
+                {skill}
               </Badge>
             ))}
           </div>
@@ -108,7 +98,7 @@ export const CreatorCard = ({
           <div className="flex items-center">
             <span className="flex items-center text-sm font-medium text-gray-700">
               <Users className="w-4 h-4 mr-2 text-gray-600" />
-              {students.toLocaleString()} Students
+              {students?.toLocaleString()} Students
             </span>
           </div>
         </div>

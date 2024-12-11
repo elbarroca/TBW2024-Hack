@@ -9,16 +9,17 @@ export interface Module {
     id: string;
     title: string;
     duration: string;
+    order: number;
     lessons: Lesson[];
 }
 
 export interface Creator {
     id: string;
     name: string;
-    title: string;
-    bio: string;
+    title?: string;
+    bio?: string;
     avatar: string;
-    expertise: string[];
+    expertise?: string[];
 }
 
 export interface FAQ {
@@ -32,23 +33,22 @@ export interface Course {
     id: string;
     title: string;
     subtitle: string;
-    description: string;
+    description?: string;
     creator: Creator;
-    image: string;
-    category: string;
-    duration: string;
-    enrolled: number;
-    rating: number;
-    reviews: number;
+    rating?: number;
+    reviews?: number;
+    enrolled?: number;
+    duration?: string;
+    level?: string;
+    language?: string;
+    lastUpdated?: string;
+    whatYouWillLearn?: string[];
     price: number;
     originalPrice?: number;
-    level: Level;
-    language: string;
-    lastUpdated: string;
-    whatYouWillLearn: string[];
-    modules?: CourseModule[];
-    certificate?: boolean;
+    category?: string;
+    image?: string;
     tags?: string[];
+    url?: string;
 }
 
 export interface CourseModule {

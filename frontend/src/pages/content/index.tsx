@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { Search } from 'lucide-react';
 import { ContentCard } from '@/components/content/ContentCard';
-import { CategoryList, CategoryKey, COURSE_CATEGORIES } from '@/components/courses/CategoryList';
+import { CategoryList, CategoryKey } from '@/components/courses/CategoryList';
+import { ContentType } from '@/types/content-details';
 
 interface ContentItem {
     id: string;
@@ -22,60 +23,60 @@ interface ContentItem {
 const MOCK_CONTENT: ContentItem[] = [
     {
         id: '1',
-        title: 'The Complete Guide to DeFi Trading',
-        creator: 'Alex Thompson',
-        price: 29.99,
-        type: 'ebooks',
-        thumbnail: '/content/defi-guide-enhanced.jpg',
-        downloads: 1200,
+        title: 'Smart Contract Security Audit Report: Common Vulnerabilities & Best Practices',
+        creator: 'Elena Rodriguez',
+        price: 0.8,
+        type: 'ebook',
+        thumbnail: 'https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Ftse1.mm.bing.net%2Fth%3Fid%3DOIP.h6lpyFKPz2w6wgBW7f8edAHaEK%26pid%3DApi&f=1&ipt=f22d811b530d9a4df1b0b1f6a00e2af2bf7f3fe4fb97340366ec788269ec8453&ipo=images',
+        downloads: 3156,
         rating: 4.8,
-        category: 'DeFi',
-        tags: ['Yield Farming', 'DEX Trading', 'Liquidity Pools'],
-        description: 'Master DeFi trading with comprehensive strategies and real-world examples',
+        category: 'Development',
+        tags: ['Security', 'Smart Contracts', 'Auditing', 'Best Practices'],
+        description: 'Comprehensive guide on identifying and preventing smart contract vulnerabilities.',
         lastUpdated: '2024-01-15',
     },
     {
-        id: '2',
-        title: 'Meme Coin Analysis Framework',
-        creator: 'Sarah Chen',
-        price: 9.99,
-        type: 'pdfs',
-        thumbnail: '/content/meme-analysis-pro.jpg',
-        downloads: 3500,
-        rating: 4.5,
-        category: 'Memecoins',
-        tags: ['BONK', 'Meme Trading', 'Token Launch'],
-        description: 'Professional framework for analyzing and evaluating meme coins',
-        lastUpdated: '2024-01-20',
-    },
-    {
-        id: '3',
-        title: 'Smart Contract Security Best Practices',
-        creator: 'Michael Rodriguez',
-        price: 49.99,
-        type: 'ebooks',
-        thumbnail: '/content/security-guide-premium.jpg',
-        downloads: 800,
-        rating: 4.9,
-        category: 'Development',
-        tags: ['Smart Contracts', 'Security Best Practices', 'Testing & Auditing'],
-        description: 'Essential security practices for smart contract development',
+        id: '2', 
+        title: 'Web3 Gaming Economics: Building Sustainable Token Models',
+        creator: 'James Wilson',
+        price: 0,
+        type: 'article',
+        thumbnail: 'https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Ftse4.mm.bing.net%2Fth%3Fid%3DOIP.wRf4E0-pguP9iaWFlBiv1QHaEK%26pid%3DApi&f=1&ipt=865f2ff3c53ec0356f286fa19d97aee794f8259b56972ceca174b0106ba5ba78&ipo=images',
+        downloads: 2876,
+        rating: 4.7,
+        category: 'NFTs & Gaming',
+        tags: ['GameFi', 'Tokenomics', 'Web3 Gaming', 'Economics'],
+        description: 'Deep dive into creating sustainable economic models for blockchain games.',
         lastUpdated: '2024-01-18',
     },
     {
-        id: '4',
-        title: 'Crypto Marketing Fundamentals',
-        creator: 'Emma Davis',
-        price: 0,
-        type: 'blogs',
-        thumbnail: '/content/marketing-master.jpg',
-        downloads: 5000,
-        rating: 4.3,
-        category: 'Education',
-        tags: ['Blockchain Basics', 'Crypto Fundamentals', 'Research Methods'],
-        description: 'Comprehensive guide to marketing in the crypto space',
-        lastUpdated: '2024-01-22',
+        id: '3',
+        title: 'DeFi Market Analysis: Q4 2024 Research Report',
+        creator: 'Michael Brown',
+        price: 1.2,
+        type: 'file',
+        thumbnail: 'https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Ftse2.mm.bing.net%2Fth%3Fid%3DOIP.Nu5zDQe4R6pXDEYKHJObMAHaEK%26pid%3DApi&f=1&ipt=c7d8c574d88fb16d2cc3989c2e1ae9ae27bf734e74a167fefc41655c0cefd67d&ipo=images',
+        downloads: 1567,
+        rating: 4.9,
+        category: 'DeFi',
+        tags: ['Research', 'Market Analysis', 'DeFi Trends', 'Statistics'],
+        description: 'Comprehensive analysis of DeFi market trends and predictions for 2024.',
+        lastUpdated: '2024-01-20',
     },
+    {
+        id: '4',
+        title: 'Zero Knowledge Proofs: A Visual Guide',
+        creator: 'Alex Rivera',
+        price: 0.5,
+        type: 'video',
+        thumbnail: 'https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Ftse3.mm.bing.net%2Fth%3Fid%3DOIP.IRtt0BffPTVMnBO4zwJZ4wHaE3%26pid%3DApi&f=1&ipt=bcca05a468d1652524bf0cd6a1d5117b7cf1c83fc0a681163b85e718bd866386&ipo=imagesx`x',
+        downloads: 934,
+        rating: 4.8,
+        category: 'Development',
+        tags: ['ZK-Proofs', 'Privacy', 'Cryptography', 'Blockchain'],
+        description: 'Visual explanation of Zero Knowledge Proofs and their blockchain applications.',
+        lastUpdated: '2024-01-22',
+    }
 ];
 
 const CONTENT_TYPES = [
@@ -186,7 +187,7 @@ export default function ContentMarketplace() {
                             title={content.title}
                             creator={content.creator}
                             price={content.price}
-                            type={content.type}
+                            type={content.type as ContentType}
                             thumbnail={content.thumbnail}
                             downloads={content.downloads}
                             rating={content.rating}
