@@ -36,6 +36,9 @@ import {
 import { useAppSelector } from '@/store';
 import { WalletPicker } from '@/components/solana/WalletPicker';
 import { useAuth } from '@/contexts/AuthProvider';
+import { LoginStatus } from '@/store/types';
+import { AuthState } from '@/store/types';
+import { RootState } from '@/store';
 
 // Mock data for demonstration
 const mockPurchases = [
@@ -257,7 +260,7 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
 export default function ProfilePage() {
     const navigate = useNavigate();
     const { logout } = useAuth();
-    const { user, isLoading } = useAppSelector((state) => state.auth);
+    const { user, isLoading, loginStatus } = useAppSelector((state: RootState) => state.auth);
     const [purchaseFilter, setPurchaseFilter] = useState('all');
     const [showSettings, setShowSettings] = useState(false);
     const [profile, setProfile] = useState<CreatorProfile>(initialProfile);
@@ -269,17 +272,23 @@ export default function ProfilePage() {
     const [editingSocialPlatform, setEditingSocialPlatform] = useState<keyof SocialLinks | null>(null);
     const [showDisconnectModal, setShowDisconnectModal] = useState(false);
 
-    // If loading, show loading state
-    if (isLoading) {
+    // Add debugging logs
+    console.log('Auth State:', { user, isLoading });
+
+    // Show loading state only briefly during initial load
+    if (isLoading || loginStatus === LoginStatus.IDLE) {
         return (
             <div className="flex items-center justify-center min-h-screen">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
+                <div className="space-y-4 text-center">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900 mx-auto"></div>
+                    <p className="text-sm text-gray-600">Loading profile...</p>
+                </div>
             </div>
         );
     }
 
-    // If not authenticated, show wallet connection
-    if (!user) {
+    // Check for unauthenticated state
+    if (!user || loginStatus === LoginStatus.OUT) {
         return (
             <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-b from-gray-50 to-white p-4">
                 <div className="max-w-md w-full space-y-8 text-center">

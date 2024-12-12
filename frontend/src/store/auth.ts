@@ -7,7 +7,7 @@ const initialState: AuthState = {
   loginStatus: LoginStatus.IDLE,
   user: null,
   account: null,
-  isLoading: false,
+  isLoading: true,
   error: null,
 };
 
@@ -20,6 +20,8 @@ const authSlice = createSlice({
     },
     setUser: (state, action: PayloadAction<User | null>) => {
       state.user = action.payload;
+      state.isLoading = false;
+      state.loginStatus = action.payload ? LoginStatus.IN : LoginStatus.OUT;
     },
     setLoginStatus: (state, action: PayloadAction<LoginStatus>) => {
       state.loginStatus = action.payload;
@@ -36,6 +38,11 @@ const authSlice = createSlice({
       state.loginStatus = LoginStatus.OUT;
     },
     resetAuth: () => initialState,
+    clearUser: (state) => {
+      state.user = null;
+      state.error = null;
+      state.isLoading = false;
+    },
   },
 });
 
@@ -46,6 +53,7 @@ export const {
   setAuthLoading,
   setAuthError,
   resetAuth,
+  clearUser,
 } = authSlice.actions;
 
 export default authSlice.reducer;
