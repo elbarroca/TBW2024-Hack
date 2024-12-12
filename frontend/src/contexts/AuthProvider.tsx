@@ -1,20 +1,15 @@
 import React, { createContext, useContext, useCallback, useMemo } from 'react';
-import { useAppSelector, useAppDispatch, type RootState } from '@/store';
+import { useAppSelector } from '@/store';
 import { UserRole } from '@/types/auth';
-import { clearUser } from '@/store/auth';
-import { useWallet } from '@solana/wallet-adapter-react';
 
 interface AuthContextType {
     can: (operation: string, resource: string) => boolean;
-    logout: () => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-    const dispatch = useAppDispatch();
-    const { user } = useAppSelector((state: RootState) => state.auth);
-    const wallet = useWallet();
+    const { user } = useAppSelector(state => state.auth);
 
     const rolePermissions = useMemo(() => ({
         [UserRole.STUDENT]: ['read'],
@@ -36,21 +31,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             (resources?.includes('*') || resources?.includes(resource));
     }, [user, rolePermissions, roleResources]);
 
-    const logout = useCallback(async () => {
-        try {
-            if (wallet.disconnect) {
-                await wallet.disconnect();
-            }
-            dispatch(clearUser());
-        } catch (error) {
-            console.error('Error during logout:', error);
-        }
-    }, [dispatch, wallet]);
-
     const contextValue = useMemo(() => ({
         can,
-        logout,
-    }), [can, logout]);
+    }), [can]);
 
     return (
         <AuthContext.Provider value={contextValue}>

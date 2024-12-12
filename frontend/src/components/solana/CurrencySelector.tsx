@@ -10,6 +10,7 @@ import { TokenInfo } from '@/types/api';
 import { SelectedWalletAccountContext } from '@/contexts/solana/SelectedWalletAccountContext';
 import { PaymentButton } from './PaymentButton';
 import BigNumber from 'bignumber.js';
+import { useWallets } from '@wallet-standard/react';
 
 interface CurrencySelectorProps {
     open: boolean;
@@ -30,7 +31,8 @@ export function CurrencySelector({
 }: CurrencySelectorProps) {
     const { balances, error, isLoading } = useAppSelector((state) => state.user);
     const { toast } = useToast();
-    const [selectedWalletAccount] = useContext(SelectedWalletAccountContext);
+    const wallets = useWallets();
+    const connectedWallet = wallets.find(wallet => wallet.accounts.some(account => account.publicKey));
 
     useEffect(() => {
         if (error) {
@@ -197,9 +199,9 @@ export function CurrencySelector({
                         </div>
                     )}
 
-                    {selectedWalletAccount && selectedToken && (
+                    {connectedWallet && selectedToken && (
                         <PaymentButton
-                            account={selectedWalletAccount}
+                            account={connectedWallet.accounts[0]}
                             params={{
                                 selectedToken,
                                 amount: basePrice.toString(), // amount in USDC
@@ -209,14 +211,6 @@ export function CurrencySelector({
                         />
                     )}
 
-                    {!selectedWalletAccount && (
-                        <Button
-                            className="w-full py-6 text-lg font-semibold bg-gray-100 text-gray-400 cursor-not-allowed"
-                            disabled
-                        >
-                            Please Connect Wallet
-                        </Button>
-                    )}
                 </div>
             </DialogContent>
         </Dialog>

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import type { LucideIcon } from 'lucide-react';
 import {
@@ -45,6 +45,9 @@ import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/Dialog";
 import { Progress } from "@/components/ui/Progress";
+import { UiWallet, useDisconnect } from '@wallet-standard/react';
+import { useWallets } from '@wallet-standard/react';
+import { resetAuth } from '@/store/auth';
 
 // Mock data for demonstration
 const mockPurchases = [
@@ -294,7 +297,9 @@ const mockNFTs = [
 
 export default function ProfilePage() {
     const navigate = useNavigate();
-    const { logout } = useAuth();
+    const wallets = useWallets();
+    const connectedWallet = wallets.find(wallet => wallet.accounts.some(account => account.publicKey));
+    const [_, disconnect] = useDisconnect(connectedWallet as UiWallet);
     const { user, isLoading, loginStatus } = useAppSelector((state: RootState) => state.auth);
     const [purchaseFilter, setPurchaseFilter] = useState('all');
     const [showSettings, setShowSettings] = useState(false);
@@ -369,6 +374,11 @@ export default function ProfilePage() {
     const handleContentCreate = (route: string) => {
         navigate(route);
     };
+
+    const handleLogout = useCallback(async () => {
+        resetAuth();
+        disconnect();
+    }, [resetAuth, disconnect]);
 
     const NFTsModal = () => (
         <Dialog open={showNFTsModal} onOpenChange={setShowNFTsModal}>
@@ -1112,10 +1122,7 @@ export default function ProfilePage() {
                 <ConfirmationModal
                     isOpen={showDisconnectModal}
                     onClose={() => setShowDisconnectModal(false)}
-                    onConfirm={() => {
-                        setShowDisconnectModal(false);
-                        logout();
-                    }}
+                    onConfirm={handleLogout}
                     title="Disconnect Wallet"
                     message="Are you sure you want to disconnect your wallet? You will need to reconnect it to access your profile again."
                 />

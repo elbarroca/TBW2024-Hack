@@ -248,8 +248,7 @@ export default function AboutPage() {
                                             </CardHeader>
                                             <CardContent>
                                                 <p className="text-gray-600 text-center">
-                                                    A tech visionary with deep Solana expertise, combining Computer Science
-                                                    and Business Management to revolutionize blockchain education.
+                                                    3 years building on Solana and Web3.
                                                 </p>
                                             </CardContent>
                                             <CardFooter className="justify-center space-x-4">

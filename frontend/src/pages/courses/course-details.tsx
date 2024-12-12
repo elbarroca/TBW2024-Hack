@@ -29,6 +29,7 @@ import { CourseCard } from '@/components/courses/CourseCard';
 import { useAppSelector } from '@/store';
 import { CurrencySelector } from '@/components/solana/CurrencySelector';
 import { WalletPicker } from '@/components/solana/WalletPicker';
+import { useWallets } from '@wallet-standard/react';
 
 // Animation variants
 const fadeInUp = {
@@ -42,7 +43,9 @@ export default function CourseDetailsPage() {
     const [selectedCurrency, setSelectedCurrency] = useState("");
     const { user } = useAppSelector((state) => state.auth);
     const [showWalletPicker, setShowWalletPicker] = useState(false);
-
+    const wallets = useWallets();
+    const connectedWallet = wallets.find(wallet => wallet.accounts.some(account => account.publicKey));
+    
     const currencies = [
         { name: "BONK", rate: 0.000001 },
         { name: "SOL", rate: 100 },

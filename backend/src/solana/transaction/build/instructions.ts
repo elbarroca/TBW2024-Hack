@@ -6,7 +6,7 @@ import { buildJupiterInstructions } from './jupiter';
 import { buildTransferInstruction } from './transfer';
 import { getMints } from '../../fetcher/getMint';
 import BigNumber from 'bignumber.js';
-import { fetchMarketData, fetchTokensData } from '../../fetcher/birdeye';
+import { fetchMarketData } from '../../fetcher/birdeye';
 
 export function deserializeInstruction(instructionData: string): IInstruction<string> {
   const instruction = JSON.parse(instructionData) as RawInstruction;
