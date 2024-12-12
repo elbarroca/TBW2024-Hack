@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -31,6 +31,13 @@ import { Image as ImageIcon } from 'lucide-react';
 import { LessonSelector } from '@/components/courses/LessonSelector';
 import { cn } from '@/lib/utils';
 import { useNavigate } from 'react-router-dom';
+import { CertificationUploader } from '@/components/courses/CertificationUploader';
+import { useCreateNFTMutation, useSendTransactionMutation } from '@/api/endpoints/metaplex';
+import { useAppSelector } from '@/store';
+import { UiWallet, useWallets } from '@wallet-standard/react';
+import { useSignTransaction } from '@solana/react';
+import bs58 from 'bs58';
+import { getBase64Encoder } from '@solana/web3.js';
 
 const MAX_FILE_SIZE = 500 * 1024 * 1024; // 500MB
 const ACCEPTED_VIDEO_TYPES = ['video/mp4', 'video/avi', 'video/quicktime'];
@@ -103,6 +110,7 @@ const formSchema = z.object({
     difficulty: z.enum(['beginner', 'intermediate', 'advanced', 'expert']),
     certification: z.boolean(),
     certificationImage: z.string().optional(),
+    certificationCollectionMint: z.string().optional(),
     modules: z.array(z.object({
         id: z.string(),
         title: z.string().min(1, "Module title is required"),
@@ -230,6 +238,13 @@ export default function CreateVideo() {
     const [modules, setModules] = useState<Module[]>([]);
     const [certificationImage, setCertificationImage] = useState<string>('');
     const navigate = useNavigate();
+    const [isCreatingCertificate, setIsCreatingCertificate] = useState(false);
+    const { account } = useAppSelector((state) => state.auth);
+    const [createNFT] = useCreateNFTMutation();
+    const [sendTransaction] = useSendTransactionMutation();
+    const wallets = useWallets() as UiWallet[];
+    const connectedWallet = useMemo(() => wallets.find((x) => account && x.accounts.length > 0 && x.accounts[0].address === account), [wallets, account]) as UiWallet;
+    const signTransaction = useSignTransaction(connectedWallet.accounts[0], 'solana:mainnet');
 
     const {
         register,
@@ -488,6 +503,96 @@ export default function CreateVideo() {
             // Show preview button by updating state
             setValue('modules', newModules);
         }
+    };
+
+    const handleCertificationChange = (checked: boolean) => {
+        setValue('certification', checked);
+        if (!checked) {
+            handleRemoveCertificationImage();
+        }
+    };
+
+    const handleCertificationImageUpload = async (files: FileList) => {
+        const file = files[0];
+        if (!file) return;
+
+        try {
+            setIsCreatingCertificate(true);
+
+            // Convert file to base64
+            const base64 = await new Promise<string>((resolve, reject) => {
+                const reader = new FileReader();
+                reader.readAsDataURL(file);
+                reader.onload = () => resolve(reader.result as string);
+                reader.onerror = error => reject(error);
+            });
+
+            // Create NFT collection using Metaplex
+            const response = await createNFT({
+                imageFile: base64,
+                name: `${watch('title')} Certificate`,
+                description: watch('description') || `Certificate of completion for ${watch('title')}`,
+                owner: account || ''
+            }).unwrap();
+
+
+            if (response.transaction && response.collectionMint) {
+                const base64Encoder = getBase64Encoder();
+                const transactionBytes = base64Encoder.encode(response.transaction);
+                
+                const { signedTransaction } = await signTransaction({
+                    transaction: transactionBytes as unknown as Uint8Array,
+                });
+
+                const serializedTransaction = bs58.encode(Buffer.from(signedTransaction));
+
+                // Send signed transaction for confirmation
+                const confirmation = await sendTransaction({
+                    transaction: serializedTransaction
+                }).unwrap();
+
+
+                if (confirmation.error) {
+                    throw new Error(confirmation.error);
+                }
+
+                // Set the collection mint address in the form
+                setValue('certificationCollectionMint', response.collectionMint);
+                
+                // Set the image preview
+                const imageUrl = URL.createObjectURL(file);
+                setCertificationImage(imageUrl);
+                setValue('certificationImage', imageUrl);
+
+                toast({
+                    title: 'Success',
+                    description: 'Certificate collection created successfully',
+                });
+            }
+        } catch (error: any) {
+            console.error('Error creating certificate collection:', error);
+            toast({
+                title: 'Error',
+                description: error.message || 'Failed to create certificate collection',
+                variant: 'destructive',
+            });
+        } finally {
+            setIsCreatingCertificate(false);
+        }
+    };
+
+    const handleRemoveCertificationImage = () => {
+        setCertificationImage('');
+        setValue('certificationImage', '');
+        setValue('certificationCollectionMint', '');
+    };
+
+    const handleCollectionCreated = (collectionMint: string) => {
+        setValue('certificationCollectionMint', collectionMint);
+        toast({
+            title: "Success",
+            description: "NFT Collection created successfully. Students who complete the course will receive a certificate from this collection.",
+        });
     };
 
     return (
@@ -1130,88 +1235,18 @@ export default function CreateVideo() {
                                 </div>
                             </div>
 
-                            <Card className="p-8 bg-white shadow-lg hover:shadow-xl transition-all duration-300 border-none">
-                                <div className="space-y-6">
-                                    <div className="flex items-center justify-between">
-                                        <div className="space-y-0.5">
-                                            <h2 className="text-xl font-semibold">Course Certification</h2>
-                                            <p className="text-sm text-gray-500">Enable certification for students who complete this course</p>
-                                        </div>
-                                        <Switch
-                                            checked={watch('certification')}
-                                            onCheckedChange={(checked) => {
-                                                setValue('certification', checked);
-                                            }}
-                                        />
-                                    </div>
-
-                                    {watch('certification') && (
-                                        <motion.div
-                                            initial={{ opacity: 0, height: 0 }}
-                                            animate={{ opacity: 1, height: 'auto' }}
-                                            exit={{ opacity: 0, height: 0 }}
-                                            className="space-y-4 pt-4"
-                                        >
-                                            <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 hover:border-purple-500 transition-colors duration-300">
-                                                {!certificationImage ? (
-                                                    <div className="text-center">
-                                                        <Upload className="mx-auto h-12 w-12 text-gray-400 mb-4" />
-                                                        <div className="w-full">
-                                                            <FileUploader
-                                                                accept="image/*"
-                                                                onUpload={(files) => {
-                                                                    const file = files[0];
-                                                                    if (file) {
-                                                                        const imageUrl = URL.createObjectURL(file);
-                                                                        setCertificationImage(imageUrl);
-                                                                        setValue('certificationImage', imageUrl);
-                                                                    }
-                                                                }}
-                                                            >
-                                                                <Button variant="outline" className="w-full">
-                                                                    Choose Certificate Template
-                                                                </Button>
-                                                            </FileUploader>
-                                                        </div>
-                                                        <p className="mt-2 text-sm text-gray-500">
-                                                            Upload an image of your certificate template (PNG, JPG)
-                                                        </p>
-                                                    </div>
-                                                ) : (
-                                                    <div className="space-y-4">
-                                                        <img
-                                                            src={certificationImage}
-                                                            alt="Certificate preview"
-                                                            className="w-full h-48 object-contain rounded-lg"
-                                                        />
-                                                        <div className="flex items-center justify-between">
-                                                            <p className="text-sm text-gray-600">Certificate template uploaded</p>
-                                                            <Button
-                                                                variant="ghost"
-                                                                size="sm"
-                                                                onClick={() => {
-                                                                    setCertificationImage('');
-                                                                    setValue('certificationImage', '');
-                                                                }}
-                                                            >
-                                                                <X className="h-4 w-4" />
-                                                                Remove
-                                                            </Button>
-                                                        </div>
-                                                    </div>
-                                                )}
-                                            </div>
-
-                                            <div className="bg-purple-50 rounded-lg p-4">
-                                                <p className="text-sm text-purple-600">
-                                                    This certificate will be sent as an NFT to the student's wallet upon course completion. 
-                                                    Choose your template wisely as it will be permanently stored on the blockchain.
-                                                </p>
-                                            </div>
-                                        </motion.div>
-                                    )}
-                                </div>
-                            </Card>
+                            <CertificationUploader
+                                certification={watch('certification')}
+                                certificationImage={certificationImage}
+                                isCreating={isCreatingCertificate}
+                                connectedWallet={connectedWallet}
+                                courseTitle={watch('title')}
+                                courseDescription={watch('description')}
+                                onCertificationChange={handleCertificationChange}
+                                onImageUpload={handleCertificationImageUpload}
+                                onImageRemove={handleRemoveCertificationImage}
+                                onCollectionCreated={handleCollectionCreated}
+                            />
 
                             {/* Pricing Section */}
                             <div className="relative">

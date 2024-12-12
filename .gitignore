@@ -22,6 +22,14 @@ dist/
 /backend/.env*
 !backend/.env.example
 
+/metaplex/node_modules/
+/metaplex/dist/
+/metaplex/build/
+/metaplex/*.log
+/metaplex/logs/
+/metaplex/.env*
+!metaplex/.env.example
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

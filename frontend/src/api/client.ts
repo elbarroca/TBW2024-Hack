@@ -65,7 +65,8 @@ export const baseApi = createApi({
     'Course',
     'Enrollment',
     'Token',
-    'Transaction'
+    'Transaction',
+    'Metaplex'
   ] as const,
   endpoints: () => ({}),
 });
