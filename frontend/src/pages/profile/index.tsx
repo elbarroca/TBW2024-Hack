@@ -39,6 +39,12 @@ import { useAuth } from '@/contexts/AuthProvider';
 import { LoginStatus } from '@/store/types';
 import { AuthState } from '@/store/types';
 import { RootState } from '@/store';
+import { CourseCard } from '@/components/courses/CourseCard';
+import { COURSE_DETAILS } from '@/data/course-details';
+import { Badge } from "@/components/ui/Badge";
+import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/Dialog";
+import { Progress } from "@/components/ui/Progress";
 
 // Mock data for demonstration
 const mockPurchases = [
@@ -257,6 +263,35 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
         </div>
     );
 };
+
+// Mock NFT data
+const mockNFTs = [
+    {
+        id: '1',
+        name: 'Web3 Developer Certificate',
+        image: 'https://images.unsplash.com/photo-1639762681485-074b7f938ba0',
+        url: 'https://example.com/nft/1',
+    },
+    {
+        id: '2',
+        name: 'DeFi Expert Badge',
+        image: 'https://images.unsplash.com/photo-1639762681485-074b7f938ba0',
+        url: 'https://example.com/nft/2',
+    },
+    {
+        id: '3',
+        name: 'Smart Contract Auditor',
+        image: 'https://images.unsplash.com/photo-1639762681485-074b7f938ba0',
+        url: 'https://example.com/nft/3',
+    },
+    {
+        id: '4',
+        name: 'Blockchain Architect',
+        image: 'https://images.unsplash.com/photo-1639762681485-074b7f938ba0',
+        url: 'https://example.com/nft/4',
+    },
+];
+
 export default function ProfilePage() {
     const navigate = useNavigate();
     const { logout } = useAuth();
@@ -271,6 +306,8 @@ export default function ProfilePage() {
     const [showTagSuggestions, setShowTagSuggestions] = useState(false);
     const [editingSocialPlatform, setEditingSocialPlatform] = useState<keyof SocialLinks | null>(null);
     const [showDisconnectModal, setShowDisconnectModal] = useState(false);
+    const [showNFTsModal, setShowNFTsModal] = useState(false);
+    const [showPurchasesModal, setShowPurchasesModal] = useState(false);
 
     // Add debugging logs
     console.log('Auth State:', { user, isLoading });
@@ -332,6 +369,143 @@ export default function ProfilePage() {
     const handleContentCreate = (route: string) => {
         navigate(route);
     };
+
+    const NFTsModal = () => (
+        <Dialog open={showNFTsModal} onOpenChange={setShowNFTsModal}>
+            <DialogContent className="max-w-6xl w-full max-h-[80vh] overflow-y-auto">
+                <DialogHeader className="space-y-4 pb-4 border-b">
+                    <DialogTitle className="text-2xl font-bold">NFT Collection</DialogTitle>
+                    <div className="flex items-center gap-4 text-sm text-gray-600">
+                        <div className="flex items-center gap-2">
+                            <div className="w-3 h-3 rounded-full bg-green-500"></div>
+                            <span>Verified: {mockNFTs.length}</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                            <div className="w-3 h-3 rounded-full bg-purple-500"></div>
+                            <span>Total Value: {mockNFTs.length * 0.5} SOL</span>
+                        </div>
+                    </div>
+                </DialogHeader>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-6">
+                    {mockNFTs.map((nft) => (
+                        <div 
+                            key={nft.id}
+                            className="bg-gray-50 rounded-xl overflow-hidden border border-gray-200 hover:border-purple-400 transition-all duration-300 group"
+                        >
+                            <div className="relative aspect-square">
+                                <img 
+                                    src={nft.image} 
+                                    alt={nft.name}
+                                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                                />
+                                <div className="absolute top-3 right-3">
+                                    <Badge className="bg-green-500/90 text-white border-0">
+                                        Verified
+                                    </Badge>
+                                </div>
+                            </div>
+                            <div className="p-4 space-y-4">
+                                <div>
+                                    <h3 className="font-semibold text-gray-900">{nft.name}</h3>
+                                    <p className="text-sm text-gray-600">Issued on {new Date().toLocaleDateString()}</p>
+                                </div>
+                                <div className="space-y-2">
+                                    <div className="flex items-center justify-between text-sm">
+                                        <span className="text-gray-600">Completion</span>
+                                        <span className="text-purple-600 font-medium">100%</span>
+                                    </div>
+                                    <Progress value={100} className="h-2 bg-purple-100" />
+                                </div>
+                                <div className="flex items-center justify-between pt-2 border-t">
+                                    <span className="text-sm font-medium text-purple-600">0.5 SOL</span>
+                                    <a 
+                                        href={nft.url}
+                                        target="_blank"
+                                        rel="noopener noreferrer" 
+                                        className="flex items-center gap-1 text-sm text-gray-600 hover:text-purple-600 transition-colors"
+                                    >
+                                        View on Explorer
+                                        <ExternalLink className="w-3 h-3" />
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            </DialogContent>
+        </Dialog>
+    );
+
+    const PurchasesModal = () => (
+        <Dialog open={showPurchasesModal} onOpenChange={setShowPurchasesModal}>
+            <DialogContent className="max-w-6xl w-full max-h-[80vh] overflow-y-auto">
+                <DialogHeader className="space-y-4 pb-4 border-b">
+                    <DialogTitle className="text-2xl font-bold">Learning Progress</DialogTitle>
+                    <div className="flex items-center gap-4 text-sm text-gray-600">
+                        <div className="flex items-center gap-2">
+                            <div className="w-3 h-3 rounded-full bg-green-500"></div>
+                            <span>Completed: {Math.floor(Math.random() * 3)}</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                            <div className="w-3 h-3 rounded-full bg-yellow-500"></div>
+                            <span>In Progress: {Math.floor(Math.random() * 4) + 1}</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                            <div className="w-3 h-3 rounded-full bg-purple-500"></div>
+                            <span>Total Value: {Object.keys(COURSE_DETAILS).length * 2.5} SOL</span>
+                        </div>
+                    </div>
+                </DialogHeader>
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
+                    {Object.values(COURSE_DETAILS).map((course) => {
+                        const progress = Math.floor(Math.random() * 100);
+                        const status = progress === 100 ? 'Completed' : progress > 0 ? 'In Progress' : 'Not Started';
+                        const statusColor = progress === 100 ? 'bg-green-500' : progress > 0 ? 'bg-yellow-500' : 'bg-gray-500';
+                        
+                        return (
+                            <div key={course.id} className="bg-gray-50 rounded-xl overflow-hidden border border-gray-200 hover:border-purple-400 transition-all duration-300">
+                                <div className="relative">
+                                    <CourseCard 
+                                        course={{
+                                            ...course,
+                                            image: course.image || 'https://via.placeholder.com/400x300',
+                                        }}
+                                        className="hover:scale-[1.02] transition-transform duration-300"
+                                    />
+                                    <div className="absolute top-3 right-3">
+                                        <Badge className={`${statusColor} text-white border-0`}>
+                                            {status}
+                                        </Badge>
+                                    </div>
+                                </div>
+                                <div className="p-4 space-y-4">
+                                    <div className="space-y-2">
+                                        <div className="flex items-center justify-between text-sm">
+                                            <span className="text-gray-600">Course Progress</span>
+                                            <span className="text-purple-600 font-medium">{progress}%</span>
+                                        </div>
+                                        <Progress 
+                                            value={progress} 
+                                            className="h-2 bg-purple-100"
+                                        />
+                                    </div>
+                                    <div className="flex items-center justify-between pt-2 border-t">
+                                        <div className="flex items-center gap-2 text-sm text-gray-600">
+                                            <Clock className="w-4 h-4" />
+                                            <span>Last accessed {Math.floor(Math.random() * 7) + 1} days ago</span>
+                                        </div>
+                                        <Button variant="ghost" size="sm" className="text-purple-600 hover:text-purple-700">
+                                            Continue Learning
+                                        </Button>
+                                    </div>
+                                </div>
+                            </div>
+                        );
+                    })}
+                </div>
+            </DialogContent>
+        </Dialog>
+    );
 
     return (
         <main className="container mx-auto px-4 pt-24 pb-12">
@@ -414,114 +588,89 @@ export default function ProfilePage() {
                     ))}
                 </div>
 
-                {/* Enhanced My Purchases Section */}
+                {/* My Collections Section */}
                 <div className="bg-white rounded-xl border border-gray-100 overflow-hidden">
                     <div className="p-6 border-b border-gray-100">
-                        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                        <div className="flex items-center justify-between">
                             <div className="flex items-center gap-3">
-                                <h2 className="text-xl font-semibold text-gray-900">
-                                    My Purchases
-                                </h2>
-                                <span className="px-2.5 py-0.5 rounded-full bg-purple-100 text-purple-700 text-sm font-medium">
-                                    {mockPurchases.length}
-                                </span>
-                            </div>
-                            <div className="flex items-center gap-2">
-                                <select
-                                    value={purchaseFilter}
-                                    onChange={(e) => setPurchaseFilter(e.target.value)}
-                                    className="px-3 py-2 rounded-lg border border-gray-200 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-white"
-                                >
-                                    <option value="all">All Types</option>
-                                    <option value="courses">Courses</option>
-                                    <option value="ebooks">eBooks</option>
-                                    <option value="pdfs">PDFs</option>
-                                </select>
-                                <button className="px-3 py-2 rounded-lg border border-gray-200 text-sm text-gray-700 hover:bg-gray-50 transition-colors flex items-center gap-2 bg-white">
-                                    <BarChart3 className="w-4 h-4" />
-                                    Sort
-                                    <ChevronDown className="w-4 h-4" />
-                                </button>
+                                <h2 className="text-xl font-semibold text-gray-900">My Collections</h2>
                             </div>
                         </div>
                     </div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-gray-100">
-                        {mockPurchases.map((purchase) => (
-                            <div
-                                key={purchase.id}
-                                className="group p-6 hover:bg-gray-50 transition-colors relative overflow-hidden"
-                            >
-                                {/* Background decoration */}
-                                <div className="absolute inset-0 bg-gradient-to-r from-purple-500/5 to-teal-500/5 opacity-0 group-hover:opacity-100 transition-opacity" />
 
-                                {/* Content */}
-                                <div className="relative flex gap-4">
-                                    {/* Thumbnail */}
-                                    <div className="relative flex-shrink-0">
-                                        <div className="w-24 h-24 rounded-xl overflow-hidden group-hover:shadow-lg transition-shadow">
-                                            <img
-                                                src={purchase.thumbnail}
-                                                alt={purchase.title}
-                                                className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-300"
-                                            />
-                                        </div>
-                                        {purchase.isNew && (
-                                            <span className="absolute -top-2 -right-2 px-2 py-1 rounded-full bg-purple-100 text-purple-700 text-xs font-medium ring-2 ring-white">
-                                                New
-                                            </span>
-                                        )}
-                                    </div>
-
-                                    {/* Info */}
-                                    <div className="flex-1 min-w-0">
-                                        <div className="flex items-center gap-2 mb-1">
-                                            <h3 className="font-medium text-gray-900 hover:text-purple-600 transition-colors cursor-pointer truncate">
-                                                {purchase.title}
-                                            </h3>
-                                        </div>
-
-                                        <p className="text-sm text-gray-600 mb-2 line-clamp-2">
-                                            {purchase.description}
-                                        </p>
-
-                                        <div className="flex items-center gap-4 text-sm text-gray-600 mb-3">
-                                            <span className="flex items-center gap-1">
-                                                <Calendar className="w-4 h-4" />
-                                                {new Date(purchase.date).toLocaleDateString()}
-                                            </span>
-                                            <span className="flex items-center gap-1">
-                                                <PenTool className="w-4 h-4" />
-                                                {purchase.author}
-                                            </span>
-                                        </div>
-
-                                        {/* Progress bar */}
-                                        {purchase.type === 'course' && (
-                                            <div className="mb-3">
-                                                <div className="flex items-center justify-between text-sm mb-1">
-                                                    <span className="text-gray-600">Progress</span>
-                                                    <span className="text-purple-600 font-medium">
-                                                        {purchase.progress}%
-                                                    </span>
-                                                </div>
-                                                <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
-                                                    <div
-                                                        className="h-full bg-gradient-to-r from-purple-500 to-teal-500 transition-all duration-300"
-                                                        style={{ width: `${purchase.progress}%` }}
-                                                    />
-                                                </div>
-                                            </div>
-                                        )}
-
-                                        {/* Action button */}
-                                        <button className="w-full mt-2 px-4 py-2 rounded-lg bg-gradient-to-r from-purple-600 to-teal-500 text-white hover:from-purple-700 hover:to-teal-600 transition-all transform hover:scale-[1.02] flex items-center justify-center gap-2 text-sm font-medium group">
-                                            <span>Access Content</span>
-                                            <Activity className="w-4 h-4 transform group-hover:translate-x-0.5 transition-transform" />
-                                        </button>
-                                    </div>
-                                </div>
+                    <div className="grid grid-cols-1 lg:grid-cols-5 divide-y lg:divide-y-0 lg:divide-x divide-gray-100">
+                        {/* NFTs Section - 2 columns */}
+                        <div className="lg:col-span-2 p-6">
+                            <div className="flex items-center justify-between mb-6">
+                                <h3 className="text-lg font-medium text-gray-900">My NFTs</h3>
+                                <Badge variant="secondary" className="bg-purple-100 text-purple-700">
+                                    {mockNFTs.length} NFTs
+                                </Badge>
                             </div>
-                        ))}
+                            
+                            <div className="grid grid-cols-2 gap-4">
+                                {mockNFTs.map((nft) => (
+                                    <div 
+                                        key={nft.id}
+                                        className="group relative aspect-square rounded-xl overflow-hidden border border-gray-200 hover:border-purple-400 transition-all duration-300"
+                                    >
+                                        <img 
+                                            src={nft.image} 
+                                            alt={nft.name}
+                                            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                                        />
+                                        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/0 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                                            <div className="absolute bottom-0 left-0 right-0 p-3">
+                                                <p className="text-white text-sm font-medium truncate">
+                                                    {nft.name}
+                                                </p>
+                                                <a 
+                                                    href={nft.url}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer" 
+                                                    className="text-xs text-purple-200 hover:text-purple-100 transition-colors flex items-center gap-1 mt-1"
+                                                >
+                                                    View on Explorer
+                                                    <ExternalLink className="w-3 h-3" />
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+
+                        {/* Purchases Section - 3 columns */}
+                        <div className="lg:col-span-3 p-6">
+                            <div className="flex items-center justify-between mb-6">
+                                <h3 className="text-lg font-medium text-gray-900">My Purchases</h3>
+                                <Badge variant="secondary" className="bg-purple-100 text-purple-700">
+                                    {Object.keys(COURSE_DETAILS).length} Courses
+                                </Badge>
+                            </div>
+                            
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                {Object.values(COURSE_DETAILS).slice(0, 2).map((course) => (
+                                    <CourseCard 
+                                        key={course.id} 
+                                        course={{
+                                            ...course,
+                                            image: course.image || 'https://via.placeholder.com/400x300',
+                                        }}
+                                        className="hover:scale-[1.02] transition-transform duration-300"
+                                    />
+                                ))}
+                            </div>
+                            
+                            <Button 
+                                variant="outline" 
+                                className="w-full mt-6 flex items-center justify-center gap-2"
+                                onClick={() => setShowPurchasesModal(true)}
+                            >
+                                View All Purchases
+                                <ArrowRight className="w-4 h-4" />
+                            </Button>
+                        </div>
                     </div>
                 </div>
 
@@ -993,6 +1142,9 @@ export default function ProfilePage() {
                         Address copied to clipboard!
                     </div>
                 )}
+
+                <NFTsModal />
+                <PurchasesModal />
             </div>
         </main>
     );
