@@ -545,15 +545,13 @@ export default function CreateVideo() {
                 });
 
                 const serializedTransaction = bs58.encode(Buffer.from(signedTransaction));
-
                 // Send signed transaction for confirmation
                 const confirmation = await sendTransaction({
                     transaction: serializedTransaction
                 }).unwrap();
 
-
-                if (confirmation.error) {
-                    throw new Error(confirmation.error);
+                if (confirmation.status !== 200) {
+                    throw new Error("Failed to confirm transaction");
                 }
 
                 // Set the collection mint address in the form
@@ -569,11 +567,12 @@ export default function CreateVideo() {
                     description: 'Certificate collection created successfully',
                 });
             }
-        } catch (error: any) {
+        } catch (error: Error | unknown) {
             console.error('Error creating certificate collection:', error);
+            const errorMessage = error instanceof Error ? error.message : 'Failed to create certificate collection';
             toast({
                 title: 'Error',
-                description: error.message || 'Failed to create certificate collection',
+                description: errorMessage,
                 variant: 'destructive',
             });
         } finally {

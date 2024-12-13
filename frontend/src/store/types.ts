@@ -28,6 +28,7 @@ export interface UserDataState {
 
 export type ApiType = Api<
     BaseQueryFn<string | FetchArgs, unknown, FetchBaseQueryError>,
-    {},
+    Record<string, never>,
+    'api',
     string
->; 
+>;

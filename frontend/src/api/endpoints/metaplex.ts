@@ -36,15 +36,14 @@ interface TransactionResponse {
 }
 
 const metaplexUrl = `${config.METAPLEX_API_URL}/metaplex`;
-
 export const metaplexApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
-    getAssets: builder.query<any[], string>({
+    getAssets: builder.query<NFTAsset[], string>({
       query: (user) => ({
         url: `${metaplexUrl}/getAssets?user=${user}`,
         method: 'GET',
       }),
-      transformResponse: (response: ApiResponse<any[]>) => handleResponse(response),
+      transformResponse: (response: ApiResponse<NFTAsset[]>) => handleResponse(response),
     }),
 
     createNFT: builder.mutation<TransactionResponse, CreateNFTParams>({
@@ -64,14 +63,13 @@ export const metaplexApi = baseApi.injectEndpoints({
       }),
       transformResponse: (response: ApiResponse<TransactionResponse>) => handleResponse(response),
     }),
-
-    sendTransaction: builder.mutation<any, { transaction: string }>({
+    sendTransaction: builder.mutation<TransactionResponse, { transaction: string }>({
       query: (params) => ({
         url: `${metaplexUrl}/sendTransaction`,
         method: 'POST',
         body: params,
       }),
-      transformResponse: (response: ApiResponse<any>) => handleResponse(response),
+      transformResponse: (response: ApiResponse<TransactionResponse>) => handleResponse(response),
     }),
   }),
 });

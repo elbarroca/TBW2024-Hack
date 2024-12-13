@@ -48,6 +48,7 @@ import { Progress } from "@/components/ui/Progress";
 import { UiWallet, useDisconnect } from '@wallet-standard/react';
 import { useWallets } from '@wallet-standard/react';
 import { resetAuth } from '@/store/auth';
+import { User } from '@/types/user';
 
 // Mock data for demonstration
 const mockPurchases = [
@@ -284,7 +285,7 @@ const mockNFTs = [
     {
         id: '3',
         name: 'Smart Contract Auditor',
-        image: 'https://images.unsplash.com/photo-1639762681485-074b7f938ba0',
+        image: 'https://www.pngplay.com/wp-content/uploads/3/Amazon-Web-Services-AWS-Logo-Transparent-PNG.png',
         url: 'https://example.com/nft/3',
     },
     {
@@ -294,6 +295,118 @@ const mockNFTs = [
         url: 'https://example.com/nft/4',
     },
 ];
+
+// Update the AvatarSelectionModal interface
+interface AvatarSelectionModalProps {
+    isOpen: boolean;
+    onClose: () => void;
+    onSelectAvatar: (image: string) => void;
+}
+
+const AvatarSelectionModal = ({ isOpen, onClose, onSelectAvatar }: AvatarSelectionModalProps) => {
+    if (!isOpen) return null;
+
+    return (
+        <Dialog open={isOpen} onOpenChange={onClose}>
+            <DialogContent className="max-w-4xl w-full">
+                <DialogHeader>
+                    <DialogTitle>Select NFT as Profile Picture</DialogTitle>
+                </DialogHeader>
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 p-4">
+                    {mockNFTs.map((nft) => (
+                        <button
+                            key={nft.id}
+                            onClick={() => {
+                                onSelectAvatar(nft.image);
+                                onClose();
+                            }}
+                            className="group relative aspect-square rounded-xl overflow-hidden border border-gray-200 hover:border-purple-400 transition-all duration-300"
+                        >
+                            <img 
+                                src={nft.image} 
+                                alt={nft.name}
+                                className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                            />
+                            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/0 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                                <div className="absolute bottom-0 left-0 right-0 p-3">
+                                    <p className="text-white text-sm font-medium truncate">
+                                        {nft.name}
+                                    </p>
+                                </div>
+                            </div>
+                        </button>
+                    ))}
+                </div>
+            </DialogContent>
+        </Dialog>
+    );
+};
+
+// Update the SettingsModal interface
+interface SettingsModalProps {
+    isOpen: boolean;
+    onClose: () => void;
+    selectedAvatar: string | null;
+    user: User | null;
+    onOpenAvatarModal: () => void;
+}
+
+const SettingsModal = ({ 
+    isOpen, 
+    onClose, 
+    selectedAvatar, 
+    user,
+    onOpenAvatarModal 
+}: SettingsModalProps) => {
+    if (!isOpen) return null;
+
+    return (
+        <Dialog open={isOpen} onOpenChange={onClose}>
+            <DialogContent className="max-w-md w-full">
+                <DialogHeader>
+                    <DialogTitle>Profile Settings</DialogTitle>
+                </DialogHeader>
+                <div className="space-y-6 py-4">
+                    <div className="space-y-4">
+                        <label className="text-sm font-medium text-gray-700">Profile Picture</label>
+                        <div className="flex items-center gap-4">
+                            <div className="relative group">
+                                <div className="h-20 w-20 rounded-full overflow-hidden border-2 border-purple-200">
+                                    {selectedAvatar ? (
+                                        <img 
+                                            src={selectedAvatar} 
+                                            alt="Profile" 
+                                            className="w-full h-full object-cover"
+                                        />
+                                    ) : (
+                                        <div className="w-full h-full bg-gradient-to-r from-purple-500 to-indigo-500 flex items-center justify-center text-white text-2xl font-bold">
+                                            {user?.full_name?.charAt(0) || user?.address?.slice(0, 2)}
+                                        </div>
+                                    )}
+                                </div>
+                                <button
+                                    onClick={onOpenAvatarModal}
+                                    className="absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity rounded-full"
+                                >
+                                    <Camera className="w-6 h-6 text-white" />
+                                </button>
+                            </div>
+                            <div className="flex-1">
+                                <Button
+                                    onClick={onOpenAvatarModal}
+                                    variant="outline"
+                                    className="w-full"
+                                >
+                                    Choose from NFTs
+                                </Button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </DialogContent>
+        </Dialog>
+    );
+};
 
 export default function ProfilePage() {
     const navigate = useNavigate();
@@ -313,9 +426,14 @@ export default function ProfilePage() {
     const [showDisconnectModal, setShowDisconnectModal] = useState(false);
     const [showNFTsModal, setShowNFTsModal] = useState(false);
     const [showPurchasesModal, setShowPurchasesModal] = useState(false);
+    const [selectedAvatar, setSelectedAvatar] = useState<string | null>(null);
+    const [showAvatarModal, setShowAvatarModal] = useState(false);
 
-    // Add debugging logs
-    console.log('Auth State:', { user, isLoading });
+    // Move handleLogout to the top with other hooks
+    const handleLogout = useCallback(async () => {
+        resetAuth();
+        disconnect();
+    }, [resetAuth, disconnect]);
 
     // Show loading state only briefly during initial load
     if (isLoading || loginStatus === LoginStatus.IDLE) {
@@ -374,11 +492,6 @@ export default function ProfilePage() {
     const handleContentCreate = (route: string) => {
         navigate(route);
     };
-
-    const handleLogout = useCallback(async () => {
-        resetAuth();
-        disconnect();
-    }, [resetAuth, disconnect]);
 
     const NFTsModal = () => (
         <Dialog open={showNFTsModal} onOpenChange={setShowNFTsModal}>
@@ -525,8 +638,26 @@ export default function ProfilePage() {
                     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
                         <div className="flex items-center justify-between">
                             <div className="flex items-center space-x-4">
-                                <div className="h-16 w-16 rounded-full bg-gradient-to-r from-purple-500 to-indigo-500 flex items-center justify-center text-white text-2xl font-bold">
-                                    {user?.full_name?.charAt(0) || user?.address?.slice(0, 2)}
+                                <div 
+                                    onClick={() => setShowAvatarModal(true)}
+                                    className="relative group cursor-pointer"
+                                >
+                                    <div className="h-16 w-16 rounded-full overflow-hidden border-2 border-purple-200">
+                                        {selectedAvatar ? (
+                                            <img 
+                                                src={selectedAvatar} 
+                                                alt="Profile" 
+                                                className="w-full h-full object-cover"
+                                            />
+                                        ) : (
+                                            <div className="w-full h-full bg-gradient-to-r from-purple-500 to-indigo-500 flex items-center justify-center text-white text-2xl font-bold">
+                                                {user?.full_name?.charAt(0) || user?.address?.slice(0, 2)}
+                                            </div>
+                                        )}
+                                    </div>
+                                    <div className="absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity rounded-full">
+                                        <Camera className="w-6 h-6 text-white" />
+                                    </div>
                                 </div>
                                 <div>
                                     <h1 className="text-2xl font-bold text-gray-900">
@@ -1152,6 +1283,20 @@ export default function ProfilePage() {
 
                 <NFTsModal />
                 <PurchasesModal />
+
+                <SettingsModal 
+                    isOpen={showSettings}
+                    onClose={() => setShowSettings(false)}
+                    selectedAvatar={selectedAvatar}
+                    user={user}
+                    onOpenAvatarModal={() => setShowAvatarModal(true)}
+                />
+
+                <AvatarSelectionModal 
+                    isOpen={showAvatarModal}
+                    onClose={() => setShowAvatarModal(false)}
+                    onSelectAvatar={setSelectedAvatar}
+                />
             </div>
         </main>
     );

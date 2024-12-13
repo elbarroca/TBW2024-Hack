@@ -97,14 +97,13 @@ export function CertificationUploader({
       const { signedTransaction } = await signTransaction({
         transaction: bs58.decode(response.transaction),
       });
-
       // Send signed transaction for confirmation
       const confirmation = await sendTransaction({
         transaction: bs58.encode(Buffer.from(signedTransaction))
       }).unwrap();
 
-      if (confirmation.error) {
-        throw new Error(confirmation.error);
+      if (confirmation.status !== 200) {
+        throw new Error("Failed to confirm transaction");
       }
 
       // Notify success and update parent component
@@ -115,11 +114,11 @@ export function CertificationUploader({
 
       onCollectionCreated(response.collectionMint);
 
-    } catch (error: any) {
+    } catch (error: Error | unknown) {
       console.error('Error creating certificate collection:', error);
       toast({
         title: "Error",
-        description: error.message || "Failed to create certificate collection",
+        description: error instanceof Error ? error.message : "Failed to create certificate collection",
         variant: "destructive"
       });
     }
