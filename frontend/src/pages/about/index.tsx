@@ -248,7 +248,9 @@ export default function AboutPage() {
                                             </CardHeader>
                                             <CardContent>
                                                 <p className="text-gray-600 text-center">
-                                                    3 years building on Solana and Web3.
+                                                    3 years building on Solana. <br />
+                                                    Passionate about payments and web3. <br />
+                                                    Stacking blocks of code.
                                                 </p>
                                             </CardContent>
                                             <CardFooter className="justify-center space-x-4">

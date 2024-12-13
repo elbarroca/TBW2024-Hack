@@ -6,7 +6,7 @@ import { buildJupiterInstructions } from './jupiter';
 import { buildTransferInstruction } from './transfer';
 import { getMints } from '../../fetcher/getMint';
 import BigNumber from 'bignumber.js';
-import { fetchMarketData } from '../../fetcher/birdeye';
+import { fetchMarketData, getTokenPrice } from '../../fetcher/birdeye';
 
 export function deserializeInstruction(instructionData: string): IInstruction<string> {
   const instruction = JSON.parse(instructionData) as RawInstruction;
@@ -23,15 +23,9 @@ export function deserializeInstruction(instructionData: string): IInstruction<st
 }
 
 async function calculateTokenAmount(tokenMint: string, usdcAmount: number, decimals: number): Promise<string> {
-  const marketData = await fetchMarketData([tokenMint]);
-  const tokenPrice = marketData[tokenMint]?.price;
+  const tokenPrice = await getTokenPrice(tokenMint);
   
-  if (!tokenPrice || tokenPrice === 0) {
-    throw new Error(`Could not get price for token ${tokenMint}`);
-  }
-
   const tokenAmount = new BigNumber(usdcAmount).dividedBy(tokenPrice);
-  
   const rawAmount = tokenAmount.multipliedBy(new BigNumber(10).pow(decimals));
   
   return rawAmount.integerValue(BigNumber.ROUND_DOWN).toString();

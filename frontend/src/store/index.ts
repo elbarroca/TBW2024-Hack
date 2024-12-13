@@ -6,7 +6,6 @@ import userReducer from './user';
 import authReducer from './auth';
 import type { TypedUseSelectorHook } from 'react-redux';
 import { useDispatch, useSelector } from 'react-redux';
-import type { AuthState, UserDataState } from './types';
 
 const rootReducer = combineReducers({
     [baseApi.reducerPath]: baseApi.reducer,
