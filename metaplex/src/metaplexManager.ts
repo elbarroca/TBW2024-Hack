@@ -49,7 +49,25 @@ export const metaplexManager = new Elysia({
         owner: publicKey(user)
       });
 
-      return { data: { assets }, statusCode: 200 };
+      const simplifiedAssets = assets.items.map(asset => ({
+        id: asset.id.toString(),
+        owner: asset.ownership.owner.toString(),
+        content: {
+          json_uri: asset.content.json_uri,
+          metadata: {
+            name: asset.content.metadata.name,
+            description: asset.content.metadata.description || '',
+            image: asset.content.files?.[0]?.uri || '',
+          }
+        }
+      }));
+
+      return { 
+        data: { 
+          assets: simplifiedAssets 
+        }, 
+        statusCode: 200 
+      };
     } catch (e: any) {
       console.error(e.message);
       return { error: e.message, status: 500 };

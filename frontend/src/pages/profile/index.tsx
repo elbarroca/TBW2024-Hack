@@ -304,38 +304,86 @@ interface AvatarSelectionModalProps {
 }
 
 const AvatarSelectionModal = ({ isOpen, onClose, onSelectAvatar }: AvatarSelectionModalProps) => {
+    const { nfts } = useAppSelector((state) => state.user);
+    
     if (!isOpen) return null;
 
     return (
         <Dialog open={isOpen} onOpenChange={onClose}>
-            <DialogContent className="max-w-4xl w-full">
-                <DialogHeader>
-                    <DialogTitle>Select NFT as Profile Picture</DialogTitle>
+            <DialogContent className="max-w-6xl w-full max-h-[80vh] overflow-y-auto">
+                <DialogHeader className="space-y-4 pb-4 border-b">
+                    <DialogTitle className="text-2xl font-bold">Select NFT as Profile Picture</DialogTitle>
+                    <div className="flex items-center gap-4 text-sm text-gray-600">
+                        <div className="flex items-center gap-2">
+                            <div className="w-3 h-3 rounded-full bg-green-500"></div>
+                            <span>Verified: {nfts.length}</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                            <div className="w-3 h-3 rounded-full bg-purple-500"></div>
+                            <span>Total Value: {nfts.length * 0.5} SOL</span>
+                        </div>
+                    </div>
                 </DialogHeader>
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 p-4">
-                    {mockNFTs.map((nft) => (
-                        <button
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-6 p-6">
+                    {nfts.length > 0 ? nfts.map((nft) => (
+                        <div 
                             key={nft.id}
+                            className="bg-gray-50 rounded-xl overflow-hidden border border-gray-200 hover:border-purple-400 transition-all duration-300 group cursor-pointer"
                             onClick={() => {
-                                onSelectAvatar(nft.image);
+                                onSelectAvatar(nft.content.metadata.image);
                                 onClose();
                             }}
-                            className="group relative aspect-square rounded-xl overflow-hidden border border-gray-200 hover:border-purple-400 transition-all duration-300"
                         >
-                            <img 
-                                src={nft.image} 
-                                alt={nft.name}
-                                className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                            />
-                            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/0 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                                <div className="absolute bottom-0 left-0 right-0 p-3">
-                                    <p className="text-white text-sm font-medium truncate">
-                                        {nft.name}
-                                    </p>
+                            <div className="relative aspect-square">
+                                <img 
+                                    src={nft.content.metadata.image} 
+                                    alt={nft.content.metadata.name}
+                                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                                />
+                                <div className="absolute top-3 right-3">
+                                    <Badge className="bg-green-500/90 text-white border-0">
+                                        Verified
+                                    </Badge>
                                 </div>
                             </div>
-                        </button>
-                    ))}
+                            <div className="p-4 space-y-4">
+                                <div>
+                                    <h3 className="font-semibold text-gray-900">{nft.content.metadata.name}</h3>
+                                    <p className="text-sm text-gray-600">Issued on {new Date().toLocaleDateString()}</p>
+                                </div>
+                                <div className="space-y-2">
+                                    <div className="flex items-center justify-between text-sm">
+                                        <span className="text-gray-600">Completion</span>
+                                        <span className="text-purple-600 font-medium">100%</span>
+                                    </div>
+                                    <Progress value={100} className="h-2 bg-purple-100" />
+                                </div>
+                                <div className="flex items-center justify-between pt-2 border-t">
+                                    <span className="text-sm font-medium text-purple-600">0.5 SOL</span>
+                                    <a 
+                                        href={nft.content.json_uri}
+                                        target="_blank"
+                                        rel="noopener noreferrer" 
+                                        className="flex items-center gap-1 text-sm text-gray-600 hover:text-purple-600 transition-colors"
+                                        onClick={(e) => e.stopPropagation()}
+                                    >
+                                        View on Explorer
+                                        <ExternalLink className="w-3 h-3" />
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    )) : (
+                        <div className="col-span-full flex flex-col items-center justify-center py-12 text-gray-500">
+                            <div className="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center mb-4">
+                                <Camera className="w-8 h-8 text-gray-400" />
+                            </div>
+                            <p className="text-lg font-medium">No NFTs Found</p>
+                            <p className="text-sm text-gray-400 mt-1">
+                                Connect your wallet or mint some NFTs to get started
+                            </p>
+                        </div>
+                    )}
                 </div>
             </DialogContent>
         </Dialog>
@@ -428,6 +476,7 @@ export default function ProfilePage() {
     const [showPurchasesModal, setShowPurchasesModal] = useState(false);
     const [selectedAvatar, setSelectedAvatar] = useState<string | null>(null);
     const [showAvatarModal, setShowAvatarModal] = useState(false);
+    const { nfts } = useAppSelector((state) => state.user);
 
     // Move handleLogout to the top with other hooks
     const handleLogout = useCallback(async () => {
@@ -501,24 +550,24 @@ export default function ProfilePage() {
                     <div className="flex items-center gap-4 text-sm text-gray-600">
                         <div className="flex items-center gap-2">
                             <div className="w-3 h-3 rounded-full bg-green-500"></div>
-                            <span>Verified: {mockNFTs.length}</span>
+                            <span>Verified: {nfts.length}</span>
                         </div>
                         <div className="flex items-center gap-2">
                             <div className="w-3 h-3 rounded-full bg-purple-500"></div>
-                            <span>Total Value: {mockNFTs.length * 0.5} SOL</span>
+                            <span>Total Value: {nfts.length * 0.5} SOL</span>
                         </div>
                     </div>
                 </DialogHeader>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-6">
-                    {mockNFTs.map((nft) => (
+                    {nfts.length > 0 && nfts.map((nft) => (
                         <div 
                             key={nft.id}
                             className="bg-gray-50 rounded-xl overflow-hidden border border-gray-200 hover:border-purple-400 transition-all duration-300 group"
                         >
                             <div className="relative aspect-square">
                                 <img 
-                                    src={nft.image} 
-                                    alt={nft.name}
+                                    src={nft.content.metadata.image} 
+                                    alt={nft.content.metadata.name}
                                     className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                                 />
                                 <div className="absolute top-3 right-3">
@@ -529,7 +578,7 @@ export default function ProfilePage() {
                             </div>
                             <div className="p-4 space-y-4">
                                 <div>
-                                    <h3 className="font-semibold text-gray-900">{nft.name}</h3>
+                                    <h3 className="font-semibold text-gray-900">{nft.content.metadata.name}</h3>
                                     <p className="text-sm text-gray-600">Issued on {new Date().toLocaleDateString()}</p>
                                 </div>
                                 <div className="space-y-2">
@@ -542,7 +591,7 @@ export default function ProfilePage() {
                                 <div className="flex items-center justify-between pt-2 border-t">
                                     <span className="text-sm font-medium text-purple-600">0.5 SOL</span>
                                     <a 
-                                        href={nft.url}
+                                        href={nft.content.json_uri}
                                         target="_blank"
                                         rel="noopener noreferrer" 
                                         className="flex items-center gap-1 text-sm text-gray-600 hover:text-purple-600 transition-colors"
@@ -744,29 +793,40 @@ export default function ProfilePage() {
                         <div className="lg:col-span-2 p-6">
                             <div className="flex items-center justify-between mb-6">
                                 <h3 className="text-lg font-medium text-gray-900">My NFTs</h3>
-                                <Badge variant="secondary" className="bg-purple-100 text-purple-700">
-                                    {mockNFTs.length} NFTs
-                                </Badge>
+                                <div className="flex items-center gap-2">
+                                    <Badge variant="secondary" className="bg-purple-100 text-purple-700">
+                                        {nfts.length} NFTs
+                                    </Badge>
+                                    {nfts.length > 4 && (
+                                        <Button 
+                                            variant="ghost" 
+                                            size="sm"
+                                            onClick={() => setShowNFTsModal(true)}
+                                        >
+                                            View All
+                                        </Button>
+                                    )}
+                                </div>
                             </div>
                             
                             <div className="grid grid-cols-2 gap-4">
-                                {mockNFTs.map((nft) => (
+                                {nfts.slice(0, 4).map((nft) => (
                                     <div 
                                         key={nft.id}
                                         className="group relative aspect-square rounded-xl overflow-hidden border border-gray-200 hover:border-purple-400 transition-all duration-300"
                                     >
                                         <img 
-                                            src={nft.image} 
-                                            alt={nft.name}
+                                            src={nft.content.metadata.image} 
+                                            alt={nft.content.metadata.name}
                                             className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                                         />
                                         <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/0 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                                             <div className="absolute bottom-0 left-0 right-0 p-3">
                                                 <p className="text-white text-sm font-medium truncate">
-                                                    {nft.name}
+                                                    {nft.content.metadata.name}
                                                 </p>
                                                 <a 
-                                                    href={nft.url}
+                                                    href={nft.content.json_uri}
                                                     target="_blank"
                                                     rel="noopener noreferrer" 
                                                     className="text-xs text-purple-200 hover:text-purple-100 transition-colors flex items-center gap-1 mt-1"

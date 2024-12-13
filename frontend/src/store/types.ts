@@ -17,10 +17,24 @@ export interface AuthState {
     error: string | null;
 }
 
+export interface NFTAsset {
+  id: string;
+  owner: string;
+  content: {
+    json_uri: string;
+    metadata: {
+      name: string;
+      description: string;
+      image: string;
+    };
+  };
+}
+
 export interface UserDataState {
     balances: TokenInfo[];
     selectedToken?: TokenInfo;
     recentTransactions: Payment[];
+    nfts: NFTAsset[];
     isLoading: boolean;
     error: string | null;
     lastUpdated: number | null;

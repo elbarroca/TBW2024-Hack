@@ -1,11 +1,12 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import type { UserDataState } from './types';
+import type { UserDataState, NFTAsset } from './types';
 import { TokenInfo } from '@/types/api';
 
 const initialState: UserDataState = {
   balances: [],
   recentTransactions: [],
   selectedToken: undefined,
+  nfts: [],
   isLoading: false,
   error: null,
   lastUpdated: null,
@@ -37,6 +38,10 @@ const userDataSlice = createSlice({
       state.isLoading = false;
     },
     resetUserData: () => initialState,
+    setNFTs: (state, action: PayloadAction<NFTAsset[]>) => {
+      state.nfts = action.payload;
+      state.lastUpdated = Date.now();
+    },
   },
 });
 
@@ -46,6 +51,7 @@ export const {
   setUserDataLoading,
   setUserDataError,
   resetUserData,
+  setNFTs,
 } = userDataSlice.actions;
 
 export default userDataSlice.reducer;

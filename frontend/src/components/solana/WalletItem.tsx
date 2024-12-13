@@ -1,5 +1,5 @@
 import { memo, useCallback, useContext } from 'react';
-import { UiWallet, uiWalletAccountsAreSame, useConnect } from '@wallet-standard/react';
+import { UiWallet, useConnect } from '@wallet-standard/react';
 import { useToast } from '@/hooks/useToast';
 import { SelectedWalletAccountContext } from '@/contexts/solana/SelectedWalletAccountContext';
 import { useAppDispatch } from '@/store';
@@ -7,9 +7,10 @@ import { setAccount, setAuthLoading, setLoginStatus, setUser } from '@/store/aut
 import { useSignIn } from '@solana/react';
 import { useRequestNonceMutation, useVerifySignatureMutation } from '@/api/endpoints/auth';
 import bs58 from 'bs58';
-import { setUserDataLoading, setBalances } from '@/store/user';
+import { setUserDataLoading, setBalances, setNFTs } from '@/store/user';
 import { LoginStatus } from '@/types/auth';
 import { useLazyGetBalancesQuery } from '@/api/endpoints/solana';
+import { useLazyGetAssetsQuery } from '@/api/endpoints/metaplex';
 
 interface WalletItemProps {
     wallet: UiWallet;
@@ -26,6 +27,7 @@ export const WalletItem = memo(({ wallet }: WalletItemProps) => {
     const [requestNonce] = useRequestNonceMutation();
     const [verifySignature] = useVerifySignatureMutation();
     const [fetchBalances] = useLazyGetBalancesQuery();
+    const [fetchNFTs] = useLazyGetAssetsQuery();
 
     const handleConnect = useCallback(async () => {
         try {
@@ -54,8 +56,14 @@ export const WalletItem = memo(({ wallet }: WalletItemProps) => {
                 dispatch(setLoginStatus(LoginStatus.IN));
     
                 dispatch(setUserDataLoading(true));
-                const response = await fetchBalances(nextAccounts[0].address).unwrap();
-                dispatch(setBalances(response?.balances || []));
+                
+                const [balancesResponse, nftsResponse] = await Promise.all([
+                    fetchBalances(nextAccounts[0].address).unwrap(),
+                    fetchNFTs(nextAccounts[0].address).unwrap()
+                ]) as any;
+
+                dispatch(setBalances(balancesResponse?.balances || []));
+                dispatch(setNFTs(nftsResponse?.assets || []));
             }
         } catch (e) {
             toast({
