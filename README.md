@@ -27,7 +27,7 @@ We provide a **multi-content platform**, allowing publishers to share diverse ty
 ## 🌍 **Vision**
 
 Mentora is committed to:  
-- **Lowering platform fees** for creators and learners unlike traditional platforms like Cousera , Udemy , etc.  
+- **Lowering platform fees** for creators and learners, unlike traditional platforms like Coursera, Udemy, etc.  
 - Delivering **engaging, gamified education** experiences.  
 - Becoming the **ultimate platform to learn Web3**, with a focus on beginners, before scaling to broader audiences.
 
